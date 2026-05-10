@@ -1,5 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Manrope:wght@400;500&family=Space+Grotesk:wght@700&display=swap');
 @import "tailwindcss";
-
 @theme {
   /* Paleta "Volcanic Magma" */
   --color-pangea-primary: #FF4500;   /* Naranja Volcánico */
@@ -16,7 +16,7 @@
   --shadow-pangea-neon: 0 0 25px rgba(255, 69, 0, 0.3), 0 0 50px rgba(255, 140, 0, 0.1);
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Manrope:wght@400;500&family=Space+Grotesk:wght@700&display=swap');
+
 
 /* Animación sutil de escaneo (Scanline) tomada del archivo de Claude */
 .scanline::after {
