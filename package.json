@@ -3,10 +3,11 @@
   "type": "module",
   "version": "0.0.1",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "astro dev",
+    "start": "node ./dist/server/entry.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -42,4 +43,5 @@
     "tailwindcss": "^4.2.4",
     "three": "^0.184.0"
   }
+  
 }
