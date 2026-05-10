@@ -1,0 +1,284 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import PortableText from '../../components/PortableText.astro';
+import { sanityClient } from "sanity:client";
+import { ArrowLeft, Radio, Calendar, Monitor, Activity, Info, Timer } from 'lucide-react';
+// 🔥 Importamos componentes tácticos
+import SharedButton from '../../components/layout/SharedButton';
+import { AdSlot } from '../../components/layout/AdSlot';
+
+const ACCENT_COLOR = "#00F0FF";
+const HYPE_RED = "#FF0055"; 
+
+export async function getStaticPaths() {
+  const events = await sanityClient.fetch<any[]>(`*[_type == "radarEvent" && defined(slug.current)]{
+    "slug": slug.current
+  }`);
+  return events.map((e: any) => ({
+    params: { slug: e.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+
+const event = await sanityClient.fetch(`*[_type == "radarEvent" && slug.current == $slug][0]{
+  title,
+  "slug": slug.current,
+  eventDate,
+  category,
+  platform,
+  hypeLevel,
+  "heroImage": mainImage.asset->url,
+  description,
+  content
+}`, { slug });
+
+if (!event) {
+  return Astro.redirect('/radar');
+}
+
+const getHypeColor = (level: number) => {
+  if (level >= 90) return '#FF0055'; 
+  if (level >= 75) return '#00FF66'; 
+  return '#00F0FF'; 
+};
+
+const hypeColor = getHypeColor(event.hypeLevel || 0);
+
+const formatDate = (date: string) => new Date(date).toLocaleDateString('es-MX', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric'
+}).toUpperCase();
+
+const currentUrl = Astro.url.href;
+---
+
+<Layout title={`${event.title} | RADAR PanGGea`} description={event.description}>
+  <Header client:load />
+
+  <main class="bg-[#020202] min-h-screen relative font-sans text-white overflow-hidden">
+    
+    {/* ANIMACIÓN DE RADAR FONDO */}
+    <div class="absolute inset-0 pointer-events-none z-0">
+        <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] rounded-full border border-cyan-500/5"></div>
+        <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-[conic-gradient(from_0deg,transparent_0%,#00F0FF05_50%,transparent_100%)] animate-radar-spin"></div>
+    </div>
+
+    {/* 📸 HERO SECTION */}
+    <div class="relative w-full min-h-[75vh] flex items-end pb-20 border-b border-white/5">
+      <div class="absolute inset-0 z-0 bg-[#050505]">
+        {event.heroImage ? (
+          <img src={event.heroImage} alt={event.title} class="w-full h-full object-cover opacity-30 grayscale hover:grayscale-0 transition-all duration-1000" />
+        ) : (
+          <div class="absolute inset-0 bg-zinc-900/20"></div>
+        )}
+        <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/70 to-transparent"></div>
+      </div>
+
+      <div class="max-w-[1200px] mx-auto px-6 w-full relative z-10">
+        <div class="flex flex-wrap items-center gap-3 mb-8">
+          <span class="bg-[#00F0FF] text-black font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5">
+            {event.category || 'SIGNAL'}
+          </span>
+          <span class="border border-white/10 bg-black/50 backdrop-blur-sm text-white/70 font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2">
+            <Activity size={12} color={ACCENT_COLOR} />
+            LIVE_TRACKING
+          </span>
+        </div>
+
+        <h1 class="font-headline text-6xl md:text-8xl lg:text-[110px] font-black uppercase italic leading-[0.85] mb-12 tracking-tighter text-white drop-shadow-2xl break-words">
+          {event.title}
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-y-8 gap-x-12 border-t border-white/10 pt-10">
+          <div class="flex items-center gap-4 pr-12 border-r border-white/5">
+            <Timer size={24} color={HYPE_RED} className="animate-pulse" />
+            <div class="countdown-badge-detail" data-target-date={event.eventDate}>
+               <span class="block font-mono text-[10px] font-black tracking-[0.3em] uppercase mb-1" style={{ color: HYPE_RED }}>
+                 HYPE TIMER
+               </span>
+               <span class="block font-headline text-3xl sm:text-4xl font-black italic text-[#00F0FF] cd-text-detail tracking-tighter uppercase leading-none">
+                 SCANNING...
+               </span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 pr-12 border-r border-white/5">
+            <Calendar size={22} color={ACCENT_COLOR} className="opacity-50" />
+            <div>
+              <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-1">Estimated Drop</span>
+              <span class="block font-bold text-sm text-white uppercase">{formatDate(event.eventDate)}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <Monitor size={22} color={ACCENT_COLOR} className="opacity-50" />
+            <div>
+              <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-1">Platform_Target</span>
+              <span class="block font-bold text-sm text-white uppercase">{event.platform || 'GLOBAL'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* 📝 SECCIÓN DE CONTENIDO CON ESCOLTA DE ADS */}
+    <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12 w-full">
+      
+      {/* 🔥 AD IZQUIERDA (Sticky junto al texto) */}
+      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-cyan-900/20 bg-[#050505]">
+         <div class="w-full h-full relative group overflow-hidden">
+            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_L</span>
+            <div class="flex items-center justify-center h-full pt-6">
+               <AdSlot slot="1794581943" client:only="react" />
+            </div>
+            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#00F0FF] transition-all duration-700 shadow-[0_0_15px_#00F0FF]"></div>
+         </div>
+      </aside>
+
+      <div class="flex-1 max-w-[1200px] w-full">
+        <div class="mb-16">
+          <button onclick="window.history.back();" class="group flex items-center gap-4 text-white/30 transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max">
+            <div class="p-2.5 border border-white/5 bg-white/[0.02] transition-all group-hover:border-cyan-500/50 group-hover:bg-cyan-500/5 group-hover:shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+            </div>
+            <span>Abortar_Consulta // Volver</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
+          <div class="lg:col-span-8">
+            {event.description && (
+              <div class="text-xl lg:text-2xl font-headline italic text-white/80 leading-relaxed mb-12 border-l-4 pl-6 break-words" style={{ borderColor: ACCENT_COLOR }}>
+                {event.description}
+              </div>
+            )}
+
+            <div class="prose prose-invert prose-p:text-white/60 max-w-none break-words prose-li:marker:text-cyan-500 prose-a:text-cyan-400 mb-20">
+              {event.content ? <PortableText value={event.content} /> : <p class="font-mono text-xs opacity-40 italic">&gt;_ Sincronizando datos...</p>}
+            </div>
+          </div>
+
+          {/* SIDEBAR TÁCTICA */}
+          <aside class="lg:col-span-4 flex flex-col gap-8">
+            <div class="bg-[#050505] border border-white/5 p-8 shadow-2xl relative lg:sticky lg:top-32 overflow-hidden group hover:border-cyan-500/30 transition-colors">
+              <div class="flex items-center gap-3 mb-8">
+                <Radio size={16} color={ACCENT_COLOR} className="animate-pulse" />
+                <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Signal_Strength</span>
+              </div>
+
+              <div class="mb-10">
+                  <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest mb-3">
+                      <span class="text-white/30">Hype_Capacity</span>
+                      <span style={{ color: hypeColor }} class="font-bold">{event.hypeLevel}%</span>
+                  </div>
+                  <div class="h-2 bg-white/5 w-full overflow-hidden p-[1px] rounded-full">
+                      <div class="h-full transition-all duration-1000 shadow-[0_0_15px_currentColor]" 
+                           style={{ width: `${event.hypeLevel}%`, backgroundColor: hypeColor }}></div>
+                  </div>
+              </div>
+
+              <div class="space-y-6 pt-8 border-t border-white/10 mb-10">
+                <div class="border-b border-white/5 pb-4">
+                  <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Source_Category</span>
+                  <span class="block text-white font-bold text-sm tracking-wide">{event.category}</span>
+                </div>
+                <div class="flex justify-between items-center opacity-40 hover:opacity-100 transition-opacity">
+                  <div class="flex items-center gap-2">
+                     <Info size={14} color={ACCENT_COLOR} />
+                     <span class="font-mono text-[9px] uppercase tracking-widest text-white">Status_Check</span>
+                  </div>
+                  <span class="font-mono text-[8px] text-green-400">EN_RADAR</span>
+                </div>
+              </div>
+
+              {/* 🔥 SHARED BUTTON INTEGRADO EN EL SIDEBAR 🔥 */}
+              <div class="pt-8 border-t border-white/10">
+                 <SharedButton 
+                    client:load 
+                    title={event.title} 
+                    text={event.description} 
+                    url={currentUrl} 
+                 />
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        {/* 🔥 ADS HASTA ABAJO (Horizontal PC y Box Móvil) */}
+        <div class="mt-20 flex flex-col gap-10">
+           {/* Desktop Horizontal */}
+           <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden transition-all duration-500 hover:border-cyan-500/30">
+              <div class="absolute top-3 left-6 z-10">
+                <span class="font-mono text-[8px] text-white/20 uppercase tracking-[0.2em]">Sponsored_Radar_Node</span>
+              </div>
+              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-10">
+                 <AdSlot slot="4821639929" format="auto" client:only="react" />
+              </div>
+              <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#00F0FF] transition-all duration-700 shadow-[0_0_15px_#00F0FF]" />
+           </div>
+
+           {/* Mobile Box */}
+           <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
+              <div class="relative z-20 w-full h-full flex items-center justify-center p-4">
+                 <AdSlot slot="4819366386" format="auto" client:only="react" />
+              </div>
+           </div>
+        </div>
+
+      </div>
+
+      {/* 🔥 AD DERECHA (Sticky junto a la sidebar) */}
+      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-cyan-900/20 bg-[#050505]">
+         <div class="w-full h-full relative group overflow-hidden">
+            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_R</span>
+            <div class="flex items-center justify-center h-full pt-6">
+               <AdSlot slot="2057471674" client:only="react" />
+            </div>
+            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#00F0FF] transition-all duration-700 shadow-[0_0_15px_#00F0FF]"></div>
+         </div>
+      </aside>
+
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script define:vars={{ eventDate: event.eventDate }}>
+  function updateDetailCountdown() {
+    const textSpan = document.querySelector('.cd-text-detail');
+    const labelSpan = textSpan?.previousElementSibling;
+    if (!textSpan) return;
+
+    const now = new Date().getTime();
+    const target = new Date(eventDate).getTime();
+    const diff = target - now;
+
+    if (diff <= 0) {
+      textSpan.textContent = 'OBJECTIVE_LIVE';
+      textSpan.style.color = '#FF0055';
+      textSpan.style.textShadow = '0 0 15px #FF0055';
+      if (labelSpan) labelSpan.textContent = 'SYSTEM ALERT';
+    } else {
+      const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      textSpan.textContent = `${d}D ${h}H ${m}M`;
+      textSpan.style.color = '#00F0FF';
+    }
+  }
+  updateDetailCountdown();
+  setInterval(updateDetailCountdown, 60000); 
+</script>
+
+<style is:global>
+  @keyframes radar-spin {
+    from { transform: translate(-50%, 0) rotate(0deg); }
+    to { transform: translate(-50%, 0) rotate(360deg); }
+  }
+  .animate-radar-spin {
+    animation: radar-spin 12s linear infinite;
+  }
+</style>

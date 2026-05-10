@@ -1,0 +1,222 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import { sanityClient } from "sanity:client";
+import { Clock, ArrowRight, Terminal, ArrowLeft } from 'lucide-react';
+
+// 1. LA CONSULTA MAESTRA A SANITY CON LA REFERENCIA AL JUEGO
+const allPatches = await sanityClient.fetch(`*[_type == "patchNote"] | order(publishedAt desc) {
+  title,
+  "slug": slug.current,
+  "gameName": game->name, // <--- AQUÍ ESTÁ EL CAMBIO CLAVE
+  version,
+  patchType,
+  description,
+  publishedAt,
+  lastUpdateAt,
+  tickerHighlights,
+  "heroImage": mainImage.asset->url
+}`);
+
+// 2. EXTRAER TODOS LOS HIGHLIGHTS PARA EL TICKER DINÁMICO
+const tickerItems = allPatches.flatMap((patch: any) => patch.tickerHighlights || []).filter(Boolean);
+const displayTicker = tickerItems.length > 0 ? tickerItems : ["SISTEMA OPTIMIZADO", "ESCANEO DE PARCHES COMPLETO"];
+
+// Helper para formatear fechas estilo táctico (ej. 05 MAY 2026)
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const d = new Date(dateString);
+  const day = d.getDate().toString().padStart(2, '0');
+  const month = d.toLocaleString('es-MX', { month: 'short' }).toUpperCase();
+  const year = d.getFullYear();
+  return `${day} ${month} ${year}`;
+};
+
+// --- ADN DE DISEÑO: PURPLE REIGN ---
+const ACCENT_COLOR = "#A855F7"; 
+const pageTitle = "PATCH LOG | PANGGEA DATABASE";
+const pageDescription = "Registro oficial de actualizaciones y despliegue de parches.";
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <Header client:load />
+
+  <main class="bg-[#020202] min-h-screen pt-44 pb-32 relative overflow-hidden">
+    
+    <div class="absolute inset-0 pointer-events-none" 
+         style={`background: radial-gradient(circle at 50% 0%, ${ACCENT_COLOR}10 0%, transparent 70%)`}>
+    </div>
+
+    <div class="max-w-[1700px] mx-auto px-6 flex justify-center gap-10 relative z-10">
+      
+      {/* PUBLICIDAD IZQUIERDA */}
+      <aside class="hidden xl:flex w-[160px] sticky top-40 h-[600px] bg-white/[0.01] border border-white/5 items-center justify-center opacity-30">
+        <span class="font-mono text-[9px] text-white/10 uppercase [writing-mode:vertical-lr] tracking-[1em]">PANGGEA_PARTNERS</span>
+      </aside>
+
+      <div class="flex-1 max-w-[1150px]">
+
+        {/* ─── BOTÓN DE REGRESO ─── */}
+        <button 
+          onclick="window.history.back()" 
+          class="group flex items-center gap-4 mb-14 text-white/20 hover:text-[#A855F7] transition-all duration-500 font-mono text-[10px] tracking-[0.4em] uppercase"
+        >
+          <div class="p-2.5 border border-white/5 bg-white/[0.02] relative overflow-hidden transition-all duration-500 group-hover:border-[#A855F7]/40 group-hover:bg-[#A855F7]/5 group-hover:shadow-[0_0_20px_rgba(168,85,247,0.1)]">
+            <div class="relative z-10 transition-transform duration-500 group-hover:-translate-x-1">
+              <ArrowLeft size={16} />
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-shimmer" />
+          </div>
+          <span class="transition-transform duration-500 group-hover:translate-x-1">
+            Cerrar Panel / Volver
+          </span>
+        </button>
+        
+        {/* ─── HEADER: PATCH LOG ─── */}
+        <header class="mb-12">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="h-[2px] w-8" style={{ backgroundColor: ACCENT_COLOR }}></div>
+            <span class="font-mono text-[10px] tracking-[0.5em] text-white/40 uppercase italic">PANGGEA_MONITOREO</span>
+          </div>
+
+          <h1 class="font-headline text-white text-6xl md:text-8xl lg:text-[115px] font-[950] tracking-tighter leading-[0.8] uppercase italic drop-shadow-2xl">
+            PATCH 
+            <span class="text-transparent block sm:inline" style={{ WebkitTextStroke: `2px ${ACCENT_COLOR}` }}>
+              LOG
+            </span>
+          </h1>
+
+          {/* TICKER MARQUEE DINÁMICO DESDE SANITY */}
+          <div class="mt-12 w-full overflow-hidden border-y border-white/5 py-3 bg-white/[0.01] relative">
+            <div class="flex whitespace-nowrap gap-12 animate-marquee">
+              {[1,2,3,4].map(() => (
+                <div class="flex gap-12 items-center">
+                  {displayTicker.map((text: string) => (
+                    <div class="flex items-center gap-12">
+                      <span class="font-mono text-[10px] text-[#A855F7] uppercase tracking-[0.3em]">{text}</span>
+                      <span class="font-mono text-[10px] text-white/20 uppercase tracking-[0.3em]">•</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </header>
+
+        {/* ─── FILTROS TÁCTICOS ─── */}
+        <div class="flex flex-wrap gap-4 mb-16">
+          {['TODOS', 'BALANCE', 'BUFF', 'NERF', 'HOTFIX'].map((filter, idx) => (
+            <button class={`px-8 py-3 border font-headline text-[10px] font-black italic tracking-[0.2em] uppercase transition-all
+              ${idx === 0 
+                ? `bg-[#A855F7] border-[#A855F7] text-black shadow-[0_0_20px_rgba(168,85,247,0.3)]` 
+                : 'bg-transparent border-white/10 text-white/40 hover:border-white/30 hover:text-white'}`}>
+              {filter}
+            </button>
+          ))}
+        </div>
+
+        {/* ─── GRID DE PARCHES (CON DATOS REALES) ─── */}
+        <div class="grid grid-cols-1 md:grid-cols-6 auto-rows-[300px] md:auto-rows-[350px] gap-6">
+          {allPatches.map((patch: any, i: number) => {
+            const isBig = i === 0;
+            return (
+              <a href={`/patchLog/${patch.slug}`} 
+                 class={`group relative bg-[#050505] border border-white/5 overflow-hidden transition-all duration-500 hover:border-[#A855F7]/40 flex flex-col
+                 ${isBig ? "md:col-span-4 md:row-span-2" : "md:col-span-2 md:row-span-1"}`}>
+                
+                {/* Fondo e Imagen (Solo si es Big y tiene imagen) */}
+                {isBig && patch.heroImage ? (
+                  <div class="absolute inset-0 opacity-40 group-hover:opacity-70 transition-opacity duration-700 z-0">
+                    <img src={patch.heroImage} alt={patch.title} class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-[#A855F7]/10" />
+                  </div>
+                ) : (
+                  isBig && <div class="absolute inset-0 bg-gradient-to-br from-[#A855F7]/10 to-transparent z-0"></div>
+                )}
+
+                <div class="relative z-10 h-full p-10 flex flex-col justify-between">
+                  
+                  {/* METADATOS SUPERIORES */}
+                  <div class="flex justify-between items-start">
+                    
+                    {/* Badge y Juego */}
+                    <div class="flex flex-col gap-3">
+                      <div class="px-3 py-1 bg-[#A855F7]/10 border border-[#A855F7]/30 inline-block w-max shadow-[0_0_10px_rgba(168,85,247,0.1)]">
+                        <span class="text-[#A855F7] font-mono text-[9px] font-bold tracking-widest uppercase">{patch.patchType || 'LOG'}</span>
+                      </div>
+                      <span class="text-white/40 font-mono text-[9px] uppercase tracking-widest">{patch.gameName || 'SISTEMA'} // {patch.version || 'V.1.0'}</span>
+                    </div>
+
+                    {/* Fechas */}
+                    <div class="flex flex-col items-end gap-1.5 text-right">
+                      <div class="flex items-center gap-2 text-white/20 font-mono text-[9px] uppercase tracking-widest group-hover:text-white/50 transition-colors">
+                        <Clock size={10} className="text-[#A855F7]" />
+                        <span>{formatDate(patch.publishedAt)}</span>
+                      </div>
+                      {patch.lastUpdateAt && (
+                        <span class="text-white/10 font-mono text-[8px] uppercase tracking-widest">
+                          Last: {formatDate(patch.lastUpdateAt)}
+                        </span>
+                      )}
+                    </div>
+
+                  </div>
+
+                  {/* TÍTULO Y DESCRIPCIÓN */}
+                  <div class="flex flex-col gap-4 mt-8">
+                    <h2 class={`font-headline font-[950] text-white uppercase italic tracking-tighter leading-[0.9] group-hover:text-[#A855F7] transition-colors
+                      ${isBig ? "text-5xl md:text-7xl" : "text-2xl md:text-4xl"}`}>
+                      {patch.title}
+                    </h2>
+                    <p class="text-white/40 text-sm italic line-clamp-2 leading-relaxed max-w-md">
+                      {patch.description}
+                    </p>
+                  </div>
+
+                  {/* BOTÓN INFERIOR */}
+                  <div class="flex items-center justify-between border-t border-white/5 pt-6 mt-6 group/btn">
+                    <div class="flex items-center gap-2 text-[10px] font-mono font-bold text-white/20 uppercase tracking-widest group-hover/btn:text-[#A855F7] transition-colors">
+                      <Terminal size={12} className="text-[#A855F7]" /> Consultar cambios
+                    </div>
+                    <ArrowRight size={18} className="text-[#A855F7] -translate-x-4 opacity-0 group-hover/btn:translate-x-0 group-hover/btn:opacity-100 transition-all duration-500" />
+                  </div>
+                </div>
+
+                {/* Scanline decorativo */}
+                <div class="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]"></div>
+              </a>
+            );
+          })}
+        </div>
+
+      </div>
+
+      <aside class="hidden xl:flex w-[160px] sticky top-40 h-[600px] bg-white/[0.01] border border-white/5 items-center justify-center opacity-30">
+        <span class="font-mono text-[9px] text-white/10 uppercase [writing-mode:vertical-lr] tracking-[1em]">PanGGea</span>
+      </aside>
+
+    </div>
+  </main>
+
+  
+</Layout>
+
+<style>
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 30s linear infinite;
+  }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  .animate-shimmer {
+    animation: shimmer 1.5s infinite;
+  }
+</style>

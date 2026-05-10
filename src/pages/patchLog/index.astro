@@ -1,0 +1,157 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import PatchLogGrid from '../../components/home/PatchLogGrid'; 
+import { sanityClient } from "sanity:client";
+import { ArrowLeft, Activity } from 'lucide-react';
+// 🔥 Importamos el componente de anuncios
+import { AdSlot } from '../../components/layout/AdSlot';
+
+const rawPatches = await sanityClient.fetch(`*[_type == "patchNote"] | order(publishedAt desc) {
+  title,
+  "slug": slug.current,
+  "game": game->name,
+  version,
+  patchType,
+  description,
+  "image": mainImage.asset->url,
+  publishedAt,
+  lastUpdateAt,
+  tickerHighlights
+}`);
+
+// --- ADN DE LA SECCIÓN: MORADO CYBERPUNK ---
+const ACCENT_COLOR = "#b829ff"; 
+---
+
+<Layout title="PATCH LOGS | BITXOLO">
+  <Header client:load />
+
+  <main class="bg-[#020202] min-h-screen pt-44 pb-20 relative overflow-hidden font-sans">
+    
+    {/* Glow de fondo camaleón (Morado) */}
+    <div class="absolute inset-0 pointer-events-none" 
+         style={`background: radial-gradient(circle at 50% 0%, ${ACCENT_COLOR}15 0%, transparent 70%)`}>
+    </div>
+
+    <div class="max-w-[1750px] mx-auto px-6 flex justify-center items-start gap-10 relative z-10">
+      
+      {/* 🔥 ADS IZQUIERDA (x2) - Blindado contra errores de Google */}
+      <aside class="hidden 2xl:flex w-[160px] sticky top-40 flex-col gap-6 h-fit shrink-0">
+        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50 hover:shadow-[0_10px_30px_-10px_rgba(184,41,255,0.3)]">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+          <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
+            <span class="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#b829ff] block w-full">SPONSORED</span>
+          </div>
+          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
+            <AdSlot slot="1794581943" client:only="react" />
+          </div>
+          <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#b829ff] transition-all duration-700 z-10 shadow-[0_0_15px_#b829ff]" />
+        </div>
+        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
+            <AdSlot slot="1794581943" client:only="react" />
+          </div>
+        </div>
+      </aside>
+
+      <div class="flex-1 max-w-[1200px]">
+
+        {/* ─── BOTÓN DE REGRESO ─── */}
+        <button 
+          type="button"
+          onclick="window.history.back();" 
+          class="group flex items-center gap-4 mb-14 text-white/30 transition-colors font-mono text-[10px] tracking-[0.3em] uppercase cursor-pointer w-max"
+        >
+          <div class="p-2 border border-white/5 bg-white/[0.02] transition-all group-hover:border-[#b829ff]/60 group-hover:shadow-[0_0_15px_rgba(184,41,255,0.3)]">
+            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          </div>
+          <span class="group-hover:text-[#b829ff] transition-colors">Volver Atrás</span>
+        </button>
+
+        {/* ─── HEADER TERMINAL ─── */}
+        <header class="mb-12 border-b border-white/10 pb-10">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div>
+              <div class="flex items-center gap-3 mb-6 bg-white/[0.02] border border-white/5 px-4 py-2 w-max">
+                <div class="w-2 h-2 rounded-full animate-pulse" style={`background-color: ${ACCENT_COLOR}; box-shadow: 0 0 10px ${ACCENT_COLOR};`}></div>
+                <span class="font-mono text-[9px] tracking-[0.4em] uppercase text-white/60">
+                  STATUS: <span style={`color: ${ACCENT_COLOR}`}>MONITORING</span> // V.2.6
+                </span>
+              </div>
+              
+              <h2 class="font-headline text-white text-5xl sm:text-7xl md:text-8xl lg:text-[110px] font-[950] tracking-tighter leading-[0.8] uppercase italic drop-shadow-2xl">
+                SYSTEM <br/>
+                <span class="text-transparent" style={`-webkit-text-stroke: 2px ${ACCENT_COLOR};`}>UPDATE</span>
+              </h2>
+            </div>
+
+            <div class="font-mono text-[10px] text-white/40 uppercase tracking-widest flex flex-col gap-3 text-left md:text-right border-l md:border-l-0 md:border-r border-white/10 pl-4 md:pl-0 md:pr-4">
+              <div class="flex items-center md:justify-end gap-2">
+                <Activity size={12} color={ACCENT_COLOR} />
+                <span>Registro de Meta Activo</span>
+              </div>
+              <span>Entradas de Sistema: {rawPatches.length}</span>
+              <span style={`color: ${ACCENT_COLOR}`}>SINC_TERMINAL_OK</span>
+            </div>
+          </div>
+        </header>
+
+        {/* ─── GRID DE PARCHES (REACT) ─── */}
+        <PatchLogGrid client:load patches={rawPatches} accentColor={ACCENT_COLOR} />
+
+        {/* 🔥 ADS HASTA ABAJO (Montados seguros) */}
+        <div class="mt-16 flex flex-col gap-8">
+           {/* Desktop Bottom Ad */}
+           <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50 hover:shadow-[0_10px_30px_-10px_rgba(184,41,255,0.3)]">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+              <div class="absolute top-4 left-6 z-10">
+                <span class="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#b829ff]">SPONSORED_NODE</span>
+              </div>
+              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
+                 <AdSlot slot="4821639929" format="auto" client:only="react" />
+              </div>
+              <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#b829ff] transition-all duration-700 z-10 shadow-[0_0_15px_#b829ff]" />
+           </div>
+
+           {/* Mobile Bottom Ad */}
+           <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+              <div class="absolute top-4 left-4 z-10">
+                <span class="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#b829ff]">SPONSORED_NODE</span>
+              </div>
+              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
+                 <AdSlot slot="4819366386" format="auto" client:only="react" />
+              </div>
+           </div>
+        </div>
+
+      </div>
+
+      {/* 🔥 ADS DERECHA (x2) */}
+      <aside class="hidden 2xl:flex w-[160px] sticky top-40 flex-col gap-6 h-fit shrink-0">
+        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50 hover:shadow-[0_10px_30px_-10px_rgba(184,41,255,0.3)]">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+          <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
+            <span class="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#b829ff] block w-full">SPONSORED</span>
+          </div>
+          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
+            <AdSlot slot="2057471674" client:only="react" />
+          </div>
+          <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#b829ff] transition-all duration-700 z-10 shadow-[0_0_15px_#b829ff]" />
+        </div>
+        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
+            <AdSlot slot="2057471674" client:only="react" />
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  
+</Layout>

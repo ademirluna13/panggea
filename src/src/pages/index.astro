@@ -1,0 +1,82 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/layout/Header';
+import SpaceHeroScene from '../components/home/SpaceHeroScene';
+import Hero from '../components/home/Hero';
+import TrendingNow from '../components/home/TrendingNow';
+import DeepDives from '../components/home/DeepDives';
+import Footer from '../components/layout/Footer';
+import { sanityClient } from "sanity:client";
+import Community from '../components/home/Community';
+import Radar from '../components/home/Radar';
+import { TacticalArsenal } from '../components/home/TacticalArsenal';
+import { StatusFeed } from '../components/home/StatusFeed';
+import RankingSystem from '../components/home/RankingSystem';
+import GearVault from '../components/home/GearVault';
+
+const title = "PANGEA DIGITAL PREMIERE | BITXOLO";
+const description = "Consultoría de software de alto rendimiento y portal de análisis técnico.";
+
+// 1. FETCH DE TRENDING: Filtramos para que NO salgan los Deep Dives aquí
+const trendingPosts = await sanityClient.fetch(`*[_type == "post" && !(isDeepDive == true)] | order(publishedAt desc) [0...7] {
+  title,
+  "slug": slug.current,
+  "heroImage": mainImage.asset->url,
+  publishedAt,
+  description,
+  platform,
+  "category": coalesce(categories[0]->title, "EDITORIAL")
+}`);
+
+// 2. DEEP DIVES: Solo los que sí tienen el switch
+const deepDives = await sanityClient.fetch(`*[_type == "post" && isDeepDive == true] | order(publishedAt desc) [0...4] {
+  title,
+  "slug": slug.current,
+  "heroImage": mainImage.asset->url,
+  "manualBg": sectionBg.asset->url,
+  description,
+  readTime,
+  isLegendary,
+  platform,
+  "category": coalesce(categories[0]->title, "LORE")
+}`);
+---
+
+<Layout title={title} description={description}>
+  {/* Barra de navegación */}
+  <Header client:load />
+  
+  <main class="bg-black min-h-screen">
+    {/* 1. EL HOOK VISUAL */}
+    <SpaceHeroScene client:load />
+    <Hero client:load />
+
+    {/* 2. LA ACTUALIDAD (Lo que está pasando ahorita) */}
+    <TrendingNow client:load posts={trendingPosts} />
+
+    {/* 3. UPDATES RÁPIDOS (Parches y nerfs) */}
+    <StatusFeed client:load />
+
+    {/* 4. LECTURA PESADA (Fidelización del usuario) */}
+    <DeepDives client:load posts={deepDives} />
+
+    {/* 5. EL META (Qué usar en los juegos) */}
+    <TacticalArsenal client:load />
+
+    {/* 6. LO GLOBAL (Quién domina el mundo digital) */}
+    <RankingSystem client:load />
+
+    {/* 7. EL FUTURO (Qué viene en los próximos meses) */}
+    <Radar client:load />
+
+    {/* 8. EL HARDWARE (Monetización y estatus Premium) */}
+    <GearVault client:load />
+
+    {/* 9. LA TRIBU (Retención) */}
+    <Community client:load />
+
+  </main>
+
+  {/* 10. CIERRE DE AGENCIA */}
+  <Footer />
+</Layout>

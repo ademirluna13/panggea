@@ -1,0 +1,264 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { sanityClient } from "sanity:client";
+import { ArrowLeft, Target } from 'lucide-react';
+// 🔥 Importamos el componente de anuncios
+import { AdSlot } from '../../components/layout/AdSlot';
+
+const tierEntries = await sanityClient.fetch(`*[_type == "tierEntry"] | order(rankScore desc) {
+  title,
+  "slug": slug.current,
+  description,
+  rank,
+  rankScore,
+  "gameName": game->name,
+  "gameLogo": game->logo.asset->url,
+  "heroImage": mainImage.asset->url,
+  publishedAt, 
+  longDescription
+}`);
+
+const uniqueGamesMap = new Map();
+tierEntries.forEach((entry: any) => {
+  const gName = entry.gameName?.toUpperCase() || 'UNKNOWN';
+  if (!uniqueGamesMap.has(gName)) {
+    uniqueGamesMap.set(gName, entry.gameLogo || null);
+  }
+});
+const filters = [
+  { name: 'ALL', logo: null },
+  ...Array.from(uniqueGamesMap.entries()).map(([name, logo]) => ({ name, logo }))
+];
+
+const ACCENT_COLOR = "#00FF66"; 
+const pageTitle = "TIER ARSENAL | PanGGea DATABASE";
+const pageDescription = "Clasificación de élite y análisis del meta actual en el despliegue de combate.";
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  
+  <main class="bg-[#020202] min-h-screen pt-44 pb-32 relative overflow-hidden font-sans">
+    
+    {/* Glow Verde Táctico */}
+    <div class="absolute inset-0 pointer-events-none" 
+         style={{ background: `radial-gradient(circle at 50% 0%, ${ACCENT_COLOR}10 0%, transparent 70%)` }}>
+    </div>
+
+    <div class="max-w-[1750px] mx-auto px-6 flex justify-center items-start gap-10 relative z-10">
+      
+      {/* 🔥 ADS IZQUIERDA (x2) - Blindado contra errores de Google */}
+      <aside class="hidden 2xl:flex w-[160px] sticky top-40 flex-col gap-6 h-fit shrink-0">
+        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#00FF66]/50 hover:shadow-[0_10px_30px_-10px_rgba(0,255,102,0.3)]">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+          <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
+            <span class="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#00FF66] block w-full">SPONSORED</span>
+          </div>
+          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
+            <AdSlot slot="1794581943" client:only="react" />
+          </div>
+          <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#00FF66] transition-all duration-700 z-10 shadow-[0_0_15px_#00FF66]" />
+        </div>
+        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#00FF66]/50">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
+            <AdSlot slot="1794581943" client:only="react" />
+          </div>
+        </div>
+      </aside>
+
+      <div class="flex-1 max-w-[1200px]">
+
+        {/* BOTÓN DE REGRESO */}
+        <button 
+          onclick="window.history.back()" 
+          class="group flex items-center gap-4 mb-14 transition-all duration-500 font-mono text-[10px] tracking-[0.4em] uppercase"
+        >
+          <div class="p-2.5 border border-white/10 bg-white/[0.02] transition-all group-hover:border-[#00FF66]/60 group-hover:shadow-[0_0_15px_rgba(0,255,102,0.3)]">
+            <ArrowLeft size={16} className="text-white/20 group-hover:text-[#00FF66]" />
+          </div>
+          <span class="text-white/20 transition-all group-hover:text-[#00FF66]">Back to Command // Volver</span>
+        </button>
+        
+        {/* HEADER */}
+        <header class="mb-12">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="h-[2px] w-8" style={{ backgroundColor: ACCENT_COLOR }}></div>
+            <span class="font-mono text-[10px] tracking-[0.5em] text-white/40 uppercase italic">Meta_Stream // Tier_Access_Granted</span>
+          </div>
+
+          <h1 class="font-headline text-white text-6xl md:text-8xl lg:text-[115px] font-[950] tracking-tighter leading-[0.8] uppercase italic drop-shadow-2xl">
+            TIER 
+            <span class="text-transparent block sm:inline" style={{ WebkitTextStroke: `2px ${ACCENT_COLOR}` }}> ARSENAL</span>
+          </h1>
+
+          <div class="mt-12 w-full overflow-hidden border-y border-white/5 py-3 bg-white/[0.01] relative">
+            <div class="flex whitespace-nowrap gap-20 animate-marquee">
+              {[1,2,3].map(() => (
+                <div class="flex gap-20 items-center">
+                  {tierEntries.slice(0, 4).map((e: any) => (
+                     <span class="font-mono text-[10px] text-[#00FF66] uppercase tracking-[0.3em]">ANALYSIS: {e.title} [{e.rank}]</span>
+                  ))}
+                  <span class="font-mono text-[10px] text-white/40 uppercase tracking-[0.3em]">DATABASE_2026</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </header>
+
+        {/* FILTROS */}
+        <div class="flex items-center gap-6 sm:gap-10 mb-16 overflow-x-auto no-scrollbar py-4" id="filters-container">
+          {filters.map((filter) => {
+            const isAll = filter.name === 'ALL';
+            return (
+              <button data-filter={filter.name} class={`filter-btn group flex flex-col items-center gap-4 min-w-[80px] sm:min-w-[90px] transition-all ${isAll ? 'active' : ''}`}>
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 flex items-center justify-center transition-all duration-500 relative overflow-hidden border-white/10 bg-[#050505] group-[.active]:border-[#00FF66] group-[.active]:shadow-[0_0_20px_rgba(0,255,102,0.4)] hover:border-white/30 hover:scale-105">
+                  {filter.logo ? (
+                    <img src={filter.logo} alt={filter.name} class="w-full h-full object-cover transition-all duration-500 opacity-30 grayscale group-[.active]:opacity-100 group-[.active]:grayscale-0 group-hover:grayscale-0 group-hover:opacity-100" />
+                  ) : (
+                    <Target size={24} className="text-white/20 group-[.active]:text-[#00FF66]" />
+                  )}
+                </div>
+                <span class="font-mono text-[9px] font-bold tracking-widest uppercase text-white/20 group-[.active]:text-[#00FF66] group-hover:text-white">{filter.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ─── BENTO GRID ─── */}
+        <div class="grid grid-cols-1 md:grid-cols-6 auto-rows-[280px] gap-6" id="tier-grid">
+          {tierEntries.map((entry: any, i: number) => {
+            const isBig = i === 0;
+            return (
+              <a 
+                href={`/tier/${entry.slug}`} 
+                data-game={(entry.gameName || 'UNKNOWN').toUpperCase()}
+                class={`tier-card group relative bg-[#050505] border border-white/5 overflow-hidden transition-all duration-500 hover:border-[#00FF66]/40 flex flex-col shadow-2xl ${isBig ? "md:col-span-4 md:row-span-2" : "md:col-span-2 md:row-span-1"}`}
+              >
+                {/* 🔥 IMAGEN RESPONSIVA: Color en móvil, Gris en PC 🔥 */}
+                {entry.heroImage && (
+                  <div class="absolute inset-0 z-0">
+                    <img src={entry.heroImage} alt={entry.title} class="w-full h-full object-cover grayscale-0 opacity-80 lg:grayscale lg:opacity-20 lg:group-hover:grayscale-0 lg:group-hover:opacity-60 transition-all duration-1000" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/50 to-transparent"></div>
+                  </div>
+                )}
+
+                <div class="relative z-10 h-full p-8 flex flex-col justify-between">
+                  <div class="flex justify-between items-start">
+                    <div class="flex flex-col gap-1">
+                      <span class="text-[#00FF66] font-mono text-[10px] font-bold tracking-widest uppercase">{entry.gameName}</span>
+                      <span class="text-white/20 font-mono text-[8px] uppercase tracking-widest">Score // {entry.rankScore}%</span>
+                    </div>
+                    <div class="px-4 py-2 border-2 border-[#00FF66] bg-[#00FF66]/10 backdrop-blur-sm shadow-[0_0_15px_rgba(0,255,102,0.2)]">
+                      <span class="font-headline text-[#00FF66] text-2xl font-black italic">{entry.rank || 'S'}</span>
+                    </div>
+                  </div>
+
+                  <div class="flex flex-col gap-3">
+                    <h2 class={`font-headline font-[950] text-white uppercase italic tracking-tighter leading-[0.9] lg:group-hover:text-[#00FF66] transition-colors ${isBig ? "text-5xl md:text-7xl" : "text-3xl md:text-4xl"}`}>
+                      {entry.title}
+                    </h2>
+                    
+                    {/* 🔥 DESCRIPCIÓN RESPONSIVA TAILWIND 🔥 */}
+                    <div class="grid transition-all duration-500 ease-in-out grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr]">
+                      <div class="overflow-hidden opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-500">
+                        <p class="text-white/70 text-xs italic line-clamp-2 leading-relaxed max-w-sm pt-2">
+                          {entry.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(0,255,102,0.06),rgba(0,255,102,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] z-20"></div>
+              </a>
+            );
+          })}
+        </div>
+
+        {/* 🔥 ADS HASTA ABAJO */}
+        <div class="mt-16 flex flex-col gap-8">
+           <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden transition-all duration-500 hover:border-[#00FF66]/50 hover:shadow-[0_10px_30px_-10px_rgba(0,255,102,0.3)]">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+              <div class="absolute top-4 left-6 z-10">
+                <span class="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#00FF66]">SPONSORED_NODE</span>
+              </div>
+              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
+                 <AdSlot slot="4821639929" format="auto" client:only="react" />
+              </div>
+              <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#00FF66] transition-all duration-700 z-10 shadow-[0_0_15px_#00FF66]" />
+           </div>
+
+           <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+              <div class="absolute top-4 left-4 z-10">
+                <span class="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#00FF66]">SPONSORED_NODE</span>
+              </div>
+              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
+                 <AdSlot slot="4819366386" format="auto" client:only="react" />
+              </div>
+           </div>
+        </div>
+
+      </div>
+
+      {/* 🔥 ADS DERECHA (x2) */}
+      <aside class="hidden 2xl:flex w-[160px] sticky top-40 flex-col gap-6 h-fit shrink-0">
+        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#00FF66]/50 hover:shadow-[0_10px_30px_-10px_rgba(0,255,102,0.3)]">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+          <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
+            <span class="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#00FF66] block w-full">SPONSORED</span>
+          </div>
+          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
+            <AdSlot slot="2057471674" client:only="react" />
+          </div>
+          <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#00FF66] transition-all duration-700 z-10 shadow-[0_0_15px_#00FF66]" />
+        </div>
+        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#00FF66]/50">
+          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
+          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
+            <AdSlot slot="2057471674" client:only="react" />
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+</Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const buttons = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.tier-card');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const filterValue = btn.getAttribute('data-filter');
+
+        cards.forEach(card => {
+          const cardGame = card.getAttribute('data-game');
+          if (filterValue === 'ALL' || cardGame === filterValue) {
+            (card as HTMLElement).style.display = 'flex'; 
+          } else {
+            (card as HTMLElement).style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>
+
+<style is:global>
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 35s linear infinite;
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>

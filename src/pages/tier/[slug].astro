@@ -1,0 +1,247 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import { sanityClient } from "sanity:client";
+import { ArrowLeft, Target, Zap, ShieldAlert, BarChart3, Calendar } from 'lucide-react';
+// 🔥 Importamos componentes tácticos
+import SharedButton from '../../components/layout/SharedButton';
+import { AdSlot } from '../../components/layout/AdSlot';
+
+const ACCENT_COLOR = "#00FF66";
+
+export async function getStaticPaths() {
+  const entries = await sanityClient.fetch<any[]>(`*[_type == "tierEntry" && defined(slug.current)]{
+    "slug": slug.current
+  }`);
+  return entries.map((e: any) => ({
+    params: { slug: e.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+
+const entry = await sanityClient.fetch(`*[_type == "tierEntry" && slug.current == $slug][0]{
+  title,
+  "slug": slug.current,
+  "gameName": game->name,
+  "gameLogo": game->logo.asset->url,
+  rank,
+  rankScore,
+  description,
+  "image": mainImage.asset->url,
+  publishedAt, 
+  longDescription
+}`, { slug });
+
+if (!entry) {
+  return Astro.redirect('/tier');
+}
+
+const formatDate = (date: string) => new Date(date).toLocaleDateString('es-MX', {
+  day: '2-digit',
+  month: 'short',
+  year: 'numeric'
+}).toUpperCase();
+
+const currentUrl = Astro.url.href;
+---
+
+<Layout title={`${entry.title} | TIER ${entry.rank} | PanGGea`} description={entry.description}>
+  <Header client:load />
+
+  <main class="bg-[#020202] min-h-screen relative font-sans text-white overflow-hidden">
+    
+    <div class="absolute inset-0 pointer-events-none" 
+         style={{ background: `radial-gradient(circle at 50% 0%, ${ACCENT_COLOR}08 0%, transparent 70%)` }}>
+    </div>
+
+    {/* 📸 HERO SECTION TÁCTICO */}
+    <div class="relative w-full h-[65vh] min-h-[550px] flex items-end pb-16 border-b border-white/5">
+      <div class="absolute inset-0 z-0 bg-[#050505] overflow-hidden">
+        {entry.image ? (
+          <img src={entry.image} alt={entry.title} class="w-full h-full object-cover opacity-30 grayscale hover:grayscale-0 transition-all duration-1000" />
+        ) : (
+          <div class="absolute inset-0 bg-zinc-900/20"></div>
+        )}
+        <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent"></div>
+        <div class="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(0,255,102,0.03),rgba(0,255,102,0.01),rgba(0,255,102,0.03))] bg-[length:100%_2px,3px_100%] pointer-events-none opacity-30"></div>
+      </div>
+
+      <div class="max-w-[1200px] mx-auto px-6 w-full relative z-10">
+        <div class="absolute -top-24 right-6 hidden lg:flex flex-col items-center">
+            <span class="font-mono text-[10px] text-[#00FF66] tracking-[0.5em] uppercase mb-4">Rank_Class</span>
+            <div class="w-32 h-32 border-4 border-[#00FF66] bg-[#00FF66]/10 backdrop-blur-xl flex items-center justify-center shadow-[0_0_50px_rgba(0,255,102,0.2)] rotate-3">
+                <span class="font-headline text-white text-7xl font-black italic drop-shadow-[0_0_15px_#00FF66]">{entry.rank}</span>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+          <div class="flex items-center gap-2 bg-[#00FF66] text-black font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 shadow-[0_0_15px_rgba(0,255,102,0.4)]">
+            <Target size={12} />
+            <span>ARSENAL_DATA</span>
+          </div>
+          <span class="border border-white/10 bg-black/50 backdrop-blur-sm text-white/70 font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2">
+            {entry.gameLogo && <img src={entry.gameLogo} alt={entry.gameName} class="h-3 w-auto invert opacity-70" />}
+            {entry.gameName}
+          </span>
+        </div>
+
+        <h1 class="font-headline text-6xl md:text-8xl lg:text-[110px] font-black uppercase italic leading-[0.85] mb-8 tracking-tighter text-white drop-shadow-2xl break-words break-all">
+          {entry.title}
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-8 border-t border-white/10 pt-8 max-w-2xl">
+          <div class="flex items-center gap-3">
+            <Zap size={18} color={ACCENT_COLOR} />
+            <div>
+              <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Combat Power</span>
+              <span class="block font-bold text-sm text-white" style={{ color: ACCENT_COLOR }}>{entry.rankScore} / 100</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <Calendar size={18} color={ACCENT_COLOR} />
+            <div>
+              <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Last Sync</span>
+              <span class="block font-bold text-sm text-white uppercase">{entry.publishedAt ? formatDate(entry.publishedAt) : 'PENDING'}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* 📝 SECCIÓN DE CONTENIDO CON ESCOLTA DE ADS */}
+    <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12 w-full">
+      
+      {/* 🔥 AD IZQUIERDA (Sticky junto al texto) */}
+      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-[#00FF66]/20 bg-[#050505]">
+         <div class="w-full h-full relative group overflow-hidden">
+            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_L</span>
+            <div class="flex items-center justify-center h-full pt-6">
+               <AdSlot slot="1794581943" client:only="react" />
+            </div>
+            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#00FF66] transition-all duration-700 shadow-[0_0_15px_#00FF66]"></div>
+         </div>
+      </aside>
+
+      <div class="flex-1 max-w-[1200px] w-full">
+        <div class="mb-16">
+          <button onclick="window.history.back();" class="group flex items-center gap-4 text-white/30 transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max">
+            <div class="p-2 border border-white/5 bg-white/[0.02] transition-all group-hover:border-[#00FF66]/50 group-hover:shadow-[0_0_15px_rgba(0,255,102,0.2)]">
+              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+            </div>
+            <span class="group-hover:text-[#00FF66] transition-colors">Cerrar_Ficha // Volver</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
+          
+          {/* COLUMNA IZQUIERDA: Justificación */}
+          <div class="lg:col-span-8 flex flex-col gap-10">
+            <div>
+              <div class="flex items-center gap-3 mb-6">
+                  <div class="h-[2px] w-8 bg-[#00FF66] shadow-[0_0_10px_#00FF66]"></div>
+                  <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Resumen de Expediente</span>
+              </div>
+              <div class="prose prose-invert prose-p:text-white/70 prose-p:leading-relaxed prose-p:text-xl max-w-none break-words italic font-headline border-l-4 pl-6" style={{ borderColor: ACCENT_COLOR }}>
+                  <p>{entry.description}</p>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-10 border-t border-white/5">
+              <div class="flex items-center gap-3 mb-6">
+                  <div class="h-4 w-1 bg-[#00FF66]"></div>
+                  <span class="font-mono text-[12px] text-white font-black uppercase tracking-widest">Análisis de Meta</span>
+              </div>
+              
+              <div class="text-white/80 text-base md:text-lg font-body leading-loose whitespace-pre-wrap break-words">
+                  {entry.longDescription || "Falta ingresar el análisis de meta en el sistema central..."}
+              </div>
+            </div>
+          </div>
+
+          {/* COLUMNA DERECHA: Datos Técnicos */}
+          <aside class="lg:col-span-4 flex flex-col gap-8">
+            <div class="bg-[#050505] border border-white/5 p-8 shadow-2xl relative lg:sticky lg:top-32 overflow-hidden group hover:border-[#00FF66]/30 transition-colors">
+              <div class="flex items-center gap-3 mb-8">
+                <ShieldAlert size={16} color={ACCENT_COLOR} />
+                <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Combat Profile</span>
+              </div>
+
+              <div class="space-y-6 mb-10">
+                <div class="border-b border-white/5 pb-4">
+                  <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Source_Engine</span>
+                  <span class="block text-white font-bold text-sm tracking-wide break-words">{entry.gameName}</span>
+                </div>
+                <div class="border-b border-white/5 pb-4">
+                  <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Rank_Score</span>
+                  <div class="flex items-center gap-4 mt-2">
+                      <span class="text-[#00FF66] font-black text-2xl italic">{entry.rankScore}%</span>
+                      <div class="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div class="h-full bg-[#00FF66] shadow-[0_0_10px_#00FF66]" style={{ width: `${entry.rankScore}%` }}></div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 🔥 SHARED BUTTON INTEGRADO EN EL SIDEBAR 🔥 */}
+              <div class="pt-8 border-t border-white/10 mt-auto">
+                 <SharedButton 
+                    client:load 
+                    title={entry.title} 
+                    text={entry.description} 
+                    url={currentUrl} 
+                 />
+              </div>
+
+              <div class="pt-6 mt-4 flex items-center justify-between opacity-40">
+                 <div class="flex items-center gap-2">
+                     <BarChart3 size={14} color={ACCENT_COLOR} />
+                     <span class="font-mono text-[8px] uppercase tracking-widest text-white">System_Scan_OK</span>
+                 </div>
+                 <div class="w-1.5 h-1.5 rounded-full bg-[#00FF66] animate-pulse"></div>
+              </div>
+            </div>
+          </aside>
+
+        </div>
+
+        {/* 🔥 ADS HASTA ABAJO (Horizontal PC y Box Móvil) */}
+        <div class="mt-20 flex flex-col gap-10">
+           {/* Desktop Horizontal */}
+           <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden transition-all duration-500 hover:border-[#00FF66]/30">
+              <div class="absolute top-3 left-6 z-10">
+                <span class="font-mono text-[8px] text-white/20 uppercase tracking-[0.2em]">Sponsored_Arsenal_Node</span>
+              </div>
+              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-10">
+                 <AdSlot slot="4821639929" format="auto" client:only="react" />
+              </div>
+              <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#00FF66] transition-all duration-700 shadow-[0_0_15px_#00FF66]" />
+           </div>
+
+           {/* Mobile Box */}
+           <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
+              <div class="relative z-20 w-full h-full flex items-center justify-center p-4">
+                 <AdSlot slot="4819366386" format="auto" client:only="react" />
+              </div>
+           </div>
+        </div>
+
+      </div>
+
+      {/* 🔥 AD DERECHA (Sticky junto a la sidebar) */}
+      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-[#00FF66]/20 bg-[#050505]">
+         <div class="w-full h-full relative group overflow-hidden">
+            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_R</span>
+            <div class="flex items-center justify-center h-full pt-6">
+               <AdSlot slot="2057471674" client:only="react" />
+            </div>
+            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#00FF66] transition-all duration-700 shadow-[0_0_15px_#00FF66]"></div>
+         </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

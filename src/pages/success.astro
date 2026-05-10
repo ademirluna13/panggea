@@ -1,0 +1,23 @@
+---
+// src/pages/success.astro
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Acceso Concedido | Pangea">
+  <main class="h-screen flex items-center justify-center bg-[#020202]">
+    <div class="text-center">
+      <h1 class="text-rgb text-6xl font-black italic uppercase mb-4">Protocolo Activado</h1>
+      <p class="font-mono text-white/40 uppercase tracking-widest">Navegación limpia detectada. Reiniciando terminal...</p>
+    </div>
+  </main>
+
+  <script is:inline>
+    // 💡 EL TRUCO: Guardamos en el navegador que ya no queremos ads
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('session') === 'active') {
+      localStorage.setItem('pangea_zero_ads', 'true');
+      // Redirigimos al inicio después de 3 segundos
+      setTimeout(() => { window.location.href = '/'; }, 3000);
+    }
+  </script>
+</Layout>

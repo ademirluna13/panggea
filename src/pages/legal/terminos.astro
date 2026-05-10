@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+---
+
+<Layout title="Términos de Uso | PanGGea" description="Términos y condiciones de uso de PanGGea.">
+  <Header client:load />
+
+  <main class="bg-[#020202] min-h-screen pt-32 pb-24 relative font-sans text-white overflow-hidden">
+    
+    {/* Glow sutil */}
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-[#00EEFF]/5 blur-[120px] pointer-events-none"></div>
+
+    <div class="max-w-[800px] mx-auto px-6 relative z-10">
+      
+      <div class="mb-12">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-[2px] w-8 bg-[#00EEFF] shadow-[0_0_10px_#00EEFF]"></div>
+          <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Legal // Protocolo 02</span>
+        </div>
+        <h1 class="font-headline text-5xl md:text-6xl font-black italic uppercase tracking-tighter text-white">
+          Términos de <span class="text-[#00EEFF]">Uso</span>
+        </h1>
+        <p class="font-mono text-xs text-white/40 mt-4">Última actualización: Mayo 2026</p>
+      </div>
+
+      <div class="prose prose-invert prose-p:text-white/70 prose-p:leading-relaxed prose-headings:font-headline prose-headings:italic prose-headings:tracking-tight prose-headings:text-white prose-a:text-[#00EEFF] max-w-none">
+        
+        <h3>1. Aceptación de los Términos</h3>
+        <p>
+          Al acceder y navegar por <strong>PanGGea</strong> (en adelante, "el sitio"), aceptas cumplir y estar sujeto a estos Términos de Uso. Si no estás de acuerdo con alguna parte de estos términos, te solicitamos amablemente que abandones la plataforma.
+        </p>
+
+        <h3>2. Propiedad Intelectual</h3>
+        <p>
+          Todo el contenido editorial, análisis técnicos, diseños, gráficos, logotipos y código fuente presentes en este sitio son propiedad intelectual de <strong>PanGGea</strong> (desarrollado por <strong>BitXolo</strong>). Queda estrictamente prohibida la reproducción, distribución o modificación total o parcial del contenido sin autorización previa por escrito.
+        </p>
+
+        <h3>3. Uso del Contenido</h3>
+        <p>
+          El contenido de PanGGea tiene un propósito puramente informativo, periodístico y de entretenimiento. Los "Tier Lists", análisis de parches y reseñas de hardware representan la opinión editorial de nuestro equipo. No nos hacemos responsables por decisiones de compra o resultados en juegos derivados de la lectura de nuestro contenido.
+        </p>
+
+        <h3>4. Enlaces de Terceros</h3>
+        <p>
+          Nuestro sitio puede contener enlaces a sitios web de terceros (como tiendas de hardware, plataformas de juegos, etc.). PanGGea no asume responsabilidad alguna por el contenido, políticas de privacidad o prácticas de sitios web de terceros.
+        </p>
+
+        <h3>5. Comportamiento del Usuario</h3>
+        <p>
+          Si en el futuro se habilitan secciones de comentarios o foros, te comprometes a mantener un entorno de respeto. Queda prohibido publicar contenido que sea difamatorio, ofensivo, ilícito o que infrinja los derechos de terceros. PanGGea se reserva el derecho de eliminar cualquier comentario o banear usuarios que violen esta norma.
+        </p>
+
+        <h3>6. Modificaciones al Sistema</h3>
+        <p>
+          PanGGea se reserva el derecho de modificar o interrumpir, temporal o permanentemente, el servicio (o cualquier parte del mismo) con o sin previo aviso. Asimismo, estos Términos de Uso pueden ser actualizados periódicamente, siendo responsabilidad del usuario revisarlos.
+        </p>
+
+        <h3>7. Contacto</h3>
+        <p>
+          Para reportar problemas técnicos (bugs), dudas legales o consultas editoriales, comunícate con nosotros: <br/>
+          <strong><a href="mailto:contacto@panggea.site">contacto@panggea.site</a></strong>
+        </p>
+
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

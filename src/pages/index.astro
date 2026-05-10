@@ -1,49 +1,172 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import Layout from '../layouts/Layout.astro';
+
+import SpaceHeroScene from '../components/home/SpaceHeroScene';
+import Hero from '../components/home/Hero';
+import TrendingNow from '../components/home/TrendingNow';
+import CategoryNav from '../components/home/CategoryNav';
+import DeepDives from '../components/home/DeepDives';
+import { sanityClient } from "sanity:client";
+import Community from '../components/home/Community';
+import Radar from '../components/home/Radar';
+import { TacticalArsenal } from '../components/home/TacticalArsenal';
+import { StatusFeed } from '../components/home/StatusFeed';
+import RankingSystem from '../components/home/RankingSystem';
+import GearVault from '../components/home/GearVault';
+import type { GearItem } from '../components/home/GearVault';
+
+// 🔥 IMPORTAMOS EL CARRUSEL MAGENTA
+import FeaturedCarousel from '../components/home/FeaturedCarousel.tsx';
+
+// 🔥 INTERFACE PARA EL CARRUSEL
+interface Post {
+  title: string;
+  slug: string;
+  heroImage: string;
+  category: string;
+  description: string;
+}
+
+const title = "PANGGEA DIGITAL BLOG";
+const description = "Consultoría de software de alto rendimiento y portal de análisis técnico.";
+
+// 1. Fetches
+const trendingPostsFetch = sanityClient.fetch(`*[_type == "post" && !(isDeepDive == true)] | order(publishedAt desc) [0...7] { title, "slug": slug.current, "heroImage": mainImage.asset->url, publishedAt, description, platform, "category": coalesce(categories[0]->title, "EDITORIAL") }`);
+const deepDivesFetch = sanityClient.fetch(`*[_type == "post" && isDeepDive == true] | order(publishedAt desc) [0...4] { title, "slug": slug.current, "heroImage": mainImage.asset->url, "manualBg": sectionBg.asset->url, description, readTime, isLegendary, platform, "category": coalesce(categories[0]->title, "LORE") }`);
+const categoriesFetch = sanityClient.fetch(`*[_type == "category"] | order(title asc) { title, "slug": slug.current }`);
+
+const patchNotesFetch = sanityClient.fetch(`*[_type == "patchNote"] | order(publishedAt desc)[0...6] {
+  _id, title, "slug": slug.current, 
+  "gameName": game->name,
+  version, patchType, description, publishedAt, lastUpdateAt, tickerHighlights, "heroImage": mainImage.asset->url
+}`);
+
+const tierArsenalFetch = sanityClient.fetch(`*[_type == "tierEntry"] | order(rankScore desc)[0...6] {
+  _id, title, "slug": slug.current, rank, description,
+  "heroImage": mainImage.asset->url,
+  "gameName": game->name,
+  "gameLogo": game->logo.asset->url
+}`);
+
+const radarFetch = sanityClient.fetch(`*[_type == "radarEvent"] | order(eventDate asc) {
+  _id, title, "slug": slug.current, eventDate, category, platform, hypeLevel, 
+  description, 
+  "heroImage": mainImage.asset->url
+}`);
+
+const gearFetch = sanityClient.fetch(`*[_type == "gear"] | order(_createdAt desc) {
+  _id, 
+  name, 
+  "brand": brand->name, 
+  price, 
+  specs, 
+  shortDescription,
+  "brandLogo": brand->logo.asset->url,
+  isHero, 
+  "buyLink": buyLink,
+  "category": category->title,
+  "slug": slug.current,
+  "image": mainImage.asset->url
+}`);
+
+const gearCategoriesFetch = sanityClient.fetch(`*[_type == "gearCategory"] | order(title asc) { title }`);
+
+// 🔥 AGREGAMOS EL FETCH DE NOTAS DESTACADAS
+const featuredPostsFetch = sanityClient.fetch(`*[_type == "post" && isFeatured == true] | order(publishedAt desc) { title, "slug": slug.current, "heroImage": mainImage.asset->url, "category": coalesce(categories[0]->title, "GENERAL"), description }`);
+
+// 🔥 LO METEMOS AL PROMISE.ALL PARA QUE CARGUE A LA VELOCIDAD DE LA LUZ
+const [trendingPosts, deepDives, categories, rawPatches, rawTiers, rawRadar, rawGear, rawGearCats, rawFeatured] = await Promise.all([
+  trendingPostsFetch, deepDivesFetch, categoriesFetch, patchNotesFetch, tierArsenalFetch, radarFetch, gearFetch, gearCategoriesFetch, featuredPostsFetch
+]);
+
+// 2. Formateo
+const formatDate = (dateStr: string) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return `${d.getDate().toString().padStart(2, '0')} ${d.toLocaleString('es-MX', { month: 'short' }).toUpperCase()} ${d.getFullYear()}`;
+};
+
+// 🔥 LÓGICA DE CARRUSEL (DIVERSITY FILTER)
+// 🔥 LÓGICA DE CARRUSEL (DIVERSITY FILTER)
+const featuredPosts = Array.from(
+  new Map(rawFeatured.map((post: any) => [post.category, post])).values()
+).slice(0, 5) as Post[]; 
+// ^^^ ESTE "as Post[]" ES EL QUE MATA EL ERROR ROJO
+
+const patches = rawPatches.map((p: any) => ({
+  id: p._id, game: p.gameName || 'SYSTEM', version: p.version || 'V1.0', title: p.title, type: p.patchType || 'BAL', desc: p.description, currentDate: formatDate(p.publishedAt), lastUpdate: p.lastUpdateAt ? formatDate(p.lastUpdateAt) : '', img: p.heroImage || null, slug: p.slug
+}));
+
+const tickerItems = rawPatches.flatMap((patch: any) => {
+  if (!patch.tickerHighlights) return [];
+  return patch.tickerHighlights.map((change: string) => ({ game: patch.gameName, change, type: patch.patchType || 'BAL' }));
+});
+
+const tierEntries = rawTiers.map((t: any) => ({
+  id: t._id, title: t.title, slug: t.slug, gameName: t.gameName || 'UNKNOWN', rank: t.rank || 'S', desc: t.description || 'Sin datos de escaneo disponibles.', img: t.heroImage || null, gameLogo: t.gameLogo || null,
+}));
+
+const radarEvents = rawRadar.map((r: any) => {
+  const d = new Date(r.eventDate);
+  return {
+    id: r._id, title: r.title, slug: r.slug, category: r.category || 'GAMING', platform: r.platform || 'GLOBAL', hypeLevel: r.hypeLevel || 80, description: r.description || '', img: r.heroImage || null, day: d.getDate().toString().padStart(2, '0'), month: d.toLocaleString('es-MX', { month: 'short' }).toUpperCase(),
+  };
+});
+
+const gearItems: GearItem[] = rawGear.map((g: any) => ({
+  id: g._id,
+  name: g.name,
+  slug: g.slug, 
+  brand: g.brand || 'GENERIC',
+  price: g.price,
+  specs: g.specs || [],
+  category: g.category || 'HARDWARE',
+  shortDescription: g.shortDescription || "", 
+  image: g.image,
+  isHero: g.isHero,
+  link: g.buyLink || '#'
+}));
+
+const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as string).toUpperCase())] as string[];
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
-</html>
+<Layout title={title} description={description}>
+  
+  <main class="bg-black min-h-screen">
+    
+    <section class="relative h-[100svh] w-full bg-black flex flex-col">
+      <div class="absolute inset-0 z-0 overflow-hidden">
+        <SpaceHeroScene client:only="react" />
+      </div>
+      <div class="absolute inset-0 z-30 flex flex-col pointer-events-none">
+        <Hero client:load />
+      </div>
+      <div class="absolute bottom-0 w-full h-40 bg-gradient-to-t from-black via-black/80 to-transparent z-20 pointer-events-none"></div>
+    </section>
+
+    <CategoryNav client:load categories={categories} />
+
+    {/* 🔥 AQUÍ CLAVAMOS EL CARRUSEL MAGENTA, JUSTO DEBAJO DEL NAV 🔥 */}
+    {featuredPosts.length > 0 && <FeaturedCarousel client:load posts={featuredPosts} />}
+
+    <section id="trending">
+      <TrendingNow client:load posts={trendingPosts} />
+    </section>
+
+    <StatusFeed client:load patches={patches} tickerItems={tickerItems} />
+
+    <section id="deep-dives">
+      <DeepDives client:load posts={deepDives} />
+    </section>
+
+    <TacticalArsenal client:load entries={tierEntries} />
+    
+    <RankingSystem client:load />
+
+    <Radar client:only="react" events={radarEvents} />
+    
+    <GearVault client:load items={gearItems} categories={gearCategoriesList} />
+    
+  </main>
+
+</Layout>

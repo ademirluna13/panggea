@@ -1,0 +1,18 @@
+---
+import { urlFor } from "../../utils/urlFor";
+const { node } = Astro.props;
+const url = urlFor(node).url();
+---
+<figure class="my-12 flex flex-col items-center group">
+  <img 
+    src={url} 
+    alt={node.alt || 'Hardware PanGGea'} 
+    class="rounded-sm border border-white/10 shadow-2xl transition-all duration-700 group-hover:border-[#FF4500]/50 max-w-full"
+    loading="lazy"
+  />
+  {node.caption && (
+    <figcaption class="mt-4 font-mono text-[9px] text-white/20 uppercase tracking-widest italic">
+      {node.caption}
+    </figcaption>
+  )}
+</figure>

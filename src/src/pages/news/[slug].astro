@@ -1,0 +1,63 @@
+---
+import { sanityClient } from "sanity:client";
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import Community from '../../components/home/Community';
+import ArticleTemplate from '../../components/sections/ArticleTemplate';
+import PortableText from '../../components/PortableText.astro';
+
+// 1. GENERACIÓN DE RUTAS
+export async function getStaticPaths() {
+  const posts = await sanityClient.fetch(`*[_type == "post"]{ "slug": slug.current }`);
+  return posts.map((post: any) => ({
+    params: { slug: post.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+
+// 2. DATA DE LA NOTA - Traemos categoría y plataforma reales
+const post = await sanityClient.fetch(`*[_type == "post" && slug.current == $slug][0]{
+  title,
+  publishedAt,
+  "heroImage": mainImage.asset->url,
+  "category": categories[0]->title, 
+  platform,
+  specs,
+  body,
+  description
+}`, { slug });
+
+if (!post) {
+  return Astro.redirect('/404');
+}
+
+// 👇 AQUÍ DEFINIMOS articleDate PARA QUE YA NO TE SALGA ERROR
+const articleDate = new Date(post.publishedAt || Date.now()).toLocaleDateString('es-MX', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric'
+});
+
+const seoDescription = post.description || `Análisis técnico de ${post.title} en Pangea.`;
+---
+
+<Layout title={post.title} description={seoDescription}>
+  <Header client:load />
+
+  <ArticleTemplate 
+    client:load 
+    title={post.title} 
+    date={articleDate} 
+    heroImage={post.heroImage}
+    category={post.category || "EDITORIAL"} 
+    platform={post.platform}
+    specs={post.specs}
+  >
+    <PortableText value={post.body} />
+  </ArticleTemplate>
+
+  <Community client:load />
+  <Footer />
+</Layout>

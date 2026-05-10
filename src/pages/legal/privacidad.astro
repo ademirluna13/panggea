@@ -1,0 +1,70 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+---
+
+<Layout title="Política de Privacidad | PanGGea" description="Política de privacidad y manejo de datos de PanGGea.">
+  <Header client:load />
+
+  <main class="bg-[#020202] min-h-screen pt-32 pb-24 relative font-sans text-white overflow-hidden">
+    
+    {/* Glow sutil */}
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-[#FF4500]/5 blur-[120px] pointer-events-none"></div>
+
+    <div class="max-w-[800px] mx-auto px-6 relative z-10">
+      
+      <div class="mb-12">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-[2px] w-8 bg-[#FF4500] shadow-[0_0_10px_#FF4500]"></div>
+          <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Legal // Protocolo 01</span>
+        </div>
+        <h1 class="font-headline text-5xl md:text-6xl font-black italic uppercase tracking-tighter text-white">
+          Política de <span class="text-[#FF4500]">Privacidad</span>
+        </h1>
+        <p class="font-mono text-xs text-white/40 mt-4">Última actualización: Mayo 2026</p>
+      </div>
+
+      <div class="prose prose-invert prose-p:text-white/70 prose-p:leading-relaxed prose-headings:font-headline prose-headings:italic prose-headings:tracking-tight prose-headings:text-white prose-a:text-[#FF4500] max-w-none">
+        
+        <h3>1. Información que recopilamos</h3>
+        <p>
+          En PanGGea ("nosotros", "nuestro", "el sitio"), la privacidad de nuestra comunidad es prioridad. Solo recopilamos la información estrictamente necesaria para mejorar tu experiencia. Esto incluye:
+        </p>
+        <ul>
+          <li><strong>Datos proporcionados directamente:</strong> Tu dirección de correo electrónico cuando te suscribes a nuestro <em>Newsletter</em> o Ecosistema.</li>
+          <li><strong>Datos de navegación:</strong> Información anónima sobre cómo interactúas con nuestro contenido (páginas visitadas, tiempo de lectura) para entender qué temas del meta te interesan más.</li>
+        </ul>
+
+        <h3>2. Uso de la información</h3>
+        <p>
+          Utilizamos tu correo electrónico exclusivamente para enviarte las actualizaciones, reportes de parches, <em>Tier Lists</em> y noticias relevantes del mundo del gaming y hardware. <strong>No vendemos, rentamos ni compartimos tu correo con terceros</strong> para fines publicitarios externos.
+        </p>
+
+        <h3>3. Cookies y Rastreo</h3>
+        <p>
+          Utilizamos cookies esenciales para el funcionamiento básico del sitio y cookies analíticas (de forma anónima) para medir el tráfico. Puedes configurar tu navegador para rechazar las cookies, aunque esto podría afectar algunas funciones menores de la plataforma.
+        </p>
+
+        <h3>4. Seguridad de los Datos</h3>
+        <p>
+          Tus datos (como tu correo electrónico) están resguardados en bases de datos seguras (ej. Supabase/Resend) con encriptación estándar de la industria. Hacemos todo lo técnica y comercialmente posible para proteger la información de nuestra comunidad.
+        </p>
+
+        <h3>5. Tus Derechos</h3>
+        <p>
+          En cualquier momento puedes solicitar la eliminación de tu correo electrónico de nuestra base de datos haciendo clic en el enlace de "Desuscribirse" en la parte inferior de cualquier correo que te enviemos, o contactándonos directamente.
+        </p>
+
+        <h3>6. Contacto Oficial</h3>
+        <p>
+          Si tienes dudas sobre el manejo de tu información o quieres ejercer tus derechos de privacidad, establece comunicación a través de nuestra línea directa: <br/>
+          <strong><a href="mailto:contacto@panggea.site">contacto@panggea.site</a></strong>
+        </p>
+
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

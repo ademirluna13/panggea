@@ -1,0 +1,130 @@
+---
+import { sanityClient } from "sanity:client";
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import { Clock, ArrowRight, Monitor } from 'lucide-react';
+
+// 1. Interfaz actualizada
+interface Post {
+  title: string;
+  slug: string;
+  heroImage: string | null;
+  publishedAt: string;
+  description: string | null;
+  category: string;
+  platform?: string;
+}
+
+// 2. Fetch de Sanity
+const rawPosts = await sanityClient.fetch<Post[]>(`*[_type == "post" && isDeepDive != true] | order(publishedAt desc) {
+  title,
+  "slug": slug.current,
+  "heroImage": mainImage.asset->url,
+  publishedAt,
+  description,
+  "category": coalesce(categories[0]->title, "GENERAL"),
+  platform
+}`);
+
+// 🎲 LÓGICA DE ALEATORIEDAD
+const posts = [...rawPosts].sort(() => Math.random() - 0.5);
+
+const title = "ARCHIVO PANGEA | BITXOLO";
+const description = "Explora el análisis técnico y el lore de la nueva era digital.";
+---
+
+<Layout title={title} description={description}>
+    <Header client:load />
+
+    <main class="bg-black min-h-screen pt-32 pb-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            
+            <header class="mb-16 border-b border-white/10 pb-8">
+                <h1 class="font-headline text-6xl md:text-8xl font-black italic text-white uppercase tracking-tighter">
+                    ARCHIVO <span class="text-pangea-primary">DE NOTAS</span>
+                </h1>
+                <p class="font-label text-zinc-500 text-[10px] tracking-[0.4em] mt-4 uppercase">
+                    Protocolo de acceso: Público // {posts.length} Entradas detectadas
+                </p>
+            </header>
+
+            {/* 🔥 BENTO GRID DINÁMICO 🔥 */}
+            <div class="grid grid-cols-1 md:grid-cols-6 auto-rows-[300px] md:auto-rows-[350px] gap-6">
+                {posts.map((post, i) => {
+                    const isBig = i === 0;
+                    const isTall = i === 1 || i === 4;
+                    
+                    return (
+                        <a 
+                            href={`/news/${post.slug}`} 
+                            class={`group relative bg-black overflow-hidden rounded-[1.5rem] border border-white/5 transition-all duration-700 hover:border-pangea-primary/40 hover:-translate-y-1 block
+                            ${isBig ? "md:col-span-4 md:row-span-2" : 
+                              isTall ? "md:col-span-2 md:row-span-2" : 
+                              "md:col-span-2 md:row-span-1"
+                            }`}
+                        >
+                            {/* IMAGEN DE FONDO (Ya sin la oscuridad total) */}
+                            <div class="absolute inset-0 z-0">
+                                {post.heroImage ? (
+                                    <div 
+                                        
+                                        class="absolute inset-0 bg-cover bg-center transition-all duration-1000 group-hover:scale-110 opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-90"
+                                        style={`background-image: url('${post.heroImage}')`}
+                                    />
+                                ) : (
+                                    <div class="absolute inset-0 bg-zinc-900 opacity-50" />
+                                )}
+                                
+                                {/* DEGRADADO LIGERO: Solo cubre la mitad inferior para que el texto sea legible */}
+                                <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                            </div>
+
+                            {/* CONTENIDO (Añadí drop-shadows para proteger los textos de fondos claros) */}
+                            <div class="absolute inset-0 p-8 flex flex-col justify-end z-10">
+                                
+                                {/* TAGS */}
+                                <div class="flex items-center gap-2 mb-4 drop-shadow-md">
+                                    <span class="text-pangea-primary font-label text-[8px] font-black tracking-widest uppercase bg-pangea-primary/10 px-2 py-1 rounded border border-pangea-primary/20 backdrop-blur-sm">
+                                        {post.category}
+                                    </span>
+                                    {post.platform && (
+                                        <span class="flex items-center gap-1.5 text-white/80 font-label text-[8px] font-black tracking-widest uppercase bg-black/40 border border-white/10 px-2 py-1 rounded backdrop-blur-sm">
+                                            <Monitor size={10} /> {post.platform}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <h2 class={`font-headline font-black text-white uppercase leading-[0.9] group-hover:text-pangea-primary transition-colors italic drop-shadow-lg
+                                    ${isBig ? "text-4xl md:text-6xl" : "text-2xl md:text-3xl"}`}>
+                                    {post.title}
+                                </h2>
+
+                                {/* DESCRIPCIÓN */}
+                                <div class="overflow-hidden drop-shadow-md">
+                                    <p class={`text-white/80 text-sm leading-relaxed transition-all duration-500
+                                        ${isBig 
+                                            ? "mt-4 line-clamp-3 max-w-2xl" 
+                                            : "mt-0 max-h-0 opacity-0 group-hover:max-h-20 group-hover:opacity-100 group-hover:mt-4 line-clamp-2"
+                                        }`}>
+                                        {post.description || 'Consulta los detalles de esta actualización en la base de datos.'}
+                                    </p>
+                                </div>
+                                
+                                <div class="flex items-center justify-between border-t border-white/10 pt-6 mt-6 text-white/50 font-label text-[10px] font-black tracking-widest group-hover:text-pangea-primary transition-colors drop-shadow-md">
+                                    <div class="flex items-center gap-2">
+                                        <Clock size={12} /> {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString('es-MX', { month: 'short', day: '2-digit' }) : 'NOT_SET'}
+                                    </div>
+                                    <ArrowRight size={18} className="text-white/40 group-hover:text-pangea-primary transition-all" />
+                                </div>
+                            </div>
+                        </a>
+                    )
+                })}
+            </div>
+            
+        </div>
+    </main>
+    
+    <Footer />
+</Layout>

@@ -1,0 +1,112 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import ArchiveGrid from '../../components/home/ArchiveGrid';
+import { sanityClient } from "sanity:client";
+import { ArrowLeft } from 'lucide-react'; // Icono para el botón de regreso
+
+export async function getStaticPaths() {
+  const categories = await sanityClient.fetch(`*[_type == "category"]{ "slug": slug.current }`);
+  return categories.map((cat: { slug: string }) => ({
+    params: { slug: cat.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+
+const categoryData = await sanityClient.fetch(`*[_type == "category" && slug.current == $slug][0] {
+  title,
+  description
+}`, { slug });
+
+const categoryPosts = await sanityClient.fetch(`*[_type == "post" && $slug in categories[]->slug.current] | order(publishedAt desc) {
+  title,
+  "slug": slug.current,
+  "heroImage": mainImage.asset->url,
+  publishedAt,
+  description,
+  platform,
+  "category": coalesce(categories[0]->title, "GENERAL")
+}`, { slug });
+
+if (!categoryData) return Astro.redirect('/404');
+
+const ACCENT_COLOR = "#00F0FF"; 
+const pageTitle = `${categoryData.title} | PANGEA DATABASE`;
+const pageDescription = categoryData.description || `Acceso a archivos de ${categoryData.title}.`;
+---
+
+<Layout title={pageTitle} description={pageDescription}>
+  <Header client:load />
+
+  <main class="bg-[#020202] min-h-screen pt-44 pb-32 relative overflow-hidden">
+    
+    <div class="absolute inset-0 pointer-events-none" 
+         style={`background: radial-gradient(circle at 20% 30%, ${ACCENT_COLOR}05 0%, transparent 50%)`}>
+    </div>
+
+    <div class="max-w-[1700px] mx-auto px-6 flex justify-center gap-10 relative z-10">
+      
+      {/* PUBLICIDAD IZQUIERDA */}
+      <aside class="hidden xl:flex w-[160px] sticky top-40 h-[600px] bg-white/[0.01] border border-white/5 items-center justify-center opacity-30">
+        <span class="font-mono text-[9px] text-white/10 uppercase [writing-mode:vertical-lr] tracking-[1em]">CAT_ADS_FLOW</span>
+      </aside>
+
+      <div class="flex-1 max-w-[1150px]">
+        
+        {/* ─── BOTÓN DE REGRESO TÁCTICO ─── */}
+        <button 
+          onclick="window.history.back()" 
+          class="group flex items-center gap-3 mb-12 text-white/20 hover:text-[#00F0FF] transition-all font-mono text-[10px] tracking-[0.3em] uppercase"
+        >
+          <div class="p-2 border border-white/5 group-hover:border-[#00F0FF]/40 bg-white/[0.02] transition-all">
+            <ArrowLeft size={14} />
+          </div>
+          <span>Regresar al Registro</span>
+        </button>
+
+        {/* ─── HEADER: FIX DE OVERFLOW PARA PALABRAS LARGAS ─── */}
+        <header class="mb-20">
+          <h2 class="font-headline text-white text-5xl sm:text-7xl md:text-8xl lg:text-[105px] font-[950] tracking-tighter leading-[0.85] uppercase italic drop-shadow-2xl break-words">
+            CATEGORÍA: 
+            <span class="text-transparent block sm:inline" style={{ WebkitTextStroke: `2px ${ACCENT_COLOR}` }}>
+              {categoryData.title}
+            </span>
+          </h2>
+          
+          <div class="flex items-center justify-between mt-10 border-b border-white/10 pb-8">
+            <div class="flex items-center gap-4 text-white/20 font-mono text-[10px] tracking-[0.4em] uppercase">
+              <div class="w-12 h-[1px]" style={{ backgroundColor: ACCENT_COLOR }}></div>
+              <span>REGISTROS DETECTADOS: {categoryPosts.length}</span>
+            </div>
+          </div>
+        </header>
+
+        {/* ─── GRID CON FILTROS REUTILIZADOS ─── */}
+        <ArchiveGrid 
+          client:load 
+          posts={categoryPosts} 
+          categories={[]} 
+          accentColor={ACCENT_COLOR} 
+          hideCategory={true}
+        />
+      </div>
+
+      {/* PUBLICIDAD DERECHA */}
+      <aside class="hidden xl:flex w-[160px] sticky top-40 h-[600px] bg-white/[0.01] border border-white/5 items-center justify-center opacity-30">
+        <span class="font-mono text-[9px] text-white/10 uppercase [writing-mode:vertical-lr] tracking-[1em]">CAT_ADS_FLOW</span>
+      </aside>
+
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  /* Fix adicional para que el contorno no se vea mocho en algunas pantallas */
+  h2 span {
+    paint-order: stroke fill;
+  }
+</style>

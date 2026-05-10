@@ -1,0 +1,237 @@
+---
+import { sanityClient } from "sanity:client";
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import Community from '../../components/home/Community';
+import PortableText from '../../components/PortableText.astro';
+import SharedButton from '../../components/layout/SharedButton';
+import { AdSlot } from '../../components/layout/AdSlot';
+import { ArrowLeft, Clock, Monitor, Activity, ShieldCheck } from 'lucide-react';
+
+export async function getStaticPaths() {
+  const posts = await sanityClient.fetch(`*[_type == "post"]{ "slug": slug.current }`);
+  return posts.map((post: any) => ({
+    params: { slug: post.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+
+// 2. QUERY ACTUALIZADA SEGÚN TU SCHEMA
+const post = await sanityClient.fetch(`*[_type == "post" && slug.current == $slug][0]{
+  title,
+  publishedAt,
+  "heroImage": mainImage.asset->url,
+  "category": categories[0]->title, 
+  platform,
+  specs,
+  body,
+  description,
+  readTime
+}`, { slug });
+
+if (!post) return Astro.redirect('/404');
+
+const articleDate = new Date(post.publishedAt || Date.now()).toLocaleDateString('es-MX', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric'
+});
+
+const currentUrl = Astro.url.href;
+const ACCENT = "#FF4500";
+---
+
+<Layout title={`${post.title} | PanGGea`} description={post.description} image={post.heroImage}>
+  <Header client:load />
+
+  <main class="bg-[#020202] min-h-screen relative overflow-hidden flex flex-col items-center">
+    
+    {/* ─── 1. HERO SECTION ─── */}
+    <section class="relative w-full h-[60vh] md:h-[75vh] flex items-end overflow-hidden border-b border-white/5">
+      <div class="absolute inset-0 z-0">
+        <img 
+          src={post.heroImage} 
+          alt={post.title} 
+          class="w-full h-full object-cover opacity-60"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/40 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-[#020202] via-transparent to-transparent"></div>
+      </div>
+
+      <div class="relative z-10 w-full max-w-[1440px] mx-auto px-6 pb-16">
+        <div class="flex flex-wrap gap-3 mb-6">
+          <span class="px-3 py-1 bg-[#FF4500] text-black font-mono text-[10px] font-black uppercase tracking-widest rounded-sm shadow-[0_0_20px_rgba(255,69,0,0.4)]">
+            {post.category || 'NOTICIA'}
+          </span>
+          <span class="px-3 py-1 bg-white/5 border border-white/10 text-white/70 font-mono text-[10px] font-black uppercase tracking-widest rounded-sm backdrop-blur-md">
+            {post.platform || 'MULTIPLATAFORMA'}
+          </span>
+        </div>
+        
+        <h1 class="font-headline text-white text-5xl md:text-7xl lg:text-[100px] font-[950] tracking-tighter leading-[0.85] uppercase italic drop-shadow-2xl max-w-5xl break-words">
+          {post.title}
+        </h1>
+
+        <div class="flex items-center gap-6 mt-8 text-white/40 font-mono text-[11px] uppercase tracking-[0.2em]">
+          <div class="flex items-center gap-2">
+            <Clock size={14} className="text-[#FF4500]" />
+            <span>{articleDate} // {post.readTime || '5 MIN'} READ</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* ─── 2. ZONA DE LECTURA (4 COLUMNAS TÁCTICAS) ─── */}
+    <div class="max-w-[1440px] mx-auto flex flex-col lg:flex-row justify-center items-start gap-8 px-6 py-20 relative z-10 w-full">
+      
+      {/* 🔥 AD IZQUIERDA (Sticky) */}
+      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0">
+        <div class="w-full h-full bg-[#050505] border border-white/5 relative group overflow-hidden transition-all duration-500 hover:border-[#FF4500]/30">
+           <div class="absolute top-2 left-0 w-full text-center z-10">
+              <span class="font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_L</span>
+           </div>
+           <div class="flex items-center justify-center h-full pt-6">
+              <AdSlot slot="1794581943" client:only="react" />
+           </div>
+           <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700"></div>
+        </div>
+      </aside>
+
+      {/* ─── COLUMNA DE TEXTO ─── */}
+      <article class="flex-1 max-w-[800px] w-full break-words overflow-hidden">
+        
+        {/* 🔙 BOTÓN REGRESO (Hasta arriba del texto) */}
+        <button onclick="window.history.back()" class="group flex items-center gap-3 mb-12 text-white/30 hover:text-[#FF4500] transition-all font-mono text-[11px] uppercase tracking-[0.4em] cursor-pointer">
+           <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+           <span>Volver a la base de datos</span>
+        </button>
+
+        <div class="prose prose-invert prose-orange max-w-none 
+          prose-p:text-white/80 prose-p:leading-relaxed prose-p:text-lg prose-p:italic prose-p:mb-8
+          prose-headings:font-headline prose-headings:uppercase prose-headings:italic prose-headings:tracking-tighter prose-headings:text-white
+          prose-strong:text-[#FF4500] prose-strong:font-[950]
+          break-words">
+          <PortableText value={post.body} />
+        </div>
+      </article>
+
+      {/* ─── COLUMNA DERECHA (Specs + Ad) ─── */}
+      <aside class="w-full lg:w-[350px] shrink-0 flex flex-col gap-8">
+        
+        {/* CUADRO DE SPECS (Mapeo directo del objeto) */}
+        {post.specs && (
+          <div class="bg-[#050505] border border-white/5 p-8 relative overflow-hidden group">
+            <div class="flex items-center gap-3 mb-8">
+               <div class="w-8 h-[1px] bg-[#FF4500]"></div>
+               <span class="font-mono text-[10px] text-[#FF4500] font-black uppercase tracking-[0.4em]">Ficha_Técnica</span>
+            </div>
+
+            <div class="space-y-6 mb-10">
+              {/* CAMPO: PLATAFORMA */}
+              <div>
+                <div class="flex items-center gap-2 mb-1 text-white/20">
+                  <Monitor size={10} />
+                  <span class="font-mono text-[9px] uppercase tracking-widest">Hardware</span>
+                </div>
+                <span class="block font-headline text-white text-xl font-black uppercase italic tracking-tighter break-words">
+                  {post.specs.platform || 'S/D'}
+                </span>
+              </div>
+
+              {/* CAMPO: VERSIÓN */}
+              <div>
+                <div class="flex items-center gap-2 mb-1 text-white/20">
+                  <Activity size={10} />
+                  <span class="font-mono text-[9px] uppercase tracking-widest">Build_Version</span>
+                </div>
+                <span class="block font-headline text-white text-xl font-black uppercase italic tracking-tighter break-words">
+                  {post.specs.version || 'S/D'}
+                </span>
+              </div>
+
+              {/* CAMPO: STATUS */}
+              <div>
+                <div class="flex items-center gap-2 mb-1 text-white/20">
+                  <ShieldCheck size={10} />
+                  <span class="font-mono text-[9px] uppercase tracking-widest">System_Status</span>
+                </div>
+                <span class="block font-headline text-white text-xl font-black uppercase italic tracking-tighter break-words" style={{ color: post.specs.status?.includes('VER') ? '#00FF66' : '' }}>
+                  {post.specs.status || 'ANALIZANDO'}
+                </span>
+              </div>
+            </div>
+
+            {/* 🔥 SHARED BUTTON INTEGRADO 🔥 */}
+            <div class="pt-6 border-t border-white/10">
+               <SharedButton 
+                  client:load 
+                  title={post.title} 
+                  text={post.description} 
+                  url={currentUrl} 
+               />
+            </div>
+          </div>
+        )}
+
+        {/* 🔥 AD DERECHA (Sticky) */}
+        <aside class="hidden 2xl:block w-[160px] h-[600px] sticky top-32">
+          <div class="w-full h-full bg-[#050505] border border-white/5 relative group overflow-hidden transition-all duration-500 hover:border-[#FF4500]/30">
+             <div class="absolute top-2 left-0 w-full text-center z-10">
+                <span class="font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_R</span>
+             </div>
+             <div class="flex items-center justify-center h-full pt-6">
+                <AdSlot slot="2057471674" client:only="react" />
+             </div>
+             <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700"></div>
+          </div>
+        </aside>
+      </aside>
+
+    </div>
+
+    {/* ─── 3. SECCIÓN INFERIOR ─── */}
+    <div class="w-full max-w-[1200px] mx-auto px-6 mt-16">
+      
+      <div class="mb-24">
+         {/* Desktop Horizontal Ad */}
+         <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
+            <div class="absolute top-3 left-6 z-10">
+              <span class="font-mono text-[8px] text-white/20 uppercase tracking-[0.2em]">Sponsored_Footer_Node</span>
+            </div>
+            <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-10">
+               <AdSlot slot="4821639929" format="auto" client:only="react" />
+            </div>
+            <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700"></div>
+         </div>
+
+         {/* Mobile Box Ad */}
+         <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
+            <div class="absolute top-3 left-4 z-10">
+              <span class="font-mono text-[8px] font-black tracking-[0.2em] text-white/20 uppercase">Sponsored_Node</span>
+            </div>
+            <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-10">
+               <AdSlot slot="4819366386" format="auto" client:only="react" />
+            </div>
+         </div>
+      </div>
+
+      <Community client:load />
+    </div>
+
+  </main>
+
+  <Footer />
+</Layout>
+
+<style is:global>
+  .prose blockquote {
+    border-left: 4px solid #FF4500;
+    font-style: italic;
+    background: rgba(255, 69, 0, 0.03);
+    padding: 1.5rem;
+    margin: 2rem 0;
+    break-inside: avoid;
+  }
+</style>
