@@ -10,6 +10,9 @@ import sanity from '@sanity/astro';
 import partytown from '@astrojs/partytown';
 
 
+import node from '@astrojs/node';
+
+
 export default defineConfig({
   site: 'https://panggea.site',
   output: 'server',
@@ -50,4 +53,7 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
 
+  adapter: node({
+    mode: 'standalone',
+  }),
 });
