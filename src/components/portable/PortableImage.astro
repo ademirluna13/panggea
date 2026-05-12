@@ -1,17 +1,42 @@
 ---
 import { urlFor } from "../../utils/urlFor";
-const { node } = Astro.props;
+
+// 1. Definimos una interfaz para que TypeScript reconozca tus nuevos campos
+interface Props {
+  node: {
+    asset: any;
+    alt?: string;
+    caption?: string;
+    imageSize?: 'small' | 'medium' | 'large' | 'full';
+  }
+}
+
+// 2. Le decimos a Astro que use esa interfaz al recibir las props
+const { node } = Astro.props as Props;
+
+const sizeClasses = {
+  small: "md:w-1/4 w-full",
+  medium: "md:w-1/2 w-full",
+  large: "md:w-3/4 w-full",
+  full: "w-full"
+};
+
+// Si por algo viene vacío, que use 'medium' por defecto
+const currentSize = sizeClasses[node.imageSize || 'medium'] || sizeClasses.medium;
+
+// Usamos node directamente porque ya trae el asset dentro
 const url = urlFor(node).url();
 ---
-<figure class="my-12 flex flex-col items-center group">
+
+<figure class={`my-12 flex flex-col items-center group mx-auto ${currentSize}`}>
   <img 
     src={url} 
     alt={node.alt || 'Hardware PanGGea'} 
-    class="rounded-sm border border-white/10 shadow-2xl transition-all duration-700 group-hover:border-[#FF4500]/50 max-w-full"
+    class="rounded-sm border border-white/10 shadow-2xl transition-all duration-700 group-hover:border-[#FF4500]/50 w-full h-auto"
     loading="lazy"
   />
   {node.caption && (
-    <figcaption class="mt-4 font-mono text-[9px] text-white/20 uppercase tracking-widest italic">
+    <figcaption class="mt-4 font-mono text-[9px] text-white/20 uppercase tracking-widest italic text-center">
       {node.caption}
     </figcaption>
   )}

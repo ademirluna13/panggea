@@ -67,7 +67,7 @@ export default function FeaturedCarousel({ posts = [] }: FeaturedCarouselProps) 
           >
             {marqueeItems.map((post, i) => (
               <a 
-                href={`/blog/${post.slug}`}
+                href={`/news/${post.slug}`}
                 key={`${post.slug}-${i}`}
                 className="group relative w-[320px] md:w-[400px] h-[450px] bg-[#050505] border border-white/10 overflow-hidden flex flex-col shrink-0 transition-all duration-500 lg:hover:border-[#FF007F]/60"
               >

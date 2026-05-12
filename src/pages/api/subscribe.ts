@@ -2,9 +2,10 @@ import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseSecretKey = import.meta.env.SUPABASE_SECRET_KEY;
-const resendApiKey = import.meta.env.RESEND_API_KEY;
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || process.env.PUBLIC_SUPABASE_URL;
+const resendApiKey = import.meta.env.RESEND_API_KEY || process.env.RESEND_API_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseSecretKey);
 const resend = new Resend(resendApiKey);

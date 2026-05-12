@@ -2,16 +2,20 @@
 import { PortableText as AstroPortableText } from "astro-portabletext";
 import PortableImage from "./portable/PortableImage.astro";
 import PortableLink from "./portable/PortableLink.astro";
+// 1. IMPORTA EL NUEVO COMPONENTE (Asegúrate de que el nombre del archivo coincida)
+import PortableMediaBlock from "./portable/PortableMediaBlock.astro";
 
 const { value } = Astro.props;
 
 const components = {
   type: {
     image: PortableImage,
+    // 2. AGREGA EL MEDIABLOCK AQUÍ
+    // Esto le dice a Astro: "Cuando encuentres un 'mediaBlock' en Sanity, usa este componente"
+    mediaBlock: PortableMediaBlock,
   },
   mark: {
     link: PortableLink,
-    // La negrita la manejamos por CSS para evitar más líos
   }
 };
 ---
@@ -26,14 +30,13 @@ const components = {
     line-height: 1.8;
     color: rgba(255,255,255,0.7);
   }
-  /* Esto arregla las negritas automáticamente */
   .prose-bitxolo strong {
     color: white;
     font-weight: 900;
     border-bottom: 1px solid rgba(255, 69, 0, 0.2);
   }
   .prose-bitxolo h2 {
-    font-family: 'Headline', sans-serif; /* Ajusta a tu fuente */
+    font-family: 'Headline', sans-serif; 
     font-size: 2rem;
     color: white;
     text-transform: uppercase;

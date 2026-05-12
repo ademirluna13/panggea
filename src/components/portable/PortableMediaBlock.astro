@@ -1,0 +1,65 @@
+---
+import { urlFor } from "../../utils/urlFor";
+import { PortableText as AstroPortableText } from "astro-portabletext";
+import PortableLink from "./PortableLink.astro";
+
+interface Props {
+  node: {
+    image: any;
+    imageSize?: 'small' | 'medium' | 'large' | 'full';
+    text: any[];
+    layout?: 'left' | 'right';
+    textAlign?: 'left' | 'center' | 'right' | 'justify'; // <-- Nuevo
+  }
+}
+
+const { node } = Astro.props as Props;
+
+// Mapeos de ancho
+const imageWidthClasses = { small: "md:w-1/4", medium: "md:w-1/2", large: "md:w-3/4", full: "md:w-full" };
+const textWidthClasses = { small: "md:w-3/4", medium: "md:w-1/2", large: "md:w-1/4", full: "md:w-full" };
+
+// 1. MAPEAMOS LA ALINEACIÓN A TAILWIND
+const textAlignClasses = {
+  left: "text-left",
+  center: "text-center",
+  right: "text-right",
+  justify: "text-justify"
+};
+
+const isReverse = node.layout === 'right';
+const imageSize = node.imageSize || 'medium';
+const textAlignClass = textAlignClasses[node.textAlign || 'justify'] || "text-justify";
+
+const imageColClass = imageWidthClasses[imageSize];
+const textColClass = textWidthClasses[imageSize];
+const url = node.image ? urlFor(node.image).url() : null;
+
+const components = { mark: { link: PortableLink } };
+---
+
+<div class={`flex flex-col gap-8 my-16 items-center ${isReverse ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
+  
+  {url && (
+    <div class={`w-full ${imageColClass} group`}>
+      <div class="relative overflow-hidden rounded-sm border border-white/10 shadow-2xl transition-all duration-700 group-hover:border-[#FF4500]/50">
+        <img 
+          src={url} 
+          alt="Media PanGGea" 
+          class="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+          loading="lazy"
+        />
+      </div>
+    </div>
+  )}
+
+  <div class={`w-full ${textColClass} prose-bitxolo ${textAlignClass}`}>
+    <AstroPortableText value={node.text} components={components} />
+  </div>
+
+</div>
+
+<style>
+  .prose-bitxolo :first-child { margin-top: 0; }
+  .prose-bitxolo :last-child { margin-bottom: 0; }
+</style>

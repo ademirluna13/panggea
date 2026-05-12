@@ -11,18 +11,30 @@ export default function ShareButton({ title, text, url }: ShareProps) {
   const [copied, setCheck] = useState(false);
 
   const handleShare = async () => {
+    // 🛠️ LA CORRECCIÓN: Si estamos en el cliente, usamos window.location.href
+    // Esto asegura que copie "panggea.site" y no el localhost del servidor.
+    const finalUrl = typeof window !== 'undefined' ? window.location.href : url;
+
     // Si el navegador soporta compartir nativo (Móvil)
     if (navigator.share) {
       try {
-        await navigator.share({ title, text, url });
+        await navigator.share({ 
+          title, 
+          text, 
+          url: finalUrl 
+        });
       } catch (err) {
         console.log("Error compartiendo:", err);
       }
     } else {
-      // Si es PC, copiamos el link y damos feedback visual
-      navigator.clipboard.writeText(url);
-      setCheck(true);
-      setTimeout(() => setCheck(false), 2000);
+      // Si es PC, copiamos el link real y damos feedback visual
+      try {
+        await navigator.clipboard.writeText(finalUrl);
+        setCheck(true);
+        setTimeout(() => setCheck(false), 2000);
+      } catch (err) {
+        console.error("Fallo al copiar al portapapeles", err);
+      }
     }
   };
 
@@ -35,7 +47,7 @@ export default function ShareButton({ title, text, url }: ShareProps) {
       <div className="absolute inset-0 bg-[#FF4500]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
       <span className="relative z-10 font-mono text-[10px] md:text-[12px] font-black uppercase tracking-[0.3em] text-white/70 group-hover:text-white transition-colors">
-        {copied ? "ENLACE_COPIADO_AL_SISTEMA" : "COMPARTIR DATOS"}
+        {copied ? "SISTEMA_SINCRONIZADO" : "COMPARTIR DATOS"}
       </span>
 
       <div className="relative z-10">
