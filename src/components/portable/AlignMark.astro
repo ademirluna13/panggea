@@ -1,0 +1,7 @@
+---
+// src/components/portable/AlignMark.astro
+const { node } = Astro.props;
+---
+<span class={`block text-${node.markType} w-full`}>
+  <slot />
+</span>

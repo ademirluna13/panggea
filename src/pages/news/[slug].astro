@@ -6,7 +6,7 @@ import Footer from '../../components/layout/Footer';
 import Community from '../../components/home/Community';
 import PortableText from '../../components/PortableText.astro';
 import SharedButton from '../../components/layout/SharedButton';
-import { AdSlot } from '../../components/layout/AdSlot';
+
 import { ArrowLeft, Clock, Monitor, Activity, ShieldCheck } from 'lucide-react';
 
 export async function getStaticPaths() {
@@ -17,6 +17,8 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
+
+
 
 // 2. QUERY ACTUALIZADA SEGÚN TU SCHEMA
 const post = await sanityClient.fetch(`*[_type == "post" && slug.current == $slug][0]{
@@ -39,9 +41,22 @@ const articleDate = new Date(post.publishedAt || Date.now()).toLocaleDateString(
   year: 'numeric'
 });
 
+
+// Lógica de reescalado (TAMAÑOS MÁS PEQUEÑOS)
+const nameLength = post?.title?.length || 0;
+let titleSizeClass = "text-5xl md:text-6xl lg:text-[80px]"; // Tamaño base
+
+if (nameLength > 60) {
+  titleSizeClass = "text-3xl md:text-4xl lg:text-[45px]"; // Títulos muy largos
+} else if (nameLength > 35) {
+  titleSizeClass = "text-4xl md:text-5xl lg:text-[60px]"; // Títulos medianos/largos
+}
+
 const currentUrl = Astro.url.href;
 const ACCENT = "#FF4500";
 ---
+
+
 
 <Layout title={`${post.title} | PanGGea`} description={post.description} image={post.heroImage}>
   <Header client:load />
@@ -70,7 +85,7 @@ const ACCENT = "#FF4500";
           </span>
         </div>
         
-        <h1 class="font-headline text-white text-5xl md:text-7xl lg:text-[100px] font-[950] tracking-tighter leading-[0.85] uppercase italic drop-shadow-2xl max-w-5xl break-words">
+        <h1 class={`font-headline ${titleSizeClass} font-black uppercase italic leading-[0.8] mb-8 text-white break-words drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]`}>
           {post.title}
         </h1>
 
@@ -86,18 +101,7 @@ const ACCENT = "#FF4500";
     {/* ─── 2. ZONA DE LECTURA (4 COLUMNAS TÁCTICAS) ─── */}
     <div class="max-w-[1440px] mx-auto flex flex-col lg:flex-row justify-center items-start gap-8 px-6 py-20 relative z-10 w-full">
       
-      {/* 🔥 AD IZQUIERDA (Sticky) */}
-      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0">
-        <div class="w-full h-full bg-[#050505] border border-white/5 relative group overflow-hidden transition-all duration-500 hover:border-[#FF4500]/30">
-           <div class="absolute top-2 left-0 w-full text-center z-10">
-              <span class="font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_L</span>
-           </div>
-           <div class="flex items-center justify-center h-full pt-6">
-              <AdSlot slot="1794581943" client:only="react" />
-           </div>
-           <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700"></div>
-        </div>
-      </aside>
+   
 
       {/* ─── COLUMNA DE TEXTO ─── */}
       <article class="flex-1 max-w-[800px] w-full break-words overflow-hidden">
@@ -175,54 +179,13 @@ const ACCENT = "#FF4500";
           </div>
         )}
 
-        {/* 🔥 AD DERECHA (Sticky) */}
-        <aside class="hidden 2xl:block w-[160px] h-[600px] sticky top-32">
-          <div class="w-full h-full bg-[#050505] border border-white/5 relative group overflow-hidden transition-all duration-500 hover:border-[#FF4500]/30">
-             <div class="absolute top-2 left-0 w-full text-center z-10">
-                <span class="font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_R</span>
-             </div>
-             <div class="flex items-center justify-center h-full pt-6">
-                <AdSlot slot="2057471674" client:only="react" />
-             </div>
-             <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700"></div>
-          </div>
-        </aside>
-      </aside>
 
     </div>
 
-    {/* ─── 3. SECCIÓN INFERIOR ─── */}
-    <div class="w-full max-w-[1200px] mx-auto px-6 mt-16">
-      
-      <div class="mb-24">
-         {/* Desktop Horizontal Ad */}
-         <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
-            <div class="absolute top-3 left-6 z-10">
-              <span class="font-mono text-[8px] text-white/20 uppercase tracking-[0.2em]">Sponsored_Footer_Node</span>
-            </div>
-            <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-10">
-               <AdSlot slot="4821639929" format="auto" client:only="react" />
-            </div>
-            <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700"></div>
-         </div>
-
-         {/* Mobile Box Ad */}
-         <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
-            <div class="absolute top-3 left-4 z-10">
-              <span class="font-mono text-[8px] font-black tracking-[0.2em] text-white/20 uppercase">Sponsored_Node</span>
-            </div>
-            <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-10">
-               <AdSlot slot="4819366386" format="auto" client:only="react" />
-            </div>
-         </div>
-      </div>
-
-      <Community client:load />
     </div>
 
   </main>
 
-  <Footer />
 </Layout>
 
 <style is:global>

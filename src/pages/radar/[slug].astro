@@ -7,7 +7,7 @@ import { sanityClient } from "sanity:client";
 import { ArrowLeft, Radio, Calendar, Monitor, Activity, Info, Timer } from 'lucide-react';
 // 🔥 Importamos componentes tácticos
 import SharedButton from '../../components/layout/SharedButton';
-import { AdSlot } from '../../components/layout/AdSlot';
+
 
 const ACCENT_COLOR = "#00F0FF";
 const HYPE_RED = "#FF0055"; 
@@ -23,11 +23,13 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 
+// 🚀 MAPEO ACTUALIZADO: CATEGORÍA Y JUEGO
 const event = await sanityClient.fetch(`*[_type == "radarEvent" && slug.current == $slug][0]{
   title,
   "slug": slug.current,
   eventDate,
-  category,
+  "category": category->title,
+  "gameName": relatedGame->name,
   platform,
   hypeLevel,
   "heroImage": mainImage.asset->url,
@@ -54,6 +56,16 @@ const formatDate = (date: string) => new Date(date).toLocaleDateString('es-MX', 
 }).toUpperCase();
 
 const currentUrl = Astro.url.href;
+
+// 🚀 LÓGICA DE REESCALADO DINÁMICO (TAMAÑOS OPTIMIZADOS)
+const nameLength = event?.title?.length || 0;
+let titleSizeClass = "text-5xl md:text-6xl lg:text-[80px]";
+
+if (nameLength > 60) {
+  titleSizeClass = "text-3xl md:text-4xl lg:text-[45px]";
+} else if (nameLength > 35) {
+  titleSizeClass = "text-4xl md:text-5xl lg:text-[60px]";
+}
 ---
 
 <Layout title={`${event.title} | RADAR PanGGea`} description={event.description}>
@@ -83,13 +95,20 @@ const currentUrl = Astro.url.href;
           <span class="bg-[#00F0FF] text-black font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5">
             {event.category || 'SIGNAL'}
           </span>
+          {/* 🚀 BADGE DEL JUEGO (SI EXISTE) */}
+          {event.gameName && (
+            <span class="border border-[#00F0FF]/30 bg-[#00F0FF]/10 text-[#00F0FF] font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5">
+              {event.gameName}
+            </span>
+          )}
           <span class="border border-white/10 bg-black/50 backdrop-blur-sm text-white/70 font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2">
             <Activity size={12} color={ACCENT_COLOR} />
             LIVE_TRACKING
           </span>
         </div>
 
-        <h1 class="font-headline text-6xl md:text-8xl lg:text-[110px] font-black uppercase italic leading-[0.85] mb-12 tracking-tighter text-white drop-shadow-2xl break-words">
+        {/* 🚀 TÍTULO REESCALABLE APLICADO AQUÍ */}
+        <h1 class={`font-headline ${titleSizeClass} font-black uppercase italic leading-[0.85] mb-12 tracking-tighter text-white drop-shadow-2xl break-words`}>
           {event.title}
         </h1>
 
@@ -126,16 +145,7 @@ const currentUrl = Astro.url.href;
     {/* 📝 SECCIÓN DE CONTENIDO CON ESCOLTA DE ADS */}
     <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12 w-full">
       
-      {/* 🔥 AD IZQUIERDA (Sticky junto al texto) */}
-      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-cyan-900/20 bg-[#050505]">
-         <div class="w-full h-full relative group overflow-hidden">
-            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_L</span>
-            <div class="flex items-center justify-center h-full pt-6">
-               <AdSlot slot="1794581943" client:only="react" />
-            </div>
-            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#00F0FF] transition-all duration-700 shadow-[0_0_15px_#00F0FF]"></div>
-         </div>
-      </aside>
+    
 
       <div class="flex-1 max-w-[1200px] w-full">
         <div class="mb-16">
@@ -206,39 +216,10 @@ const currentUrl = Astro.url.href;
           </aside>
         </div>
 
-        {/* 🔥 ADS HASTA ABAJO (Horizontal PC y Box Móvil) */}
-        <div class="mt-20 flex flex-col gap-10">
-           {/* Desktop Horizontal */}
-           <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden transition-all duration-500 hover:border-cyan-500/30">
-              <div class="absolute top-3 left-6 z-10">
-                <span class="font-mono text-[8px] text-white/20 uppercase tracking-[0.2em]">Sponsored_Radar_Node</span>
-              </div>
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-10">
-                 <AdSlot slot="4821639929" format="auto" client:only="react" />
-              </div>
-              <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#00F0FF] transition-all duration-700 shadow-[0_0_15px_#00F0FF]" />
-           </div>
-
-           {/* Mobile Box */}
-           <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4">
-                 <AdSlot slot="4819366386" format="auto" client:only="react" />
-              </div>
-           </div>
+    
         </div>
 
       </div>
-
-      {/* 🔥 AD DERECHA (Sticky junto a la sidebar) */}
-      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-cyan-900/20 bg-[#050505]">
-         <div class="w-full h-full relative group overflow-hidden">
-            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_R</span>
-            <div class="flex items-center justify-center h-full pt-6">
-               <AdSlot slot="2057471674" client:only="react" />
-            </div>
-            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#00F0FF] transition-all duration-700 shadow-[0_0_15px_#00F0FF]"></div>
-         </div>
-      </aside>
 
     </div>
   </main>

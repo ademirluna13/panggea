@@ -1,8 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Target, Zap, ChevronRight, ArrowRight, ShieldAlert, BarChart3 } from 'lucide-react';
-// 🔥 Asegúrate de tener la ruta correcta de tu AdSlot
-import { AdSlot } from '../../components/layout/AdSlot'; 
+
 
 const ACCENT = "#00FF66";
 
@@ -66,39 +65,6 @@ export function TacticalArsenal({ entries = [], accentColor = ACCENT }: Tactical
       <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 0%, ${accentColor}08 0%, transparent 70%)` }} />
 
       <div className="flex w-full max-w-[1600px] justify-center items-start gap-8 xl:gap-12 px-4 xl:px-6 relative z-10">
-        
-        {/* 🔥 ADS IZQUIERDA (x2) - Solo si la pantalla es mayor a 1536px (2xl) 🔥 */}
-        {screenWidth >= 1536 && (
-          <aside className="flex w-[160px] sticky top-28 flex-col gap-6 h-fit">
-            <div 
-              className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500"
-              onMouseOver={(e) => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.boxShadow = `0 10px 30px -10px ${accentColor}40`; }}
-              onMouseOut={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.boxShadow = 'none'; }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm block w-full" style={{ color: accentColor }}>SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="1794581943" />
-              </div>
-            </div>
-
-            <div 
-              className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500"
-              onMouseOver={(e) => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.boxShadow = `0 10px 30px -10px ${accentColor}40`; }}
-              onMouseOut={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.boxShadow = 'none'; }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm block w-full" style={{ color: accentColor }}>SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="1794581943" />
-              </div>
-            </div>
-          </aside>
-        )}
 
         {/* ─── CONTENIDO CENTRAL ─── */}
         <div className="max-w-[1200px] w-full">
@@ -247,76 +213,7 @@ export function TacticalArsenal({ entries = [], accentColor = ACCENT }: Tactical
             </AnimatePresence>
           </div>
 
-          {/* 🔥 ADS HASTA ABAJO (Montados seguros sin romper layout) 🔥 */}
-          {screenWidth > 0 && (
-            <>
-              {/* Desktop Bottom Ad */}
-              {screenWidth >= 1024 && (
-                <div 
-                  className="flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group mt-12 flex-col justify-center overflow-hidden transition-all duration-500"
-                  onMouseOver={(e) => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.boxShadow = `0 10px 30px -10px ${accentColor}40`; }}
-                  onMouseOut={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.boxShadow = 'none'; }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-                  <div className="absolute top-4 left-4 z-10">
-                    <span className="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm" style={{ color: accentColor }}>SPONSORED_NODE</span>
-                  </div>
-                  <div className="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                     <AdSlot slot="4821639929" format="auto" />
-                  </div>
-                </div>
-              )}
-
-              {/* Mobile Bottom Ad */}
-              {screenWidth < 1024 && (
-                <div className="flex w-full min-h-[250px] bg-[#050505] border border-white/5 relative group mt-8 flex-col justify-center overflow-hidden transition-all duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-                  <div className="absolute top-4 left-4 z-10">
-                    <span className="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm" style={{ color: accentColor }}>SPONSORED_NODE</span>
-                  </div>
-                  <div className="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                     <AdSlot slot="4819366386" format="auto" />
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
         </div>
-
-        {/* 🔥 ADS DERECHA (x2) - Solo si la pantalla es mayor a 1536px (2xl) 🔥 */}
-        {screenWidth >= 1536 && (
-          <aside className="flex w-[160px] sticky top-28 flex-col gap-6 h-fit">
-            <div 
-              className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500"
-              onMouseOver={(e) => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.boxShadow = `0 10px 30px -10px ${accentColor}40`; }}
-              onMouseOut={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.boxShadow = 'none'; }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm block w-full" style={{ color: accentColor }}>SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="2057471674" />
-              </div>
-            </div>
-
-            <div 
-              className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500"
-              onMouseOver={(e) => { e.currentTarget.style.borderColor = accentColor; e.currentTarget.style.boxShadow = `0 10px 30px -10px ${accentColor}40`; }}
-              onMouseOut={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.boxShadow = 'none'; }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm block w-full" style={{ color: accentColor }}>SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="2057471674" />
-              </div>
-            </div>
-          </aside>
-        )}
-
       </div>
     </section>
   );

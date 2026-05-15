@@ -6,7 +6,7 @@ import { sanityClient } from "sanity:client";
 import { ArrowLeft, Target, Zap, ShieldAlert, BarChart3, Calendar } from 'lucide-react';
 // 🔥 Importamos componentes tácticos
 import SharedButton from '../../components/layout/SharedButton';
-import { AdSlot } from '../../components/layout/AdSlot';
+
 
 const ACCENT_COLOR = "#00FF66";
 
@@ -113,17 +113,7 @@ const currentUrl = Astro.url.href;
     {/* 📝 SECCIÓN DE CONTENIDO CON ESCOLTA DE ADS */}
     <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12 w-full">
       
-      {/* 🔥 AD IZQUIERDA (Sticky junto al texto) */}
-      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-[#00FF66]/20 bg-[#050505]">
-         <div class="w-full h-full relative group overflow-hidden">
-            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_L</span>
-            <div class="flex items-center justify-center h-full pt-6">
-               <AdSlot slot="1794581943" client:only="react" />
-            </div>
-            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#00FF66] transition-all duration-700 shadow-[0_0_15px_#00FF66]"></div>
-         </div>
-      </aside>
-
+   
       <div class="flex-1 max-w-[1200px] w-full">
         <div class="mb-16">
           <button onclick="window.history.back();" class="group flex items-center gap-4 text-white/30 transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max">
@@ -206,39 +196,9 @@ const currentUrl = Astro.url.href;
 
         </div>
 
-        {/* 🔥 ADS HASTA ABAJO (Horizontal PC y Box Móvil) */}
-        <div class="mt-20 flex flex-col gap-10">
-           {/* Desktop Horizontal */}
-           <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden transition-all duration-500 hover:border-[#00FF66]/30">
-              <div class="absolute top-3 left-6 z-10">
-                <span class="font-mono text-[8px] text-white/20 uppercase tracking-[0.2em]">Sponsored_Arsenal_Node</span>
-              </div>
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-10">
-                 <AdSlot slot="4821639929" format="auto" client:only="react" />
-              </div>
-              <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#00FF66] transition-all duration-700 shadow-[0_0_15px_#00FF66]" />
-           </div>
-
-           {/* Mobile Box */}
-           <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4">
-                 <AdSlot slot="4819366386" format="auto" client:only="react" />
-              </div>
-           </div>
-        </div>
+  
 
       </div>
-
-      {/* 🔥 AD DERECHA (Sticky junto a la sidebar) */}
-      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-[#00FF66]/20 bg-[#050505]">
-         <div class="w-full h-full relative group overflow-hidden">
-            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_R</span>
-            <div class="flex items-center justify-center h-full pt-6">
-               <AdSlot slot="2057471674" client:only="react" />
-            </div>
-            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#00FF66] transition-all duration-700 shadow-[0_0_15px_#00FF66]"></div>
-         </div>
-      </aside>
 
     </div>
   </main>

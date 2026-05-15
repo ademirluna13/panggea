@@ -1,0 +1,88 @@
+---
+import { sanityClient } from "sanity:client";
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import ArchiveGrid from '../../components/home/ArchiveGrid';
+import { ArrowLeft, BookOpen } from 'lucide-react'; 
+
+
+// 🚀 CONSULTA MAESTRA DE GUÍAS
+const rawGuides = await sanityClient.fetch<any[]>(`*[_type == "guide"] | order(publishedAt desc) {
+  title, 
+  "slug": slug.current, 
+  "heroImage": mainImage.asset->url, 
+  publishedAt, 
+  description, 
+  "game": game->name,
+  "type": type->title,
+  "level": level->title,
+  "category": coalesce(type->title, "GUÍA") 
+}`);
+
+// Jalamos los tipos de guía para los filtros del ArchiveGrid
+const guideTypes = await sanityClient.fetch<any[]>(`*[_type == "guideType"] | order(title asc) { title }`);
+const typeList = guideTypes.map((t: { title: string }) => t.title);
+
+// 🚀 COLOR ASIGNADO: SILVER / STEEL
+const ACCENT_COLOR = "#94A3B8"; 
+const pageTitle = "GUÍAS | PanGGea";
+---
+
+<Layout title={pageTitle}>
+  <Header client:load />
+
+  <main class="bg-[#020202] min-h-screen pt-44 pb-20 relative overflow-hidden">
+    
+    {/* EFECTO DE LUZ PLATEADA */}
+    <div class="absolute inset-0 pointer-events-none" 
+         style={`background: radial-gradient(circle at 50% 0%, ${ACCENT_COLOR}10 0%, transparent 70%)`}>
+    </div>
+
+    <div class="max-w-[1750px] mx-auto px-6 flex justify-center items-start gap-10 relative z-10">
+      
+     
+
+      <div class="flex-1 max-w-[1200px]">
+        
+        <button onclick="window.history.back();" class="group flex items-center gap-4 mb-10 text-white/30 hover:text-white transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max">
+          <div class="p-2 border border-white/5 bg-white/[0.02] transition-all group-hover:border-[#94A3B8]/60 group-hover:shadow-[0_0_15px_rgba(148,163,184,0.3)]">
+            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          </div>
+          <span class="transition-colors duration-300 group-hover:text-[#94A3B8]">VOLVER</span>
+        </button>
+
+        <header class="mb-14">
+          <div class="flex items-center gap-3 mb-6 text-[#94A3B8]">
+            <BookOpen size={20} />
+            <span class="font-mono text-[11px] font-black tracking-[0.5em] uppercase italic">Manuals</span>
+          </div>
+          <h2 class="font-headline text-white text-4xl sm:text-6xl md:text-8xl lg:text-[105px] font-[950] tracking-tighter leading-none uppercase italic drop-shadow-2xl">
+            GUIAS Y 
+            <span class="text-transparent" style={{ WebkitTextStroke: `2px ${ACCENT_COLOR}` }}> TRUCOS</span>
+          </h2>
+          <div class="flex items-center gap-4 mt-8 text-white/20 font-mono text-[10px] tracking-[0.4em] uppercase">
+            <div class="w-12 h-[1px]" style={{ backgroundColor: ACCENT_COLOR, boxShadow: `0 0 10px ${ACCENT_COLOR}` }}></div>
+            <span>Protocolos de Ejecución: {rawGuides.length}</span>
+          </div>
+        </header>
+
+        {/* 🚀 ARREGLADO: Agregamos basePath="/guias" para evitar el 404 */}
+        <ArchiveGrid 
+          client:load 
+          posts={rawGuides} 
+          categories={typeList} 
+          accentColor={ACCENT_COLOR} 
+          basePath="/guide"
+        />
+
+      
+
+      </div>
+
+     
+
+    </div>
+  </main>
+  <Footer />
+</Layout>

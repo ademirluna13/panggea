@@ -26,14 +26,20 @@ export default defineType({
       type: 'datetime',
       validation: (Rule) => Rule.required(),
     }),
+    // 🔥 ENLAZADO AL ARCHIVO DE CATEGORÍA
     defineField({
       name: 'category',
       title: 'Categoría',
-      type: 'string',
-      options: {
-        list: ['GAMING', 'TECH', 'CINE/TV', 'ANIME', 'MÚSICA'],
-      },
+      type: 'reference',
+      to: [{ type: 'category' }], 
       validation: (Rule) => Rule.required(),
+    }),
+    // 🔥 ENLAZADO AL ARCHIVO DE JUEGOS
+    defineField({
+      name: 'relatedGame',
+      title: 'Juego Relacionado (Opcional)',
+      type: 'reference',
+      to: [{ type: 'game' }],
     }),
     defineField({
       name: 'platform',
@@ -68,15 +74,14 @@ export default defineType({
     defineField({
       name: 'content',
       title: 'Contenido Detallado',
-      type: 'array',
-      of: [{ type: 'block' }],
+      type: 'blockContent', // 🔥 CAMBIADO AL LUXURY EDITOR
       description: 'Toda la información que saldrá cuando abran el expediente.',
     }),
   ],
   preview: {
     select: {
       title: 'title',
-      subtitle: 'category',
+      subtitle: 'category.title', // 🔥 Ajustado para que lea la referencia sin romper el Studio
       media: 'mainImage',
     },
   },

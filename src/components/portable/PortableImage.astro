@@ -1,19 +1,22 @@
 ---
+// src/components/portable/PortableImage.astro
 import { urlFor } from "../../utils/urlFor";
 
-// 1. Definimos una interfaz para que TypeScript reconozca tus nuevos campos
 interface Props {
   node: {
+image: any;
     asset: any;
     alt?: string;
     caption?: string;
-    imageSize?: 'small' | 'medium' | 'large' | 'full';
+    imageSize?: 'small' | 'medium' | 'large' | 'full'; // Nombre viejo del campo
+    size?: 'small' | 'medium' | 'large' | 'full';      // Nombre nuevo si lo cambiaste en el esquema
+    layout?: 'left' | 'right' | 'center'; // <--- LEEMOS LA NUEVA OPCIÓN
   }
 }
 
-// 2. Le decimos a Astro que use esa interfaz al recibir las props
 const { node } = Astro.props as Props;
 
+// Definimos los anchos de imagen igual que antes
 const sizeClasses = {
   small: "md:w-1/4 w-full",
   medium: "md:w-1/2 w-full",
@@ -21,17 +24,28 @@ const sizeClasses = {
   full: "w-full"
 };
 
-// Si por algo viene vacío, que use 'medium' por defecto
-const currentSize = sizeClasses[node.imageSize || 'medium'] || sizeClasses.medium;
+const currentSize = sizeClasses[node.size || node.imageSize || 'medium'] || sizeClasses.medium;
+
+// 🚀 AQUÍ ESTÁ LA LÓGICA DE FLOTACIÓN (float) PARA QUE EL TEXTO ABRASE LA IMAGEN
+// Le damos márgenes laterales y inferiores para que no se pegue al texto.
+const layoutClasses = {
+  left: "float-left mr-6 mb-4 mt-2", // Flota a la izquierda, margen derecho y abajo
+  right: "float-right ml-6 mb-4 mt-2", // Flota a la derecha, margen izquierdo y abajo
+  center: "block mx-auto mb-8" // Se queda centrado como un bloque separado
+};
+
+// Si por algo viene vacío, usamos 'center'
+const currentLayout = layoutClasses[node.layout || 'center'];
 
 // Usamos node directamente porque ya trae el asset dentro
-const url = urlFor(node).url();
+const url = node.image ? urlFor(node.image).url() : urlFor(node).url();
 ---
 
-<figure class={`my-12 flex flex-col items-center group mx-auto ${currentSize}`}>
+{/* Quitamos mx-auto y flex del figure, y le aplicamos currentLayout */}
+<figure class={`my-1 group w-full ${currentSize} ${currentLayout}`}>
   <img 
     src={url} 
-    alt={node.alt || 'Hardware PanGGea'} 
+    alt={node.alt || 'Media PanGGea'} 
     class="rounded-sm border border-white/10 shadow-2xl transition-all duration-700 group-hover:border-[#FF4500]/50 w-full h-auto"
     loading="lazy"
   />

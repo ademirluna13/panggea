@@ -9,5 +9,9 @@ import radarEvent from './radarEvent'
 import gear from './gear'
 import gearCategory from './gearCategory'
 import gearBrand from './gearBrand'
+import mediaBlock from './mediaBlock'
+import guide from './guide'
+import guideLEvel from './guideLEvel'
+import guideType from './guideType'
 
-export const schemaTypes = [post, author, category, blockContent, patchNote, tierEntry, game, radarEvent, gear, gearCategory, gearBrand]
+export const schemaTypes = [post, author, category, blockContent, patchNote, tierEntry, game, radarEvent, gear, gearCategory, gearBrand, mediaBlock, guide, guideLEvel, guideType]

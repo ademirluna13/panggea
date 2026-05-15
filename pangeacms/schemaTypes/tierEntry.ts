@@ -70,10 +70,10 @@ export default defineType({
       type: 'datetime',
     }),
     defineField({
-      name: 'longDescription', // 🔥 CORREGIDO: long en lugar de logn
+      name: 'longDescription', 
       title: 'Descripción Larga (Análisis de Meta)',
-      type: 'text',            // 🔥 CORREGIDO: Cambiado a text para que Astro lo lea directo
-      rows: 6,                 // Extra: Hace que la caja en Sanity sea más grande para escribir cómodo
+      type: 'blockContent', // 🚀 Ascendido al Luxury Editor
+      description: 'Explayate con el análisis. Recuerda usar el botón de Pantalla Completa para escribir más cómodo, puedes meter videos y fotos aquí.'
     }),
     
   ],

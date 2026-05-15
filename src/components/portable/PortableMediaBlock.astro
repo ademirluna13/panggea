@@ -2,6 +2,9 @@
 import { urlFor } from "../../utils/urlFor";
 import { PortableText as AstroPortableText } from "astro-portabletext";
 import PortableLink from "./PortableLink.astro";
+// 🚀 1. IMPORTAMOS LOS NUEVOS COMPONENTES (Adiós a los viejos)
+import ColorMark from "./ColorMark.astro";
+import AlignMark from "./AlignMark.astro";
 
 interface Props {
   node: {
@@ -9,17 +12,20 @@ interface Props {
     imageSize?: 'small' | 'medium' | 'large' | 'full';
     text: any[];
     layout?: 'left' | 'right';
-    textAlign?: 'left' | 'center' | 'right' | 'justify'; // <-- Nuevo
+    textAlign?: 'left' | 'center' | 'right' | 'justify';
   }
 }
 
 const { node } = Astro.props as Props;
 
-// Mapeos de ancho
-const imageWidthClasses = { small: "md:w-1/4", medium: "md:w-1/2", large: "md:w-3/4", full: "md:w-full" };
-const textWidthClasses = { small: "md:w-3/4", medium: "md:w-1/2", large: "md:w-1/4", full: "md:w-full" };
+// SOLO NECESITAMOS LOS ANCHOS DE LA IMAGEN
+const imageWidthClasses = { 
+  small: "md:w-1/4", 
+  medium: "md:w-1/3", 
+  large: "md:w-1/2", 
+  full: "w-full" 
+};
 
-// 1. MAPEAMOS LA ALINEACIÓN A TAILWIND
 const textAlignClasses = {
   left: "text-left",
   center: "text-center",
@@ -32,16 +38,29 @@ const imageSize = node.imageSize || 'medium';
 const textAlignClass = textAlignClasses[node.textAlign || 'justify'] || "text-justify";
 
 const imageColClass = imageWidthClasses[imageSize];
-const textColClass = textWidthClasses[imageSize];
 const url = node.image ? urlFor(node.image).url() : null;
 
-const components = { mark: { link: PortableLink } };
+// 🚀 2. ACTUALIZAMOS LOS COMPONENTES (Todo vive en 'mark' ahora)
+const components = { 
+  mark: { 
+    link: PortableLink,
+    textColor: ColorMark,
+    center: AlignMark,
+    justify: AlignMark,
+    right: AlignMark,
+  } 
+};
+
+// MAGIA DE FLOTACIÓN
+const floatClass = isReverse 
+  ? 'float-right ml-6 mb-4 mt-2' 
+  : 'float-left mr-6 mb-4 mt-2';
 ---
 
-<div class={`flex flex-col gap-8 my-16 items-center ${isReverse ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
+<div class={`flow-root my-16 w-full prose-bitxolo ${textAlignClass}`}>
   
   {url && (
-    <div class={`w-full ${imageColClass} group`}>
+    <div class={`w-full ${imageColClass} ${floatClass} group`}>
       <div class="relative overflow-hidden rounded-sm border border-white/10 shadow-2xl transition-all duration-700 group-hover:border-[#FF4500]/50">
         <img 
           src={url} 
@@ -53,9 +72,7 @@ const components = { mark: { link: PortableLink } };
     </div>
   )}
 
-  <div class={`w-full ${textColClass} prose-bitxolo ${textAlignClass}`}>
-    <AstroPortableText value={node.text} components={components} />
-  </div>
+  <AstroPortableText value={node.text} components={components} />
 
 </div>
 

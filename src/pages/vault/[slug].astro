@@ -3,10 +3,10 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { sanityClient } from "sanity:client";
-import { ArrowLeft, Zap, ShieldCheck, Share2 } from 'lucide-react';
+import { ArrowLeft, Zap, ShieldCheck, User, Gamepad2 } from 'lucide-react';
 // 🔥 Importamos componentes tácticos
 import SharedButton from '../../components/layout/SharedButton';
-import { AdSlot } from '../../components/layout/AdSlot';
+
 
 export async function getStaticPaths() {
   const items = await sanityClient.fetch<any[]>(`*[_type == "gear" && defined(slug.current)]{
@@ -26,6 +26,8 @@ const item = await sanityClient.fetch(`*[_type == "gear" && slug.current == $slu
   "slug": slug.current,
   "brand": brand->name,
   "brandLogo": brand->logo.asset->url,
+  "authorName": author->name, 
+  "gameName": relatedGame->name,
   price,
   specs,
   shortDescription,
@@ -39,13 +41,23 @@ if (!item) {
   return Astro.redirect('/vault');
 }
 
+// Lógica de reescalado (TAMAÑOS MÁS PEQUEÑOS)
+const nameLength = item?.name?.length || 0;
+let titleSizeClass = "text-5xl md:text-6xl lg:text-[80px]"; // Tamaño base
+
+if (nameLength > 60) {
+  titleSizeClass = "text-3xl md:text-4xl lg:text-[45px]"; 
+} else if (nameLength > 35) {
+  titleSizeClass = "text-4xl md:text-5xl lg:text-[60px]"; 
+}
+
 const specs = Array.isArray(item.specs) ? item.specs : [];
 const currentUrl = Astro.url.href;
 ---
 
 <Layout 
   title={`${item.name} | PanGGea`} 
-  description={item.shortDescription || item.description}}
+  description={item.shortDescription || item.description}
   image={item.image} 
 >
   <Header client:load />
@@ -97,20 +109,44 @@ const currentUrl = Astro.url.href;
           </span>
         </div>
 
-        <h1 class="font-headline text-6xl md:text-8xl lg:text-[120px] font-black uppercase italic leading-[0.85] mb-8 tracking-tighter text-rgb drop-shadow-2xl break-words">
+        <h1 class={`font-headline ${titleSizeClass} font-black uppercase italic leading-[0.85] mb-8 tracking-tighter text-rgb drop-shadow-2xl break-words`}>
           {item.name}
         </h1>
 
-        <div class="flex items-center gap-6 border-t border-white/10 pt-6 max-w-md">
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center">
-              <span class="text-white/60 font-bold">$</span>
-            </div>
+        {/* 🚀 MAPEADO: PRECIO, AUTOR Y JUEGO RELACIONADO */}
+        <div class="flex flex-wrap items-center gap-y-6 border-t border-white/10 pt-6">
+          
+          {/* Valor */}
+          <div class="flex items-center gap-3 pr-8 border-r border-white/10">
+            <div class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/60 font-bold">$</div>
             <div>
               <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Valor Táctico</span>
-              <span class="block font-headline italic text-xl text-white font-black">{item.price || 'N/A'}</span>
+              <span class="block font-headline italic text-xl text-white font-black leading-none">{item.price || 'N/A'}</span>
             </div>
           </div>
+
+          {/* Tester (Autor) */}
+          {item.authorName && (
+            <div class="flex items-center gap-3 px-8 border-r border-white/10">
+              <User size={18} className="text-[#00F0FF]" />
+              <div>
+                <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Field_Tester</span>
+                <span class="block font-bold text-xs text-white uppercase leading-none">{item.authorName}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Juego Relacionado */}
+          {item.gameName && (
+            <div class="flex items-center gap-3 pl-8">
+              <Gamepad2 size={18} className="text-[#FF0055]" />
+              <div>
+                <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Special_Edition</span>
+                <span class="block font-bold text-xs text-white uppercase leading-none">{item.gameName}</span>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
@@ -118,17 +154,7 @@ const currentUrl = Astro.url.href;
     {/* 📝 SECCIÓN DE CONTENIDO CON ESCOLTA DE ADS */}
     <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12 w-full">
       
-      {/* 🔥 AD IZQUIERDA (Sticky junto a la descripción) */}
-      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-white/5 bg-[#050505]">
-         <div class="w-full h-full relative group overflow-hidden">
-            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_L</span>
-            <div class="flex items-center justify-center h-full pt-6">
-               <AdSlot slot="1794581943" client:only="react" />
-            </div>
-            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-white/40 transition-all duration-700"></div>
-         </div>
-      </aside>
-
+ 
       <div class="flex-1 max-w-[1200px] w-full">
         <div class="mb-12">
           <a href="/vault" class="group flex items-center gap-4 text-white/30 hover:text-white transition-colors font-mono text-[10px] uppercase tracking-[0.3em] w-max">
@@ -138,7 +164,6 @@ const currentUrl = Astro.url.href;
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
-          
           <div class="lg:col-span-8">
             <div class="prose prose-invert prose-p:text-white/70 prose-p:leading-relaxed prose-p:text-lg max-w-none break-words mb-20">
               <p class="whitespace-pre-wrap break-words">
@@ -147,10 +172,8 @@ const currentUrl = Astro.url.href;
             </div>
           </div>
 
-          {/* SIDEBAR TÁCTICA */}
           <aside class="lg:col-span-4 flex flex-col gap-8">
             <div class="bg-[#050505] border border-white/5 hover:border-white/20 p-8 shadow-2xl relative transition-colors duration-500 lg:sticky lg:top-32 group overflow-hidden">
-              
               <div class="flex items-center gap-3 mb-8">
                 <div class="h-[2px] w-6 bg-gradient-to-r from-red-500 via-green-500 to-blue-500"></div>
                 <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Specs Técnicos</span>
@@ -171,19 +194,13 @@ const currentUrl = Astro.url.href;
                 )}
               </div>
 
-              {/* 🔥 SHARED BUTTON INTEGRADO EN EL SIDEBAR 🔥 */}
               <div class="pt-8 border-t border-white/10 mb-6">
-                 <SharedButton 
-                    client:load 
-                    title={item.name} 
-                    text={item.shortDescription} 
-                    url={currentUrl} 
-                 />
+                 <SharedButton client:load title={item.name} text={item.shortDescription} url={currentUrl} />
               </div>
 
               <a href={item.buyLink || '#'} target="_blank" rel="noopener noreferrer" 
                  class="w-full flex items-center justify-between border border-white/10 bg-white/5 px-6 py-4 hover:border-white/40 hover:bg-white/10 transition-all duration-300 group/btn">
-                <span class="font-mono text-[9px] uppercase tracking-widest font-bold text-white group-hover/btn:text-white transition-colors">
+                <span class="font-mono text-[9px] uppercase tracking-widest font-bold text-white transition-colors">
                   {item.buyLink ? 'Adquirir Unidad' : 'Unidad en Análisis'}
                 </span>
                 <ShieldCheck size={16} className="text-white/40 group-hover/btn:text-[#00FF66] transition-colors" />
@@ -192,42 +209,12 @@ const currentUrl = Astro.url.href;
           </aside>
         </div>
 
-        {/* 🔥 ADS HASTA ABAJO (Horizontal y Móvil) */}
-        <div class="mt-20 flex flex-col gap-10">
-           {/* Desktop Horizontal */}
-           <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden transition-all duration-500 hover:border-white/20">
-              <div class="absolute top-3 left-6 z-10">
-                <span class="font-mono text-[8px] text-white/20 uppercase tracking-[0.2em]">Sponsored_Vault_Node</span>
-              </div>
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-10">
-                 <AdSlot slot="4821639929" format="auto" client:only="react" />
-              </div>
-              <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-white/40 transition-all duration-700" />
-           </div>
-
-           {/* Mobile Box */}
-           <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4">
-                 <AdSlot slot="4819366386" format="auto" client:only="react" />
-              </div>
-           </div>
-        </div>
-
+     
       </div>
 
-      {/* 🔥 AD DERECHA (Sticky junto a las specs) */}
-      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-white/5 bg-[#050505]">
-         <div class="w-full h-full relative group overflow-hidden">
-            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_R</span>
-            <div class="flex items-center justify-center h-full pt-6">
-               <AdSlot slot="2057471674" client:only="react" />
-            </div>
-            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-white/40 transition-all duration-700"></div>
-         </div>
-      </aside>
+ 
 
     </div>
   </main>
-
   <Footer />
 </Layout>

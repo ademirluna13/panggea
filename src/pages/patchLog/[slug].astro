@@ -7,7 +7,7 @@ import { sanityClient } from "sanity:client";
 import { ArrowLeft, Terminal, Cpu, Zap, Activity, Clock, History, Gamepad2 } from 'lucide-react';
 // 🔥 Importamos los componentes nuevos
 import SharedButton from '../../components/layout/SharedButton';
-import { AdSlot } from '../../components/layout/AdSlot';
+
 import Community from '../../src/components/home/Community';
 
 // ─── ADN MORADO NEÓN ───
@@ -42,6 +42,15 @@ if (!patch) {
   return Astro.redirect('/patch-log');
 }
 
+const nameLength = patch?.title?.length || 0;
+let titleSizeClass = "text-5xl md:text-6xl lg:text-[80px]"; // Tamaño base
+
+if (nameLength > 60) {
+  titleSizeClass = "text-3xl md:text-4xl lg:text-[45px]"; // Títulos muy largos
+} else if (nameLength > 35) {
+  titleSizeClass = "text-4xl md:text-5xl lg:text-[60px]"; // Títulos medianos/largos
+}
+
 const formatDate = (date: string) => new Date(date).toLocaleDateString('es-MX', {
   day: '2-digit',
   month: 'short',
@@ -73,7 +82,7 @@ const currentUrl = Astro.url.href;
       </div>
 
       <div class="max-w-[1200px] mx-auto px-6 w-full relative z-10">
-        <div class="flex flex-wrap items-center gap-3 mb-6">
+        <div class="flex flex-wrap items-center gap-3 mb-1">
           <span class="font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 border border-white/10 bg-black/80 text-white">
             VERSION: <span style={`color: ${ACCENT_COLOR}`}>{patch.version}</span>
           </span>
@@ -82,9 +91,10 @@ const currentUrl = Astro.url.href;
           </span>
         </div>
 
-        <h1 class="font-headline text-5xl md:text-7xl lg:text-[100px] font-black uppercase italic leading-[0.85] mb-8 tracking-tighter text-white drop-shadow-[0_0_30px_rgba(184,41,255,0.3)] break-words">
-          {patch.gameName || patch.title}
+        <h1 class={`font-headline ${titleSizeClass} font-black uppercase italic leading-[0.8] mb-8 text-white break-words drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]`}>
+          {patch.title}
         </h1>
+
 
         <div class="flex flex-wrap items-center gap-8 border-t border-white/10 pt-8">
           <div class="flex items-center gap-3">
@@ -108,17 +118,7 @@ const currentUrl = Astro.url.href;
 
     {/* 📝 CONTENIDO CON ADS ESCOLTA */}
     <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12">
-      
-      {/* 🔥 AD IZQUIERDA (Sticky junto al texto) */}
-      <aside class="hidden 2xl:block w-[160px] sticky top-32 h-[600px] shrink-0 border border-purple-950/30 bg-[#050505]">
-         <div class="w-full h-full relative group overflow-hidden">
-            <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_L</span>
-            <div class="flex items-center justify-center h-full pt-6">
-               <AdSlot slot="1794581943" client:only="react" />
-            </div>
-            <div class="absolute bottom-0 left-0 h-[1px] w-0 group-hover:w-full bg-[#b829ff] transition-all duration-700 shadow-[0_0_15px_#b829ff]"></div>
-         </div>
-      </aside>
+   
 
       {/* COLUMNA CENTRAL (Contenido Original) */}
       <div class="max-w-[1200px] w-full flex-grow">
@@ -207,38 +207,11 @@ const currentUrl = Astro.url.href;
 
             </div>
 
-            {/* 🔥 AD DERECHA (Sticky debajo del SharedButton en pantallas gigantes) */}
-            <div class="hidden 2xl:block w-[160px] h-[600px] shrink-0 sticky top-[600px] border border-purple-950/30 bg-[#050505] mt-10">
-              <div class="w-full h-full relative group overflow-hidden">
-                <span class="absolute top-2 left-2 font-mono text-[7px] text-white/20 uppercase tracking-[0.3em]">Protocol_Ad_R</span>
-                <div class="flex items-center justify-center h-full pt-6">
-                  <AdSlot slot="2057471674" client:only="react" />
-                </div>
-              </div>
-            </div>
+        
           </div>
         </div>
 
-        {/* 🔥 ADS HASTA ABAJO (Horizontal PC y Box Móvil) */}
-        <div class="mt-20 flex flex-col gap-10">
-           {/* Desktop */}
-           <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50">
-              <div class="absolute top-3 left-6 z-10">
-                <span class="font-mono text-[8px] text-white/20 uppercase tracking-[0.2em]">Sponsored_Node</span>
-              </div>
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-10">
-                 <AdSlot slot="4821639929" format="auto" client:only="react" />
-              </div>
-              <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#b829ff] transition-all duration-700 shadow-[0_0_15px_#b829ff]" />
-           </div>
-
-           {/* Mobile */}
-           <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4">
-                 <AdSlot slot="4819366386" format="auto" client:only="react" />
-              </div>
-           </div>
-        </div>
+     
 
         <div class="mt-20">
            <Community client:load />

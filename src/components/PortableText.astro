@@ -2,20 +2,35 @@
 import { PortableText as AstroPortableText } from "astro-portabletext";
 import PortableImage from "./portable/PortableImage.astro";
 import PortableLink from "./portable/PortableLink.astro";
-// 1. IMPORTA EL NUEVO COMPONENTE (Asegúrate de que el nombre del archivo coincida)
 import PortableMediaBlock from "./portable/PortableMediaBlock.astro";
+
+// 🚀 IMPORTAMOS LOS COMPONENTES DE TEXTO, ANUNCIOS Y EMBEDS
+import ColorMark from "./portable/ColorMark.astro";
+import AlignMark from "./portable/AlignMark.astro";
+import PortableAd from "./portable/PortableAd.astro";
+import PortableEmbed from "./portable/PortableEmbed.astro"; // <--- El maestro de multimedia
 
 const { value } = Astro.props;
 
 const components = {
   type: {
     image: PortableImage,
-    // 2. AGREGA EL MEDIABLOCK AQUÍ
-    // Esto le dice a Astro: "Cuando encuentres un 'mediaBlock' en Sanity, usa este componente"
     mediaBlock: PortableMediaBlock,
+    adBlock: PortableAd,
+    // 📺 🎵 Ambos usan el mismo componente inteligente
+    youtube: PortableEmbed,
+    spotify: PortableEmbed,
   },
   mark: {
     link: PortableLink,
+    
+    // Asignamos el componente del color
+    textColor: ColorMark,
+    
+    // Asignamos el componente de alineación a los 3 botones
+    center: AlignMark,
+    justify: AlignMark,
+    right: AlignMark,
   }
 };
 ---

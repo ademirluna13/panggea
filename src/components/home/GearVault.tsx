@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Zap } from 'lucide-react';
-// 🔥 Importación táctica del bloque de AdSense
-import { AdSlot } from '../../components/layout/AdSlot'; 
+
 
 export interface GearItem {
   id: string;
@@ -94,33 +93,7 @@ export default function GearVault({ items = [], categories = [] }: Props) {
 
       <div className="flex w-full max-w-[1600px] justify-center items-start gap-8 xl:gap-12 px-4 xl:px-6 relative z-10">
         
-        {/* 🔥 ADS IZQUIERDA (x2) - Solo si la pantalla es mayor a 1536px (2xl) 🔥 */}
-        {screenWidth >= 1536 && (
-          <aside className="flex w-[160px] sticky top-28 flex-col gap-6 h-fit z-20">
-            <div className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-white/30 hover:shadow-[0_10px_30px_-10px_rgba(255,255,255,0.1)]">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-white/50 block w-full">SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="1794581943" />
-              </div>
-              <div className="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-white/50 transition-all duration-700 z-10" />
-            </div>
-
-            <div className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-white/30 hover:shadow-[0_10px_30px_-10px_rgba(255,255,255,0.1)]">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-white/50 block w-full">SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="1794581943" />
-              </div>
-              <div className="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-white/50 transition-all duration-700 z-10" />
-            </div>
-          </aside>
-        )}
-
+      
         <div className="max-w-[1200px] w-full relative z-10">
           
           {/* HEADER */}
@@ -277,66 +250,8 @@ export default function GearVault({ items = [], categories = [] }: Props) {
             </AnimatePresence>
           </div>
 
-          {/* 🔥 ADS HASTA ABAJO (Montados seguros sin romper layout) 🔥 */}
-          {screenWidth > 0 && (
-            <>
-              {/* Desktop Bottom Ad */}
-              {screenWidth >= 1024 && (
-                <div className="flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group mt-12 flex-col justify-center overflow-hidden transition-all duration-500 hover:border-white/30 hover:shadow-[0_10px_30px_-10px_rgba(255,255,255,0.1)]">
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-                  <div className="absolute top-4 left-4 z-10">
-                    <span className="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-white/50">SPONSORED_NODE</span>
-                  </div>
-                  <div className="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                     <AdSlot slot="4821639929" format="auto" />
-                  </div>
-                  <div className="absolute bottom-0 left-0 h-[2px] w-0 lg:group-hover:w-full bg-white/50 transition-all duration-700 z-10" />
-                </div>
-              )}
-
-              {/* Mobile Bottom Ad */}
-              {screenWidth < 1024 && (
-                <div className="flex w-full min-h-[250px] bg-[#050505] border border-white/5 relative group mt-8 flex-col justify-center overflow-hidden transition-all duration-500">
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-                  <div className="absolute top-4 left-4 z-10">
-                    <span className="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-white/50">SPONSORED_NODE</span>
-                  </div>
-                  <div className="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                     <AdSlot slot="4819366386" format="auto" />
-                  </div>
-                </div>
-              )}
-            </>
-          )}
 
         </div>
-
-        {/* 🔥 ADS DERECHA (x2) - Solo si la pantalla es mayor a 1536px (2xl) 🔥 */}
-        {screenWidth >= 1536 && (
-          <aside className="flex w-[160px] sticky top-28 flex-col gap-6 h-fit z-20">
-            <div className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-white/30 hover:shadow-[0_10px_30px_-10px_rgba(255,255,255,0.1)]">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-white/50 block w-full">SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="2057471674" />
-              </div>
-              <div className="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-white/50 transition-all duration-700 z-10" />
-            </div>
-
-            <div className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-white/30 hover:shadow-[0_10px_30px_-10px_rgba(255,255,255,0.1)]">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-white/50 block w-full">SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="2057471674" />
-              </div>
-              <div className="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-white/50 transition-all duration-700 z-10" />
-            </div>
-          </aside>
-        )}
 
       </div>
     </section>

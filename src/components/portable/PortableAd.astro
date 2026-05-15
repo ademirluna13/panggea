@@ -1,0 +1,42 @@
+---
+// src/components/portable/PortableAd.astro
+const { node } = Astro.props;
+
+// Leemos qué tipo de anuncio escogiste en Sanity
+const isSquare = node.adType === 'square';
+const containerClass = isSquare 
+  ? "float-right ml-6 mb-4 mt-2 w-full md:w-[300px]" 
+  : "w-full my-12 clear-both block";
+---
+
+<div class={`relative ${containerClass}`}>
+  <span class="block text-[9px] uppercase tracking-widest text-white/30 text-center mb-2 font-mono">
+    Publicidad
+  </span>
+
+  {/* 📱 VERSIÓN MÓVIL (PanggeaMovil) - Visible en cel, oculta en compu */}
+  <div class="block md:hidden w-full overflow-hidden">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-5617654431862522"
+         data-ad-slot="4819366386"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script is:inline>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+
+  {/* 💻 VERSIÓN DESKTOP (Paggea_Horizontal) - Oculta en cel, visible en compu */}
+  <div class="hidden md:block w-full overflow-hidden">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-5617654431862522"
+         data-ad-slot="4821639929"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script is:inline>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+  </div>
+</div>

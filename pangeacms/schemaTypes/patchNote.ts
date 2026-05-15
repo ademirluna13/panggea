@@ -85,8 +85,8 @@ export default defineType({
     defineField({
       name: 'body',
       title: 'Cuerpo del Parche (Detalles Completos)',
-      type: 'array',
-      of: [{ type: 'block' }], // Aquí metes tu PortableText normal
+      type: 'blockContent', // 🚀 Usamos el "Luxury Editor" que ya tienes en tus otros esquemas
+      description: 'Aquí va toda la biblia de cambios. Puedes meter videos de los buffs/nerfs, imágenes y hasta código.'
     }),
   ],
   preview: {

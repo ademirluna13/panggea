@@ -6,7 +6,7 @@ import PatchLogGrid from '../../components/home/PatchLogGrid';
 import { sanityClient } from "sanity:client";
 import { ArrowLeft, Activity } from 'lucide-react';
 // 🔥 Importamos el componente de anuncios
-import { AdSlot } from '../../components/layout/AdSlot';
+
 
 const rawPatches = await sanityClient.fetch(`*[_type == "patchNote"] | order(publishedAt desc) {
   title,
@@ -37,25 +37,7 @@ const ACCENT_COLOR = "#b829ff";
 
     <div class="max-w-[1750px] mx-auto px-6 flex justify-center items-start gap-10 relative z-10">
       
-      {/* 🔥 ADS IZQUIERDA (x2) - Blindado contra errores de Google */}
-      <aside class="hidden 2xl:flex w-[160px] sticky top-40 flex-col gap-6 h-fit shrink-0">
-        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50 hover:shadow-[0_10px_30px_-10px_rgba(184,41,255,0.3)]">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-          <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-            <span class="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#b829ff] block w-full">SPONSORED</span>
-          </div>
-          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
-            <AdSlot slot="1794581943" client:only="react" />
-          </div>
-          <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#b829ff] transition-all duration-700 z-10 shadow-[0_0_15px_#b829ff]" />
-        </div>
-        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
-            <AdSlot slot="1794581943" client:only="react" />
-          </div>
-        </div>
-      </aside>
+   
 
       <div class="flex-1 max-w-[1200px]">
 
@@ -102,53 +84,13 @@ const ACCENT_COLOR = "#b829ff";
         {/* ─── GRID DE PARCHES (REACT) ─── */}
         <PatchLogGrid client:load patches={rawPatches} accentColor={ACCENT_COLOR} />
 
-        {/* 🔥 ADS HASTA ABAJO (Montados seguros) */}
-        <div class="mt-16 flex flex-col gap-8">
-           {/* Desktop Bottom Ad */}
-           <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50 hover:shadow-[0_10px_30px_-10px_rgba(184,41,255,0.3)]">
-              <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div class="absolute top-4 left-6 z-10">
-                <span class="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#b829ff]">SPONSORED_NODE</span>
-              </div>
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                 <AdSlot slot="4821639929" format="auto" client:only="react" />
-              </div>
-              <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#b829ff] transition-all duration-700 z-10 shadow-[0_0_15px_#b829ff]" />
-           </div>
 
-           {/* Mobile Bottom Ad */}
-           <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
-              <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div class="absolute top-4 left-4 z-10">
-                <span class="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#b829ff]">SPONSORED_NODE</span>
-              </div>
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                 <AdSlot slot="4819366386" format="auto" client:only="react" />
-              </div>
-           </div>
+     
         </div>
 
       </div>
 
-      {/* 🔥 ADS DERECHA (x2) */}
-      <aside class="hidden 2xl:flex w-[160px] sticky top-40 flex-col gap-6 h-fit shrink-0">
-        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50 hover:shadow-[0_10px_30px_-10px_rgba(184,41,255,0.3)]">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-          <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-            <span class="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#b829ff] block w-full">SPONSORED</span>
-          </div>
-          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
-            <AdSlot slot="2057471674" client:only="react" />
-          </div>
-          <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#b829ff] transition-all duration-700 z-10 shadow-[0_0_15px_#b829ff]" />
-        </div>
-        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#b829ff]/50">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
-            <AdSlot slot="2057471674" client:only="react" />
-          </div>
-        </div>
-      </aside>
+     
 
     </div>
   </main>

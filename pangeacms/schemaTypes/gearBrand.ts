@@ -13,6 +13,17 @@ export default defineType({
       type: 'string',
       validation: (Rule) => Rule.required(),
     }),
+    // 🚀 EL SLUG ES VITAL: Para rutas como /hardware/marca/logitech
+    defineField({
+      name: 'slug',
+      title: 'Slug (URL)',
+      type: 'slug',
+      options: { 
+        source: 'name', 
+        maxLength: 96 
+      },
+      validation: (Rule) => Rule.required(),
+    }),
     defineField({
       name: 'logo',
       title: 'Logo de la Marca',
@@ -25,4 +36,11 @@ export default defineType({
       type: 'url',
     }),
   ],
+  // Preview para que en la lista de Sanity se vea el logo y el nombre
+  preview: {
+    select: {
+      title: 'name',
+      media: 'logo'
+    }
+  }
 });

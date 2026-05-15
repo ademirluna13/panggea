@@ -13,11 +13,28 @@ export default defineType({
       type: 'string',
       validation: (Rule) => Rule.required(),
     }),
+    // 🚀 EL SLUG ES VITAL: Para rutas como /hardware/categoria/teclados
     defineField({
       name: 'slug',
-      title: 'Slug',
+      title: 'Slug (URL)',
       type: 'slug',
-      options: { source: 'title' },
+      options: { 
+        source: 'title', 
+        maxLength: 96 
+      },
+      validation: (Rule) => Rule.required(),
     }),
   ],
+  // Preview para identificar rápido en el Studio
+  preview: {
+    select: {
+      title: 'title',
+    },
+    prepare({ title }) {
+      return {
+        title: title,
+        subtitle: 'Categoría de Hardware'
+      }
+    }
+  }
 });

@@ -1,0 +1,215 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/layout/Header';
+import Footer from '../../components/layout/Footer';
+import PortableText from '../../components/PortableText.astro'; // 🔥 Importante para el contenido de Sanity
+import { sanityClient } from "sanity:client";
+import { ArrowLeft, Clock, ShieldCheck, User, Gamepad2, Skull, BookOpen } from 'lucide-react';
+// 🔥 Componentes tácticos
+import SharedButton from '../../components/layout/SharedButton';
+
+
+export async function getStaticPaths() {
+  const items = await sanityClient.fetch<any[]>(`*[_type == "guide" && defined(slug.current)]{
+    "slug": slug.current
+  }`);
+
+  return items.map((item: any) => ({
+    params: { slug: item.slug },
+  }));
+}
+
+const { slug } = Astro.params;
+
+const guide = await sanityClient.fetch(`*[_type == "guide" && slug.current == $slug][0]{
+  "id": _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  "gameName": game->name,
+  "authorName": author->name, 
+  "guideType": type->title,
+  "difficulty": level->title,
+  "diffColor": level->color,
+  description,
+  content,
+  "heroImage": mainImage.asset->url
+}`, { slug });
+
+if (!guide) {
+  return Astro.redirect('/guias');
+}
+
+// Lógica de reescalado para el título
+const nameLength = guide?.title?.length || 0;
+let titleSizeClass = "text-5xl md:text-6xl lg:text-[80px]"; 
+
+if (nameLength > 60) {
+  titleSizeClass = "text-3xl md:text-4xl lg:text-[45px]"; 
+} else if (nameLength > 35) {
+  titleSizeClass = "text-4xl md:text-5xl lg:text-[60px]"; 
+}
+
+const articleDate = new Date(guide.publishedAt || Date.now()).toLocaleDateString('es-MX', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric'
+});
+
+const currentUrl = Astro.url.href;
+const ACCENT_COLOR = "#94A3B8"; // GRIS PLATEADO
+---
+
+<Layout 
+  title={`${guide.title} | PanGGea Guides`} 
+  description={guide.description}
+  image={guide.heroImage} 
+>
+  <Header client:load />
+
+  <main class="bg-[#020202] min-h-screen relative font-sans text-white overflow-hidden">
+    
+    {/* ─── ESTILO SILVER GLOW ─── */}
+    <style is:global>
+      .text-silver-glow {
+        color: #f8fafc;
+        text-shadow: 0 0 20px rgba(148, 163, 184, 0.3);
+      }
+      .prose blockquote {
+        border-left: 4px solid #94A3B8 !important;
+        background: rgba(148, 163, 184, 0.05) !important;
+      }
+    </style>
+
+    <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_0%,rgba(148,163,184,0.05)_0%,transparent_70%)]"></div>
+
+    {/* 📸 HERO SECTION */}
+    <div class="relative w-full h-[65vh] min-h-[500px] flex items-end pb-16 border-b border-white/5">
+      <div class="absolute inset-0 z-0 bg-[#050505] flex items-center justify-center overflow-hidden">
+        {guide.heroImage && (
+          <img src={guide.heroImage} alt={guide.title} class="w-full h-full object-cover opacity-60 grayscale-[0.3]" />
+        )}
+        <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent"></div>
+      </div>
+
+      <div class="max-w-[1200px] mx-auto px-6 w-full relative z-10">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+          <span class="bg-[#94A3B8] text-black font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm shadow-[0_0_15px_rgba(148,163,184,0.4)]">
+            {guide.guideType || 'PROTOCOLO'}
+          </span>
+          <span class="border border-white/10 bg-black/50 backdrop-blur-sm text-white/70 font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2">
+            <Gamepad2 size={12} className="text-[#94A3B8]" />
+            {guide.gameName || 'MULTIGAME'}
+          </span>
+        </div>
+
+        <h1 class={`font-headline ${titleSizeClass} font-black uppercase italic leading-[0.85] mb-8 tracking-tighter text-silver-glow drop-shadow-2xl break-words`}>
+          {guide.title}
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-y-6 border-t border-white/10 pt-6">
+          
+          {/* Dificultad */}
+          <div class="flex items-center gap-3 pr-8 border-r border-white/10">
+            <div class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center">
+              <Skull size={16} style={{ color: guide.diffColor || ACCENT_COLOR }} />
+            </div>
+            <div>
+              <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Nivel de Riesgo</span>
+              <span class="block font-headline italic text-xl text-white font-black leading-none uppercase" style={{ color: guide.diffColor || '#FFF' }}>
+                {guide.difficulty || 'RECON'}
+              </span>
+            </div>
+          </div>
+
+          {/* Autor */}
+          {guide.authorName && (
+            <div class="flex items-center gap-3 px-8 border-r border-white/10">
+              <User size={18} className="text-[#94A3B8]" />
+              <div>
+                <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Operativo_Asignado</span>
+                <span class="block font-bold text-xs text-white uppercase">{guide.authorName}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Fecha */}
+          <div class="flex items-center gap-3 pl-8">
+            <Clock size={18} className="text-white/20" />
+            <div>
+              <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Fecha_Registro</span>
+              <span class="block font-bold text-xs text-white uppercase">{articleDate}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    {/* 📝 CONTENIDO */}
+    <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12 w-full">
+      
+   
+
+      <div class="flex-1 max-w-[1200px] w-full">
+        <div class="mb-12">
+          <a href="/guias" class="group flex items-center gap-4 text-white/30 hover:text-white transition-colors font-mono text-[10px] uppercase tracking-[0.3em] w-max">
+            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+            <span>Volver al Archivo Técnico</span>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
+          <div class="lg:col-span-8">
+            <div class="prose prose-invert prose-p:text-white/70 prose-p:leading-relaxed prose-p:text-lg max-w-none break-words mb-20">
+              {/* 🚀 EL CUERPO DE LA GUÍA */}
+              <PortableText value={guide.content} />
+            </div>
+          </div>
+
+          <aside class="lg:col-span-4 flex flex-col gap-8">
+            <div class="bg-[#050505] border border-white/5 hover:border-[#94A3B8]/30 p-8 shadow-2xl relative transition-colors duration-500 lg:sticky lg:top-32 group overflow-hidden">
+              <div class="flex items-center gap-3 mb-8">
+                <div class="h-[2px] w-6 bg-[#94A3B8] shadow-[0_0_10px_#94A3B8]"></div>
+                <span class="font-mono text-[10px] text-white/60 font-black uppercase tracking-widest">Resumen de Misión</span>
+              </div>
+
+              <div class="space-y-6 mb-10">
+                <div>
+                  <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Target_System</span>
+                  <span class="block text-white font-bold text-sm tracking-wide uppercase">{guide.gameName}</span>
+                </div>
+                <div>
+                  <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Data_Type</span>
+                  <span class="block text-white font-bold text-sm tracking-wide uppercase">{guide.guideType}</span>
+                </div>
+                <div>
+                  <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Protocol_Status</span>
+                  <span class="block text-[#00FF66] font-bold text-sm tracking-wide uppercase flex items-center gap-2">
+                    <ShieldCheck size={14} /> VERIFIED
+                  </span>
+                </div>
+              </div>
+
+              <div class="pt-8 border-t border-white/10 mb-6">
+                 <SharedButton client:load title={guide.title} text={guide.description} url={currentUrl} />
+              </div>
+
+              <div class="w-full flex items-center justify-between border border-white/10 bg-white/5 px-6 py-4">
+                <span class="font-mono text-[9px] uppercase tracking-widest font-bold text-white/40">
+                  ID_DATABASE: {guide.id.slice(0, 8)}
+                </span>
+                <BookOpen size={16} className="text-[#94A3B8]" />
+              </div>
+            </div>
+          </aside>
+        </div>
+
+  
+      </div>
+
+   
+    </div>
+  </main>
+  <Footer />
+</Layout>

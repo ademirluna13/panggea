@@ -42,8 +42,27 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
 
+    // 🚀 AÑADIDO: Conexión con el autor que probó el hardware
+    defineField({
+      name: 'author',
+      title: 'Autor de la Reseña',
+      type: 'reference',
+      to: [{ type: 'author' }],
+      description: '¿Quién probó este hardware?'
+    }),
+
+    // 🚀 AÑADIDO: Conexión con el juego (si es edición especial)
+    defineField({
+      name: 'relatedGame',
+      title: 'Juego Relacionado (Opcional)',
+      type: 'reference',
+      to: [{ type: 'game' }],
+      description: 'Si es hardware edición especial de algún juego.'
+    }),
+
     defineField({ name: 'price', title: 'Precio (Ej. $159)', type: 'string' }),
     
+    // 🔥 TUS SPECS INTACTOS
     defineField({ 
       name: 'specs', 
       title: 'Especificaciones Rápidas', 
@@ -72,7 +91,7 @@ export default defineType({
     }),
 
     defineField({ name: 'buyLink', title: 'Link de Compra / Review', type: 'url' }),
-    // 🔥 CAMPO NUEVO: DESCRIPCIÓN CORTA (Para la card)
+    
     defineField({
       name: 'shortDescription',
       title: 'Descripción Corta',
@@ -81,16 +100,16 @@ export default defineType({
       validation: Rule => Rule.max(80)
     }),
 
-    // 🔥 CAMPO NUEVO: DESCRIPCIÓN COMPLETA (Para el detalle)
+    // 🔥 MODIFICADO: A blockContent para que use el Luxury Editor
     defineField({
       name: 'description',
       title: 'Descripción Completa / Análisis',
-      type: 'text',
+      type: 'blockContent', 
       description: 'Aquí te puedes explayar con todo el lore del hardware.'
     }),
   ],
   
-  // 🔥 AQUÍ ESTABA EL ERROR DEL PREVIEW 🔥
+  // 🔥 TU PREVIEW INTACTO
   preview: {
     select: { 
       title: 'name', 

@@ -1,9 +1,9 @@
 import { useRef, useState, useEffect } from 'react';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, Clock, ChevronRight } from 'lucide-react'; // 🔥 ChevronRight agregado
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { AdSlot } from '../../components/layout/AdSlot'; 
+
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -62,63 +62,7 @@ export default function TrendingNow({ posts = [] }: { posts?: SanityPost[] }) {
     <section ref={container} className="relative py-24 bg-[#020202] overflow-hidden border-y border-white/5 flex justify-center">
       
       <div className="flex w-full max-w-[1600px] justify-center items-start gap-12 px-6 relative z-10">
-        
-        {/* 🔥 ADS IZQUIERDA (x2) - Montado seguro para pantallas 2xl 🔥 */}
-        {screenWidth >= 1536 && (
-          <aside className="flex w-[160px] sticky top-28 flex-col gap-6 h-fit">
-            <div className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#FF4500]/50">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#FF4500] block w-full">SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="1794581943" />
-              </div>
-              <div className="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700 z-10" />
-            </div>
-
-            <div className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#FF4500]/50">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#FF4500] block w-full">SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="1794581943" />
-              </div>
-              <div className="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700 z-10" />
-            </div>
-          </aside>
-        )}
-
         <div className="max-w-[1200px] w-full">
-          
-          {/* 🔥 AD MÓVIL TOP (Solo celulares/tablets) 🔥 */}
-          {screenWidth > 0 && screenWidth < 1024 && (
-            <div className="flex w-full min-h-[250px] bg-[#050505] border border-white/5 relative group mb-8 flex-col justify-center overflow-hidden transition-all duration-500">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-4 z-10">
-                <span className="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#FF4500]">SPONSORED_NODE</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                 <AdSlot slot="4819366386" format="auto" />
-              </div>
-            </div>
-          )}
-
-          {/* 🔥 AD HORIZONTAL TOP (Solo Desktop) 🔥 */}
-          {screenWidth >= 1024 && (
-            <div className="flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group mb-8 flex-col justify-center overflow-hidden transition-all duration-500 hover:border-[#FF4500]/50">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-4 z-10">
-                <span className="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#FF4500]">SPONSORED_NODE</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                 <AdSlot slot="4821639929" format="auto" />
-              </div>
-              <div className="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700 z-10" />
-            </div>
-          )}
-
           <header className="mb-14 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10">
             <div className="flex flex-col items-start w-full lg:w-auto">
               <div className="flex items-center gap-3 mb-4 md:mb-6 text-[#FF4500]">
@@ -129,6 +73,16 @@ export default function TrendingNow({ posts = [] }: { posts?: SanityPost[] }) {
                 TRENDING <br className="hidden sm:block" />
                 <span className="text-transparent" style={{ WebkitTextStroke: '2px #FF4500' }}>NOW</span>
               </h2>
+            </div>
+
+            {/* 🔥 LEYENDA Y BOTÓN RESTAURADOS 🔥 */}
+            <div className="max-w-xs text-left lg:text-right mt-2 lg:mt-0">
+              <p className="text-white/80 text-xs md:text-sm italic mb-4 md:mb-8 leading-relaxed drop-shadow-md">
+                "Análisis en tiempo real de los picos de interés en el meta. No sigas la tendencia, anticípala."
+              </p>
+              <a href="/news" className="inline-flex items-center gap-3 md:gap-4 font-mono text-[#FF4500] lg:hover:text-white text-[9px] md:text-[11px] font-black tracking-[0.4em] uppercase transition-all group drop-shadow-md">
+                Explorar tendencias <ChevronRight size={18} className="md:w-[22px] md:h-[22px] lg:group-hover:translate-x-2 transition-transform" />
+              </a>
             </div>
           </header>
 
@@ -147,7 +101,7 @@ export default function TrendingNow({ posts = [] }: { posts?: SanityPost[] }) {
                       className="absolute inset-0 bg-cover bg-center bg-no-repeat grayscale-0 opacity-80 lg:grayscale lg:opacity-40 lg:group-hover:grayscale-0 lg:group-hover:opacity-80 transition-all duration-700"
                       style={{ backgroundImage: `url(${post.heroImage})` }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-[#020202]/80 to-transparent z-10" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-[#020202]/90 to-transparent z-10" />
                   </div>
                   
                   <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end z-20">
@@ -186,48 +140,7 @@ export default function TrendingNow({ posts = [] }: { posts?: SanityPost[] }) {
             })}
           </div>
 
-          {/* 🔥 AD HORIZONTAL BOTTOM (Todos los dispositivos, montado seguro) 🔥 */}
-          {screenWidth > 0 && (
-            <div className="flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group mt-8 flex-col justify-center overflow-hidden transition-all duration-500 hover:border-[#FF4500]/50">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-4 z-10">
-                <span className="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#FF4500]">SPONSORED_NODE</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                 <AdSlot slot="4821639929" format="auto" />
-              </div>
-              <div className="absolute bottom-0 left-0 h-[2px] w-0 lg:group-hover:w-full bg-[#FF4500] transition-all duration-700 z-10" />
-            </div>
-          )}
-
         </div>
-
-        {/* 🔥 ADS DERECHA (x2) - Montado seguro para pantallas 2xl 🔥 */}
-        {screenWidth >= 1536 && (
-          <aside className="flex w-[160px] sticky top-28 flex-col gap-6 h-fit">
-            <div className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#FF4500]/50">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#FF4500] block w-full">SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="2057471674" />
-              </div>
-              <div className="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700 z-10" />
-            </div>
-
-            <div className="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#FF4500]/50">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-                <span className="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#FF4500] block w-full">SPONSORED</span>
-              </div>
-              <div className="relative z-20 w-full h-full flex items-center justify-center pt-10">
-                <AdSlot slot="2057471674" />
-              </div>
-              <div className="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#FF4500] transition-all duration-700 z-10" />
-            </div>
-          </aside>
-        )}
 
       </div>
     </section>

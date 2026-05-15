@@ -19,6 +19,16 @@ export default defineType({
         maxLength: 96,
       },
     }),
+
+    // ─── EL NUEVO MERO JEFE: CONEXIÓN CON JUEGOS ───
+    defineField({
+      name: 'game',
+      title: 'Juego Relacionado',
+      type: 'reference',
+      to: [{type: 'game'}], // 🚀 Se conecta con tu game.ts
+      description: 'Linca esta nota con su juego para que aparezca en el feed del juego.',
+    }),
+
     defineField({
       name: 'description',
       title: 'Descripción Corta (Bento Grid)',
@@ -49,40 +59,43 @@ export default defineType({
     }),
     defineField({
       name: 'mainImage',
-      title: 'Imagen de Portada',
+      title: 'Main image',
       type: 'image',
       options: {
         hotspot: true,
       },
     }),
-    {
-      name: 'caption',
-      type: 'string',
-      title: 'Pie de foto',
-    },
     defineField({
       name: 'categories',
-      title: 'Categorías',
+      title: 'Categories',
       type: 'array',
       of: [{type: 'reference', to: {type: 'category'}}],
     }),
     defineField({
       name: 'publishedAt',
-      title: 'Fecha de Publicación',
+      title: 'Published at',
       type: 'datetime',
     }),
     defineField({
       name: 'body',
-      title: 'Contenido de la Nota',
+      title: 'Body',
       type: 'blockContent',
     }),
+
+    // CAMPOS DE REVIEWS Y DEEP DIVE
     defineField({
-      name: 'specs',
-      title: 'Ficha Técnica (Sidebar)',
+      name: 'isReview',
+      title: '¿Es Review?',
+      type: 'boolean',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'reviewStats',
+      title: 'Estadísticas del Review',
       type: 'object',
+      hidden: ({document}) => !document?.isReview,
       fields: [
-        { name: 'platform', title: 'Plataforma Detallada', type: 'string' },
-        { name: 'version', title: 'Versión / Build', type: 'string' },
+        { name: 'score', title: 'Calificación (0-10)', type: 'string' },
         { name: 'status', title: 'Estado del Review', type: 'string' },
       ]
     }),
@@ -98,7 +111,7 @@ export default defineType({
       description: 'Ej: 20 MIN',
     }),
     
-    // 👇 AQUI QUEDARON LOS BUENOS (Limpios y con todas sus descripciones)
+    // CONFIGURACIÓN DE POSICIONAMIENTO LUXURY
     defineField({
       name: 'isLegendary',
       title: '¿Es la Nota Legendaria?',
@@ -113,25 +126,26 @@ export default defineType({
       description: 'Sube la foto que quieres que bañe el "cacho" superior del lore.',
       options: { hotspot: true }
     }),
-    // En tu esquema de Sanity (post.js / post.ts)
     defineField({
       name: 'isFeatured',
       title: '¿Nota Destacada? (Carrusel)',
       type: 'boolean',
       initialValue: false,
-      description: 'Si se activa, aparecerá en el carrusel principal de la Home.',
+      description: 'Si se activa, aparecerá en los destacados de la Home.',
     }),
   ],
 
+  // 🚀 PREVIEW ACTUALIZADO PARA VER EL JUEGO
   preview: {
     select: {
       title: 'title',
       author: 'author.name',
+      gameName: 'game.name', // Jala el nombre del juego
       media: 'mainImage',
     },
     prepare(selection) {
-      const {author} = selection
-      return {...selection, subtitle: author && `by ${author}`}
+      const {author, gameName} = selection
+      return {...selection, subtitle: `${author ? `by ${author}` : ''} ${gameName ? `| ${gameName}` : ''}`}
     },
   },
 })

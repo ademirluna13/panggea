@@ -17,6 +17,8 @@ import type { GearItem } from '../components/home/GearVault';
 
 // 🔥 IMPORTAMOS EL CARRUSEL MAGENTA
 import FeaturedCarousel from '../components/home/FeaturedCarousel.tsx';
+import GuideHub from '../components/home/GuideHub';
+import Footer from '../components/layout/Footer';
 
 // 🔥 INTERFACE PARA EL CARRUSEL
 interface Post {
@@ -127,6 +129,21 @@ const gearItems: GearItem[] = rawGear.map((g: any) => ({
   link: g.buyLink || '#'
 }));
 
+// 🚀 CONSULTA COMPLETA: Traemos guías y tipos
+const guides = await sanityClient.fetch(`*[_type == "guide"] | order(publishedAt desc) {
+  title,
+  "slug": slug.current,
+  "heroImage": mainImage.asset->url,
+  publishedAt,
+  "gameName": game->name,
+  "guideType": type->title,
+  "difficulty": level->title,
+  description
+}`);
+
+const guideTypes = await sanityClient.fetch(`*[_type == "guideType"] | order(title asc) { title }`);
+const typeList = guideTypes.map((t: { title: string }) => t.title);
+
 const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as string).toUpperCase())] as string[];
 ---
 
@@ -134,39 +151,54 @@ const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as s
   
   <main class="bg-black min-h-screen">
     
-    <section class="relative h-[100svh] w-full bg-black flex flex-col">
-      <div class="absolute inset-0 z-0 overflow-hidden">
+    <section class="relative h-[100svh] w-full bg-black overflow-hidden">
+      <div class="absolute inset-0 z-0">
         <SpaceHeroScene client:only="react" />
       </div>
       <div class="absolute inset-0 z-30 flex flex-col pointer-events-none">
         <Hero client:load />
       </div>
-      <div class="absolute bottom-0 w-full h-40 bg-gradient-to-t from-black via-black/80 to-transparent z-20 pointer-events-none"></div>
     </section>
 
-    <CategoryNav client:load categories={categories} />
+    <div class="max-w-[1200px] mx-auto flex flex-col gap-24 py-12">
+      
+      <CategoryNav client:load categories={categories} />
 
-    {/* 🔥 AQUÍ CLAVAMOS EL CARRUSEL MAGENTA, JUSTO DEBAJO DEL NAV 🔥 */}
-    {featuredPosts.length > 0 && <FeaturedCarousel client:load posts={featuredPosts} />}
+      {featuredPosts.length > 0 && <FeaturedCarousel client:load posts={featuredPosts} />}
 
-    <section id="trending">
-      <TrendingNow client:load posts={trendingPosts} />
-    </section>
+      <section id="trending" class="border-t border-white/5 pt-12">
+        <TrendingNow client:load posts={trendingPosts} />
+      </section>
 
-    <StatusFeed client:load patches={patches} tickerItems={tickerItems} />
+      <section id="status" class="border-t border-white/5 pt-12">
+        <StatusFeed client:load patches={patches} tickerItems={tickerItems} />
+      </section>
 
-    <section id="deep-dives">
-      <DeepDives client:load posts={deepDives} />
-    </section>
+      <section id="deep-dives" class="border-t border-white/5 pt-12">
+        <DeepDives client:load posts={deepDives} />
+      </section>
 
-    <TacticalArsenal client:load entries={tierEntries} />
-    
-    <RankingSystem client:load />
+      <section id="guides" class="border-t border-white/5 pt-12">
+        <GuideHub client:visible guides={guides} types={typeList} />
+      </section>
 
-    <Radar client:only="react" events={radarEvents} />
-    
-    <GearVault client:load items={gearItems} categories={gearCategoriesList} />
-    
+      <section id="tier" class="border-t border-white/5 pt-12">
+        <TacticalArsenal client:load entries={tierEntries} />
+      </section>
+
+      <section id="charts" class="border-t border-white/5 pt-12">
+        <RankingSystem client:load />
+      </section>
+
+      <section id="radar" class="border-t border-white/5 pt-12">
+        <Radar client:only="react" events={radarEvents} />
+      </section>
+
+      <section id="vault" class="border-t border-white/5 pt-12 pb-24">
+        <GearVault client:load items={gearItems} categories={gearCategoriesList} />
+      </section>
+
+    </div>
+
   </main>
-
 </Layout>

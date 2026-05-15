@@ -1,0 +1,8 @@
+---
+// src/components/portable/ColorMark.astro
+const { node } = Astro.props;
+const colorHex = node.markDef?.color?.hex || 'inherit';
+---
+<span style={`color: ${colorHex};`}>
+  <slot />
+</span>

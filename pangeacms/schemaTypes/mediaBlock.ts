@@ -1,66 +1,36 @@
-// schemas/mediaBlock.js
-export default {
+import { defineType } from 'sanity'
+
+export default defineType({
   name: 'mediaBlock',
-  title: 'Bloque de Imagen y Texto',
+  title: 'Bloque Zigzag (Imagen + Texto)',
   type: 'object',
   fields: [
-    {
-      name: 'image',
-      title: 'Imagen',
-      type: 'image',
-      options: { hotspot: true }
-    },
-    {
-      name: 'imageSize',
-      title: 'Tamaño de la Imagen',
-      type: 'string',
-      description: 'Define qué tanto espacio ocupará la imagen frente al texto.',
-      options: {
-        list: [
-          { title: 'Chica (25%)', value: 'small' },
-          { title: 'Mediana (50%)', value: 'medium' },
-          { title: 'Grande (75%)', value: 'large' },
-          { title: 'Ancho Total', value: 'full' }
-        ],
-        layout: 'radio'
-      },
-      initialValue: 'medium'
-    },
+    { name: 'image', title: 'Imagen', type: 'image', options: { hotspot: true } },
     {
       name: 'layout',
       title: 'Posición de la imagen',
       type: 'string',
-      description: '¿De qué lado quieres la imagen?',
-      options: {
-        list: [
-          { title: 'Izquierda', value: 'left' },
-          { title: 'Derecha', value: 'right' }
-        ],
-        layout: 'radio'
-      },
+      options: { list: [{title: 'Izquierda', value: 'left'}, {title: 'Derecha', value: 'right'}, {title: 'Centro', value: 'center'}], layout: 'radio' },
       initialValue: 'left'
     },
     {
       name: 'text',
       title: 'Texto descriptivo',
       type: 'array',
-      of: [{ type: 'block' }]
-    },
-    {
-      name: 'textAlign',
-      title: 'Alineación del Texto',
-      type: 'string',
-      description: 'Selecciona cómo se debe acomodar el texto al lado de la imagen.',
-      options: {
-        list: [
-          { title: 'Izquierda', value: 'left' },
-          { title: 'Centro', value: 'center' },
-          { title: 'Derecha', value: 'right' },
-          { title: 'Justificado', value: 'justify' }
-        ],
-        layout: 'radio'
-      },
-      initialValue: 'justify'
+      of: [{
+        type: 'block',
+        styles: [{title: 'Normal', value: 'normal'}, {title: 'H2', value: 'h2'}],
+        marks: {
+          decorators: [
+            {title: 'Negrita', value: 'strong'},
+            {title: 'Centrar', value: 'center'},
+            {title: 'Justificar', value: 'justify'},
+          ],
+          annotations: [
+            { title: 'Color', name: 'textColor', type: 'object', fields: [{ name: 'color', type: 'color' }] }
+          ]
+        }
+      }]
     }
   ]
-}
+})

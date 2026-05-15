@@ -4,9 +4,8 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import RadarCalendar from '../../components/radar/RadarCalendar';
 import { sanityClient } from "sanity:client";
-import { ArrowLeft, Radio, Crosshair } from 'lucide-react';
-// 🔥 Importamos el AdSlot
-import { AdSlot } from '../../components/layout/AdSlot';
+import { ArrowLeft, Radio, Crosshair, Archive, Activity, ArrowRight, ChevronRight } from 'lucide-react';
+
 import Community from '../../components/home/Community';
 
 const radarEvents = await sanityClient.fetch(`*[_type == "radarEvent"] | order(eventDate asc) {
@@ -14,31 +13,42 @@ const radarEvents = await sanityClient.fetch(`*[_type == "radarEvent"] | order(e
   "slug": slug.current,
   eventDate,
   description,
-  category,
+  "category": category->title,
   platform,
   hypeLevel,
   "heroImage": mainImage.asset->url
 }`);
 
-const topHypeEvents = [...radarEvents].sort((a, b) => b.hypeLevel - a.hypeLevel).slice(0, 4);
+const today = new Date();
+const upcoming = radarEvents.filter((e: any) => new Date(e.eventDate) >= today);
+const past = radarEvents.filter((e: any) => new Date(e.eventDate) < today).reverse();
+
+// 🚀 MAPEO DE DATOS PARA EL CARRUSEL Y BENTO
+const mapEvent = (ev: any) => {
+  const d = new Date(ev.eventDate);
+  return {
+    ...ev,
+    day: d.getDate().toString().padStart(2, '0'),
+    month: d.toLocaleString('es-MX', { month: 'short' }).toUpperCase().replace('.', ''),
+  };
+};
+
+const upcomingMapped = upcoming.map(mapEvent);
+const pastMapped = past.map(mapEvent);
+
+// Triplicamos para el carrusel infinito real
+const marqueeItems = [...upcomingMapped, ...upcomingMapped, ...upcomingMapped];
 
 const ACCENT_COLOR = "#00F0FF"; 
-const pageTitle = "RADAR GLOBAL | PanGGea DATABASE";
-const pageDescription = "Calendario maestro de lanzamientos, drops y eventos globales.";
 
-function getHypeColorClass(level: number) {
-  if (level >= 90) return 'from-[#FF0055]/50 to-[#FF0055] text-[#FF0055] shadow-[0_0_15px_#FF0055]';
-  if (level >= 75) return 'from-[#00FF66]/50 to-[#00FF66] text-[#00FF66] shadow-[0_0_15px_#00FF66]';
-  return 'from-[#00F0FF]/50 to-[#00F0FF] text-[#00F0FF] shadow-[0_0_15px_#00F0FF]';
-}
-function getHypeTextColorClass(level: number) {
-  if (level >= 90) return 'text-[#FF0055]';
-  if (level >= 75) return 'text-[#00FF66]';
-  return 'text-[#00F0FF]';
+function getHypeColor(level: number) {
+  if (level >= 90) return '#FF0055';
+  if (level >= 75) return '#00FF66';
+  return '#00F0FF';
 }
 ---
 
-<Layout title={pageTitle} description={pageDescription}>
+<Layout title="RADAR GLOBAL | PanGGea DATABASE">
   <Header client:load />
 
   <main class="bg-[#020202] min-h-screen pt-44 pb-32 relative overflow-hidden">
@@ -49,210 +59,170 @@ function getHypeTextColorClass(level: number) {
        <div class="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-[conic-gradient(from_0deg,transparent_0%,#00F0FF08_50%,transparent_100%)] animate-radar-spin"></div>
     </div>
 
-    <div class="max-w-[1750px] mx-auto px-6 flex justify-center items-start gap-10 relative z-10">
+    <div class="max-w-[1750px] mx-auto px-6 relative z-10">
       
-      {/* 🔥 ADS IZQUIERDA (x2) - Blindado contra errores de Google */}
-      <aside class="hidden 2xl:flex w-[160px] sticky top-40 flex-col gap-6 h-fit shrink-0">
-        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#00F0FF]/50 hover:shadow-[0_10px_30px_-10px_rgba(0,240,255,0.3)]">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-          <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-            <span class="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#00F0FF] block w-full">SPONSORED</span>
-          </div>
-          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
-            <AdSlot slot="1794581943" client:only="react" />
-          </div>
-          <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#00F0FF] transition-all duration-700 z-10 shadow-[0_0_15px_#00F0FF]" />
+      <header class="mb-24 max-w-[1200px] mx-auto">
+        <h1 class="font-headline text-white text-6xl md:text-8xl lg:text-[120px] font-[950] tracking-tighter leading-[0.8] uppercase italic">
+          RADAR <span class="text-transparent" style={{ WebkitTextStroke: `2px ${ACCENT_COLOR}` }}> CENTRAL</span>
+        </h1>
+      </header>
+
+      {/* ─── SECCIÓN 1: CARRUSEL INFINITO (TOP HYPE) ─── */}
+      <section class="mb-44">
+        <div class="flex items-center gap-4 mb-10 border-b border-white/10 pb-4 max-w-[1200px] mx-auto">
+           <Activity size={18} className="text-[#FF0055] animate-pulse" />
+           <h2 class="font-mono text-[12px] text-white uppercase tracking-[0.4em] font-bold">Alerta Máxima // Top Hype</h2>
         </div>
-        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#00F0FF]/50">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
-            <AdSlot slot="1794581943" client:only="react" />
-          </div>
-        </div>
-      </aside>
-
-      <div class="flex-1 max-w-[1200px]">
-        <button onclick="window.history.back()" class="group flex items-center gap-4 mb-14 text-white/20 hover:text-[#00F0FF] transition-all duration-500 font-mono text-[10px] tracking-[0.4em] uppercase">
-          <div class="p-2.5 border border-white/5 bg-white/[0.02] transition-all group-hover:border-[#00F0FF]/60 group-hover:shadow-[0_0_15px_rgba(0,240,255,0.3)]">
-            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-          </div>
-          <span>Home // Volver</span>
-        </button>
-
-        <header class="mb-24">
-          <div class="flex items-center gap-3 mb-6">
-            <Radio size={18} className="text-[#00F0FF] animate-pulse" />
-            <span class="font-mono text-[10px] tracking-[0.5em] text-white/40 uppercase italic">Global_Signal_Link_Established</span>
-          </div>
-          <h1 class="font-headline text-white text-6xl md:text-8xl lg:text-[120px] font-[950] tracking-tighter leading-[0.8] uppercase italic drop-shadow-2xl">
-            RADAR 
-            <span class="text-transparent block sm:inline" style={{ WebkitTextStroke: `2px ${ACCENT_COLOR}` }}> CENTRAL</span>
-          </h1>
-        </header>
-
-        {/* ─── SECCIÓN 1: ALERTA MÁXIMA ─── */}
-        <section class="mb-32">
-          <div class="flex items-center gap-4 mb-10 border-b border-white/10 pb-4">
-             <h2 class="font-mono text-[12px] text-white uppercase tracking-[0.4em] font-bold">Alerta Máxima // Top Hype</h2>
-          </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {topHypeEvents.map((event: any) => {
-               const date = new Date(event.eventDate);
+        
+        <div class="flex relative w-full overflow-hidden">
+          <div class="flex gap-8 animate-infinite-scroll hover:[animation-play-state:paused] py-4">
+            {marqueeItems.map((ev, i) => {
+               const badgeColor = getHypeColor(ev.hypeLevel);
                return (
-                <a href={`/radar/${event.slug}`} class="group relative bg-[#050505] border border-white/5 overflow-hidden h-[450px] flex flex-col justify-end p-8 transition-all duration-500 lg:hover:border-[#00F0FF]/30 lg:hover:-translate-y-2">
+                <div class="group relative w-[320px] md:w-[400px] h-[450px] bg-[#050505] border border-white/10 overflow-hidden flex flex-col shrink-0 transition-all duration-500 lg:hover:border-[#00F0FF]/60">
                   
-                  <div class="absolute top-6 right-6 z-20">
-                    <div class="px-3 py-1.5 bg-black/80 border border-[#00F0FF]/30 backdrop-blur-md countdown-badge" data-target-date={event.eventDate}>
-                      <span class="font-mono text-[10px] font-bold tracking-[0.2em] text-[#00F0FF] cd-text">SCANNING...</span>
-                    </div>
-                  </div>
+                  {/* FOTO CON EFECTO GRIS -> COLOR */}
+                  <img src={ev.heroImage} class="absolute inset-0 w-full h-full object-cover grayscale-0 opacity-80 lg:grayscale lg:opacity-60 lg:group-hover:grayscale-0 lg:group-hover:opacity-100 transition-all duration-1000 z-0" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/40 to-transparent z-0 lg:group-hover:via-[#020202]/90 transition-all duration-500" />
 
-                  {/* 🔥 IMAGEN RESPONSIVA: Color en móvil, Gris en PC 🔥 */}
-                  <div class="absolute inset-0 z-0">
-                    <img src={event.heroImage} alt={event.title} class="w-full h-full object-cover grayscale-0 opacity-80 lg:grayscale lg:opacity-30 lg:group-hover:grayscale-0 lg:group-hover:opacity-60 transition-all duration-1000" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent" />
-                  </div>
-                  
-                  <div class="relative z-10 w-full">
-                    <div class="flex justify-between items-start mb-4">
-                      <div class="flex flex-col">
-                        <span class="font-headline text-6xl font-black italic text-white leading-none">{date.getDate().toString().padStart(2, '0')}</span>
-                        <span class="font-mono text-[10px] text-white/60 tracking-[0.3em] uppercase mt-1">{date.toLocaleString('es-MX', { month: 'short' })}</span>
-                      </div>
-                      <span class="px-2 py-1 bg-white/10 border border-white/10 text-white font-mono text-[8px] uppercase tracking-widest backdrop-blur-sm">{event.category}</span>
+                  <div class="relative z-10 p-6 md:p-8 h-full flex flex-col justify-between">
+                    {/* FECHA: DÍA Y MES (TOP LEFT) */}
+                    <div>
+                      <span class="font-headline text-5xl md:text-6xl text-white font-[950] italic leading-none block">{ev.day}</span>
+                      <span class="font-mono text-[10px] md:text-[11px] text-[#00F0FF] uppercase tracking-[0.4em] font-black mt-1 ml-1 block">{ev.month}</span>
                     </div>
 
-                    <h3 class="font-headline text-3xl font-black text-white italic uppercase leading-[0.9] mb-4 lg:group-hover:text-[#00F0FF] transition-colors">{event.title}</h3>
-                    
-                    {/* 🔥 DESCRIPCIÓN RESPONSIVA TAILWIND 🔥 */}
-                    <div class="grid transition-all duration-500 ease-in-out grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] mb-4">
-                      <div class="overflow-hidden opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500">
-                        <p class="text-white/50 text-[10px] italic line-clamp-2 leading-relaxed">
-                          {event.description}
-                        </p>
-                      </div>
-                    </div>
+                    <div class="flex flex-col justify-end">
+                      {/* CATEGORÍA INTEGRADA */}
+                      <span class="inline-block mb-3 w-max px-2 py-0.5 bg-[#00F0FF]/10 border border-[#00F0FF]/20 text-[#00F0FF] font-mono text-[8px] uppercase tracking-widest">
+                        {ev.category}
+                      </span>
 
-                    <div class="flex flex-col gap-2">
-                      <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest text-white/40">
-                        <span>Hype_Meter</span>
-                        <span class={getHypeTextColorClass(event.hypeLevel)}>{event.hypeLevel}%</span>
+                      <h3 class="font-headline text-xl md:text-2xl text-white font-black uppercase italic leading-[0.85] tracking-tighter lg:group-hover:text-[#00F0FF] transition-colors break-words mb-2">
+                        {ev.title}
+                      </h3>
+
+                      {/* MAGIA HOVER: DESCRIPCIÓN Y HYPE METER */}
+                      <div class="grid transition-all duration-500 ease-in-out grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr]">
+                        <div class="overflow-hidden opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-500">
+                          <div class="flex flex-col gap-2 mt-2">
+                            <p class="text-white/60 text-[11px] italic leading-tight line-clamp-3">
+                              "{ev.description || 'Analizando señal de lanzamiento...'}"
+                            </p>
+
+                            <div class="flex flex-col gap-1.5 mt-3">
+                              <div class="flex justify-between items-end">
+                                <span class="font-mono text-[9px] text-white/30 uppercase tracking-widest font-black">Hype Meter</span>
+                                <span class="font-headline text-sm font-black italic" style={{ color: badgeColor }}>{ev.hypeLevel}%</span>
+                              </div>
+                              <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                <div class="h-full transition-all duration-1000" style={{ width: `${ev.hypeLevel}%`, backgroundColor: badgeColor }} />
+                              </div>
+                            </div>
+
+                            <a href={`/radar/${ev.slug}`} class="flex justify-between items-center group/btn mt-4 pt-4 border-t border-white/5">
+                               <span class="font-mono text-[10px] text-[#00F0FF] font-black uppercase tracking-[0.3em]">Abrir Expediente</span>
+                               <ArrowRight size={16} className="text-[#00F0FF] lg:group-hover/btn:translate-x-2 transition-transform" />
+                            </a>
+                          </div>
+                        </div>
                       </div>
-                      <div class="h-1.5 bg-white/10 w-full overflow-hidden rounded-full">
-                        <div class={`h-full bg-gradient-to-r ${getHypeColorClass(event.hypeLevel)} transition-all duration-1000`} style={{ width: `${event.hypeLevel}%` }}></div>
+
+                      {/* FOOTER DE CARD EN MODO REPOSO PC */}
+                      <div class="mt-4 pt-2 border-t border-white/5 justify-between items-center hidden lg:flex lg:group-hover:hidden">
+                        <span class="font-mono text-[8px] text-white/20 uppercase tracking-[0.2em] font-bold italic">Signal Detected</span>
+                        <ChevronRight size={14} className="text-white/10" />
                       </div>
+
                     </div>
                   </div>
-                </a>
-               )
+                </div>
+               );
             })}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section>
-          <div class="flex items-center gap-4 mb-6 border-b border-white/10 pb-4">
-             <Crosshair size={20} className="text-[#00F0FF]" />
-             <h2 class="font-mono text-[12px] text-white uppercase tracking-[0.4em] font-bold">Radar de Despliegue // Calendario</h2>
-          </div>
-          
-          <RadarCalendar client:load events={radarEvents} />
-        </section>
+      {/* CALENDARIO */}
+      <section class="mb-44 max-w-[1200px] mx-auto">
+        <div class="flex items-center gap-4 mb-10 border-b border-white/10 pb-4">
+           <Crosshair size={20} className="text-[#00F0FF]" />
+           <h2 class="font-mono text-[12px] text-white uppercase tracking-[0.4em] font-bold">Radar de Despliegue // Calendario</h2>
+        </div>
+        <RadarCalendar client:load events={upcoming} />
+      </section>
 
-        {/* 🔥 ADS HASTA ABAJO (Montados seguros) */}
-        <div class="mt-20 flex flex-col gap-8">
-           {/* Desktop Ad */}
-           <div class="hidden lg:flex w-full min-h-[150px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden transition-all duration-500 hover:border-[#00F0FF]/50 hover:shadow-[0_10px_30px_-10px_rgba(0,240,255,0.3)]">
-              <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div class="absolute top-4 left-6 z-10">
-                <span class="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#00F0FF]">SPONSORED_NODE</span>
-              </div>
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                 <AdSlot slot="4821639929" format="auto" client:only="react" />
-              </div>
-              <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#00F0FF] transition-all duration-700 z-10 shadow-[0_0_15px_#00F0FF]" />
-           </div>
-
-           {/* Mobile Ad */}
-           <div class="flex lg:hidden w-full min-h-[250px] bg-[#050505] border border-white/5 relative group flex-col justify-center overflow-hidden">
-              <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-              <div class="absolute top-4 left-4 z-10">
-                <span class="font-mono text-[8px] font-black tracking-[0.2em] uppercase px-3 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#00F0FF]">SPONSORED_NODE</span>
-              </div>
-              <div class="relative z-20 w-full h-full flex items-center justify-center p-4 pt-12">
-                 <AdSlot slot="4819366386" format="auto" client:only="react" />
-              </div>
-           </div>
+      {/* ─── SECCIÓN 2: BENTO GRID (PASADOS) ─── */}
+      <section class="mb-32 max-w-[1200px] mx-auto">
+        <div class="flex items-center gap-4 mb-12 border-b border-white/10 pb-4">
+           <Archive size={18} className="text-white/20" />
+           <h2 class="font-mono text-[12px] text-white/40 uppercase tracking-[0.4em] font-bold">Registros del Sistema // Eventos Pasados</h2>
         </div>
 
-      </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-auto md:h-[650px]">
+          {pastMapped.slice(0, 5).map((ev: any, i: number) => {
+            const bentoClasses: string[] = [
+              "md:col-span-2 md:row-span-2", 
+              "md:col-span-2 md:row-span-1", 
+              "md:col-span-1 md:row-span-1", 
+              "md:col-span-1 md:row-span-1",
+              "md:col-span-2 md:row-span-1"
+            ];
+            const badgeColor = getHypeColor(ev.hypeLevel);
 
-      {/* 🔥 ADS DERECHA (x2) */}
-      <aside class="hidden 2xl:flex w-[160px] sticky top-40 flex-col gap-6 h-fit shrink-0">
-        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#00F0FF]/50 hover:shadow-[0_10px_30px_-10px_rgba(0,240,255,0.3)]">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-          <div class="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[90%] text-center">
-            <span class="font-mono text-[7px] font-black tracking-[0.2em] uppercase px-2 py-1 bg-[#020202] border border-white/10 rounded-sm text-[#00F0FF] block w-full">SPONSORED</span>
-          </div>
-          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
-            <AdSlot slot="2057471674" client:only="react" />
-          </div>
-          <div class="absolute bottom-0 left-0 h-[2px] w-0 group-hover:w-full bg-[#00F0FF] transition-all duration-700 z-10 shadow-[0_0_15px_#00F0FF]" />
+            return (
+              <a href={`/radar/${ev.slug}`} class={`group relative bg-[#050505] border border-white/5 overflow-hidden p-8 flex flex-col justify-end transition-all hover:border-[#00F0FF]/30 ${bentoClasses[i] || ""}`}>
+                
+                {/* FECHA ARRIBA IZQUIERDA EN BENTO */}
+                <div class="absolute top-0 left-0 z-20 bg-black/40 backdrop-blur-md p-4 border-r border-b border-white/10">
+                  <span class="block font-headline text-3xl font-black italic text-white/30 leading-none">{ev.day}</span>
+                  <span class="block font-mono text-[8px] text-white/20 uppercase font-bold tracking-widest">{ev.month}</span>
+                </div>
+
+                <img src={ev.heroImage} class="absolute inset-0 w-full h-full object-cover opacity-20 grayscale group-hover:scale-110 group-hover:grayscale-0 transition-all duration-700" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+                
+                <div class="relative z-10">
+                  <span class="inline-block px-2 py-0.5 border border-white/10 bg-white/5 text-[7px] text-white/40 font-mono uppercase mb-2">
+                    {ev.category}
+                  </span>
+                  <h4 class="font-headline text-2xl font-black text-white uppercase italic leading-[0.9] group-hover:text-[#00F0FF] transition-colors">{ev.title}</h4>
+                  
+                  {/* HOVER BENTO */}
+                  <div class="grid transition-all duration-500 grid-rows-[0fr] group-hover:grid-rows-[1fr]">
+                    <div class="overflow-hidden opacity-0 group-hover:opacity-100 transition-all duration-500">
+                       <p class="text-[10px] text-white/40 italic mt-3 mb-4 line-clamp-1">{ev.description}</p>
+                       <div class="h-1 bg-white/10 w-full rounded-full">
+                          <div class="h-full" style={{ width: `${ev.hypeLevel}%`, backgroundColor: badgeColor }}></div>
+                       </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            );
+          })}
         </div>
-        <div class="w-full h-[600px] bg-[#050505] border border-white/5 relative group block overflow-hidden transition-all duration-500 hover:border-[#00F0FF]/50">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent z-0" />
-          <div class="relative z-20 w-full h-full flex items-center justify-center pt-10">
-            <AdSlot slot="2057471674" client:only="react" />
-          </div>
-        </div>
-      </aside>
+      </section>
 
     </div>
   </main>
-  <Community />
 
+  <Community />
   <Footer />
 </Layout>
 
-<script>
-  function updateCountdowns() {
-    const badges = document.querySelectorAll('.countdown-badge');
-    const now = new Date().getTime();
-
-    badges.forEach(badge => {
-      const targetDateStr = badge.getAttribute('data-target-date');
-      if (!targetDateStr) return;
-      
-      const target = new Date(targetDateStr).getTime();
-      const diff = target - now;
-      const textSpan = badge.querySelector('.cd-text');
-
-      if (!textSpan) return;
-
-      if (diff <= 0) {
-        textSpan.textContent = 'HOY // LIVE';
-        textSpan.classList.add('text-[#FF0055]');
-        textSpan.classList.remove('text-[#00F0FF]');
-        badge.classList.add('border-[#FF0055]/50');
-        badge.classList.remove('border-[#00F0FF]/30');
-      } else {
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        textSpan.textContent = `T-MINUS ${d}D ${h}H`;
-      }
-    });
+<style is:global>
+  @keyframes infinite-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-33.3333%); } /* Loop real infinito */
   }
-
-  updateCountdowns();
-  setInterval(updateCountdowns, 60000); 
-</script>
-
-<style>
+  .animate-infinite-scroll {
+    animation: infinite-scroll 45s linear infinite;
+    width: max-content;
+  }
   @keyframes radar-spin {
     from { transform: translate(-50%, 0) rotate(0deg); }
     to { transform: translate(-50%, 0) rotate(360deg); }
   }
-  .animate-radar-spin {
-    animation: radar-spin 12s linear infinite;
-  }
+  .animate-radar-spin { animation: radar-spin 15s linear infinite; }
 </style>
