@@ -80,7 +80,7 @@ export default function TrendingNow({ posts = [] }: { posts?: SanityPost[] }) {
               <p className="text-white/80 text-xs md:text-sm italic mb-4 md:mb-8 leading-relaxed drop-shadow-md">
                 "Análisis en tiempo real de los picos de interés en el meta. No sigas la tendencia, anticípala."
               </p>
-              <a href="/news" className="inline-flex items-center gap-3 md:gap-4 font-mono text-[#FF4500] lg:hover:text-white text-[9px] md:text-[11px] font-black tracking-[0.4em] uppercase transition-all group drop-shadow-md">
+              <a href="/blog" className="inline-flex items-center gap-3 md:gap-4 font-mono text-[#FF4500] lg:hover:text-white text-[9px] md:text-[11px] font-black tracking-[0.4em] uppercase transition-all group drop-shadow-md">
                 Explorar tendencias <ChevronRight size={18} className="md:w-[22px] md:h-[22px] lg:group-hover:translate-x-2 transition-transform" />
               </a>
             </div>

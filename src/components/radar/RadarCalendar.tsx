@@ -1,10 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Target, Radio, Zap, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function RadarCalendar({ events }: { events: any[] }) {
-  // Inicializamos (puedes usar new Date() para el mes actual real)
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 4, 1)); // Mayo 2026
+  // 🚀 REPARADO: Arranca con la fecha real del sistema operativo
+  const [currentDate, setCurrentDate] = useState(new Date()); 
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+
+  // 🚀 ESCUDO DEL CLIENTE: Sincroniza el mes exacto en tiempo real al cargar la página
+  useEffect(() => {
+    setCurrentDate(new Date());
+  }, []);
 
   // Lógica matemática para saber cuántos días tiene el mes y en qué día de la semana empieza
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
@@ -49,7 +54,6 @@ export default function RadarCalendar({ events }: { events: any[] }) {
               <span className="text-white/20 ml-4 text-3xl">{currentDate.getFullYear()}</span>
             </h2>
             <div className="flex gap-2">
-              {/* ¡AQUÍ ESTÁ LA MAGIA DE LOS BOTONES! */}
               <button onClick={handlePrevMonth} className="p-3 border border-white/10 hover:border-[#00F0FF] text-white/40 hover:text-[#00F0FF] transition-all bg-white/[0.02]">
                 <ChevronLeft size={20} />
               </button>

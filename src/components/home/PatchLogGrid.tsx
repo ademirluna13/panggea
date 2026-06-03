@@ -46,6 +46,20 @@ export default function PatchLogGrid({ patches = [], accentColor }: { patches: P
     });
   }, [patches, activeFilter]);
 
+  // 🧠 FUNCIÓN HELPER PARA REESCALAR EL TITULO POR SU LONGITUD
+  const getFontSize = (title: string, isBig: boolean) => {
+    const length = title.length;
+    if (isBig) {
+      if (length > 50) return 'text-3xl sm:text-5xl md:text-6xl';
+      if (length > 30) return 'text-4xl sm:text-6xl md:text-7xl';
+      return 'text-5xl sm:text-6xl md:text-8xl';
+    } else {
+      if (length > 45) return 'text-xl md:text-2xl';
+      if (length > 25) return 'text-2xl md:text-3xl';
+      return 'text-4xl md:text-5xl';
+    }
+  };
+
   return (
     <div className="flex flex-col gap-10">
       
@@ -131,7 +145,7 @@ export default function PatchLogGrid({ patches = [], accentColor }: { patches: P
                       {patch.patchType}
                     </span>
                     <div className="font-mono text-[8px] text-white/50 uppercase tracking-[0.3em]">
-                      SYSTEM // {patch.version}
+                      {patch.game} // {patch.version}
                     </div>
                   </div>
                   
@@ -150,14 +164,17 @@ export default function PatchLogGrid({ patches = [], accentColor }: { patches: P
 
                 {/* CENTRO (Título y descripción) */}
                 <div className="mt-auto mb-6 md:mb-8">
-                  <h3 className={`font-headline font-black text-white uppercase italic tracking-tighter leading-[0.85] drop-shadow-2xl transition-colors ${isBig ? 'text-5xl sm:text-6xl md:text-8xl' : 'text-4xl md:text-5xl'}`}>
-                    {/* Da prioridad al nombre del juego si existe, si no usa el título del parche */}
-                    {patch.game || patch.title}
+                  <h3 className={`font-headline font-black text-white uppercase italic tracking-tighter leading-[0.85] drop-shadow-2xl transition-colors ${getFontSize(patch.title, isBig)}`}>
+                    {patch.title}
                   </h3>
-                  <div className="overflow-hidden mt-4 max-w-xl">
-                    <p className="text-white/50 text-xs md:text-sm italic leading-relaxed line-clamp-2 break-words">
-                      {patch.description || 'Consulta los detalles del sistema y las notas completas de la actualización.'}
-                    </p>
+                  
+                  {/* 🔥 ANIMACIÓN RESPONSIVA: Fijo en móviles, transiciona al hover en Desktop 🔥 */}
+                  <div className="grid transition-all duration-500 ease-in-out grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] w-full max-w-xl">
+                    <div className="overflow-hidden opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500">
+                      <p className="text-white/50 text-xs md:text-sm italic leading-relaxed line-clamp-2 break-words mt-4">
+                        {patch.description || 'Consulta los detalles del sistema y las notas completas de la actualización.'}
+                      </p>
+                    </div>
                   </div>
                 </div>
 

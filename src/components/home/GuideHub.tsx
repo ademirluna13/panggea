@@ -62,6 +62,20 @@ export default function GuideHub({ guides = [], types = [] }: { guides?: SanityG
     });
   }, { scope: container, dependencies: [displayGuides, activeFilter] });
 
+  // 🧠 FUNCIÓN HELPER PARA REESCALAR EL TITULO POR SU LONGITUD
+  const getFontSize = (title: string, isBig: boolean) => {
+    const length = title.length;
+    if (isBig) {
+      if (length > 50) return 'text-xl sm:text-3xl md:text-4xl';
+      if (length > 30) return 'text-2xl sm:text-4xl md:text-5xl';
+      return 'text-3xl md:text-6xl';
+    } else {
+      if (length > 45) return 'text-base md:text-lg';
+      if (length > 25) return 'text-lg md:text-xl';
+      return 'text-xl md:text-2xl';
+    }
+  };
+
   if (!guides.length) return null;
 
   return (
@@ -118,7 +132,8 @@ export default function GuideHub({ guides = [], types = [] }: { guides?: SanityG
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[320px]">
             {displayGuides.map((guide, index: number) => {
-              const sizeClass = index === 0 ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1 md:row-span-1';
+              const isBig = index === 0;
+              const sizeClass = isBig ? 'md:col-span-2 md:row-span-2' : 'md:col-span-1 md:row-span-1';
               
               return (
                 <a key={guide.slug} href={`/guide/${guide.slug}`} className={`guide-card block relative overflow-hidden group border border-white/10 rounded-sm bg-[#050505] transition-all duration-500 ${sizeClass}`}>
@@ -139,7 +154,8 @@ export default function GuideHub({ guides = [], types = [] }: { guides?: SanityG
                     </div>
 
                     <div className="flex flex-col justify-end">
-                      <h3 className={`font-headline text-white font-black uppercase italic tracking-tighter leading-[0.95] mb-2 group-hover:text-[#94A3B8] transition-colors ${index === 0 ? 'text-3xl md:text-6xl' : 'text-xl md:text-2xl'}`}>
+                      {/* 🔥 APLICADO EL REESCALADO DINÁMICO AQUÍ 🔥 */}
+                      <h3 className={`font-headline text-white font-black uppercase italic tracking-tighter leading-[0.95] mb-2 group-hover:text-[#94A3B8] transition-colors ${getFontSize(guide.title, isBig)}`}>
                         {guide.title}
                       </h3>
 

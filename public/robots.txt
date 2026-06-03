@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# No dejes que el bot pierda el tiempo en el panel de Sanity o carpetas de desarrollo
+Disallow: /admin/
+Disallow: /studio/
+Disallow: /search?*

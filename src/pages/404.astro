@@ -1,0 +1,78 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/layout/Header';
+import { Terminal, ShieldAlert, ArrowLeft } from 'lucide-react';
+
+const title = "ERROR 404 | SEÑAL PERDIDA";
+const description = "La ruta solicitada no existe o ha sido purgada de los servidores de PANGEA.";
+const ACCENT_COLOR = "#00F0FF";
+---
+
+<Layout title={title} description={description}>
+  {/* Sincroniza el menú superior */}
+  <Header client:load />
+  
+  <main class="bg-[#020202] min-h-screen flex items-center justify-center relative overflow-hidden px-6 pt-24">
+    
+    {/* ─── EFECTOS DE FONDO RADIAL ─── */}
+    <div class="absolute inset-0 pointer-events-none" 
+         style={`background: radial-gradient(circle at 50% 50%, #FF005503 0%, transparent 60%), radial-gradient(circle at 80% 20%, ${ACCENT_COLOR}05 0%, transparent 40%)`}>
+    </div>
+
+    {/* ─── CONTENEDOR TÁCTICO DEL ERROR ─── */}
+    <div class="max-w-xl w-full border border-white/5 bg-[#050505] p-8 md:p-12 relative z-10 text-center overflow-hidden
+                before:absolute before:top-0 before:left-0 before:w-full before:h-[2px] before:bg-gradient-to-r before:from-[#FF0055] before:to-[#00F0FF]">
+      
+      {/* ICONO DE ALERTA AMENAZANTE */}
+      <div class="flex justify-center mb-6">
+        <div class="p-4 border border-[#FF0055]/20 bg-[#FF0055]/5 text-[#FF0055] relative group">
+          <ShieldAlert size={36} className="animate-pulse" />
+          <div class="absolute -inset-px border border-[#00F0FF]/30 opacity-0 group-hover:opacity-100 transition-opacity animate-ping pointer-events-none"></div>
+        </div>
+      </div>
+
+      {/* TÍTULO GLITCH ESTILO PANGEA */}
+      <h1 class="font-headline text-white text-6xl md:text-7xl font-black italic uppercase tracking-tighter mb-2 leading-none">
+        ERR_<span class="text-[#FF0055]">404</span>
+      </h1>
+      
+      <p class="font-mono text-[10px] text-[#00F0FF] tracking-[0.4em] uppercase mb-8 font-bold">
+        SEÑAL_PERDIDA // HOST_DESCONOCIDO
+      </p>
+
+      {/* TEXTO INFORMATIVO (Especial para que el bot de Google vea contenido útil) */}
+      <div class="font-body text-white/50 text-sm md:text-base mb-10 max-w-sm mx-auto leading-relaxed">
+        El archivo, expediente o registro digital al que intentas acceder ha sido purgado del sistema, movido de sector o nunca existió en la red de <span class="text-white font-bold tracking-wider">PANGGEA</span>.
+      </div>
+
+      {/* BOTÓN DE RETORNO AL NEXO */}
+      <div class="flex justify-center">
+        <a
+          href="/"
+          class="flex items-center justify-center gap-3 px-6 py-3.5 border border-white/10 hover:border-[#00F0FF] bg-white/[0.02] hover:bg-[#00F0FF]/5 text-white font-mono text-[11px] tracking-widest uppercase font-bold transition-all duration-300 group"
+        >
+          <ArrowLeft size={14} className="text-[#00F0FF] group-hover:-translate-x-1 transition-transform" />
+          <span>Regresar al Nexo</span>
+        </a>
+      </div>
+
+      {/* ─── TERMINAL LOG SIMULADO (Sabor Cyberpunk Extra) ─── */}
+      <div class="mt-12 pt-6 border-t border-white/5 text-left font-mono text-[9px] text-white/20 select-none hidden sm:block">
+        <div class="flex items-center gap-2 mb-1">
+          <Terminal size={10} className="text-[#FF0055]" /> 
+          <span>> PANGGEA_OS V2.6 // RUNNING_FALLBACK_SCAN...</span>
+        </div>
+        <p class="text-white/10 pl-4">> STATUS: 404_NOT_FOUND [TARGET_ROUTE_INVALID]</p>
+      </div>
+
+    </div>
+  </main>
+</Layout>
+
+<style>
+  /* Optimización de suavizado para las fuentes itálicas pesadas */
+  h1 {
+    paint-order: stroke fill;
+    font-display: swap;
+  }
+</style>

@@ -101,6 +101,20 @@ export default function ArchiveGrid({
     });
   }, [activeCat, activePlat, search, sortOrder, posts, hideCategory]);
 
+  // 🧠 FUNCIÓN HELPER PARA REESCALAR EL TITULO POR SU LONGITUD EN EL BENTO
+  const getFontSize = (title: string, isBig: boolean) => {
+    const length = title.length;
+    if (isBig) {
+      if (length > 50) return 'text-3xl sm:text-4xl md:text-5xl';
+      if (length > 30) return 'text-4xl sm:text-5xl md:text-6xl';
+      return 'text-5xl md:text-7xl';
+    } else {
+      if (length > 45) return 'text-lg md:text-xl';
+      if (length > 25) return 'text-xl md:text-2xl';
+      return 'text-xl md:text-3xl';
+    }
+  };
+
   return (
     <div className="flex flex-col gap-10" ref={rackRef}>
       {/* 🚀 CSS PARA MATAR EL SCROLLBAR BLANCO DE WINDOWS */}
@@ -214,8 +228,15 @@ export default function ArchiveGrid({
                     </div>
                   )}
                 </div>
-                <h2 className={`font-headline font-black text-white uppercase italic tracking-tighter leading-[0.85] group-hover:text-white transition-all ${isBig ? "text-5xl md:text-7xl" : "text-xl md:text-3xl"}`}>{post.title}</h2>
-                <div className={`grid transition-all duration-500 ease-in-out ${isBig ? 'grid-rows-[1fr] mt-6 opacity-100' : 'grid-rows-[0fr] opacity-0 group-hover:grid-rows-[1fr] group-hover:opacity-100 group-hover:mt-6'}`}><div className="overflow-hidden"><p className="text-white/40 text-sm italic leading-relaxed line-clamp-2">{post.description}</p></div></div>
+                <h2 className={`font-headline font-black text-white uppercase italic tracking-tighter leading-[0.85] group-hover:text-white transition-all ${getFontSize(post.title, isBig)}`}>{post.title}</h2>
+                
+                {/* 🔥 REPARADO: Muestra siempre en móviles (grid-rows-[1fr]), transiciona al hover en Desktop (lg:grid-rows-[0fr] -> lg:group-hover:grid-rows-[1fr]) 🔥 */}
+                <div className="grid transition-all duration-500 ease-in-out grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] w-full">
+                  <div className="overflow-hidden opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500">
+                    <p className="text-white/40 text-sm italic leading-relaxed line-clamp-2 mt-6">{post.description}</p>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between border-t border-white/5 pt-6 mt-6">
                   <div className="flex items-center gap-2 text-white/20 font-mono text-[9px] font-bold uppercase group-hover:text-white/50 transition-colors">
                     <Clock size={12} style={{ color: accentColor }} /> 

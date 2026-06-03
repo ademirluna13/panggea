@@ -15,12 +15,9 @@ import RankingSystem from '../components/home/RankingSystem';
 import GearVault from '../components/home/GearVault';
 import type { GearItem } from '../components/home/GearVault';
 
-// 🔥 IMPORTAMOS EL CARRUSEL MAGENTA
 import FeaturedCarousel from '../components/home/FeaturedCarousel.tsx';
 import GuideHub from '../components/home/GuideHub';
-import Footer from '../components/layout/Footer';
 
-// 🔥 INTERFACE PARA EL CARRUSEL
 interface Post {
   title: string;
   slug: string;
@@ -32,7 +29,7 @@ interface Post {
 const title = "PANGGEA DIGITAL BLOG";
 const description = "Consultoría de software de alto rendimiento y portal de análisis técnico.";
 
-// 1. Fetches
+// Fetches
 const trendingPostsFetch = sanityClient.fetch(`*[_type == "post" && !(isDeepDive == true)] | order(publishedAt desc) [0...7] { title, "slug": slug.current, "heroImage": mainImage.asset->url, publishedAt, description, platform, "category": coalesce(categories[0]->title, "EDITORIAL") }`);
 const deepDivesFetch = sanityClient.fetch(`*[_type == "post" && isDeepDive == true] | order(publishedAt desc) [0...4] { title, "slug": slug.current, "heroImage": mainImage.asset->url, "manualBg": sectionBg.asset->url, description, readTime, isLegendary, platform, "category": coalesce(categories[0]->title, "LORE") }`);
 const categoriesFetch = sanityClient.fetch(`*[_type == "category"] | order(title asc) { title, "slug": slug.current }`);
@@ -72,28 +69,21 @@ const gearFetch = sanityClient.fetch(`*[_type == "gear"] | order(_createdAt desc
 }`);
 
 const gearCategoriesFetch = sanityClient.fetch(`*[_type == "gearCategory"] | order(title asc) { title }`);
-
-// 🔥 AGREGAMOS EL FETCH DE NOTAS DESTACADAS
 const featuredPostsFetch = sanityClient.fetch(`*[_type == "post" && isFeatured == true] | order(publishedAt desc) { title, "slug": slug.current, "heroImage": mainImage.asset->url, "category": coalesce(categories[0]->title, "GENERAL"), description }`);
 
-// 🔥 LO METEMOS AL PROMISE.ALL PARA QUE CARGUE A LA VELOCIDAD DE LA LUZ
 const [trendingPosts, deepDives, categories, rawPatches, rawTiers, rawRadar, rawGear, rawGearCats, rawFeatured] = await Promise.all([
   trendingPostsFetch, deepDivesFetch, categoriesFetch, patchNotesFetch, tierArsenalFetch, radarFetch, gearFetch, gearCategoriesFetch, featuredPostsFetch
 ]);
 
-// 2. Formateo
 const formatDate = (dateStr: string) => {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   return `${d.getDate().toString().padStart(2, '0')} ${d.toLocaleString('es-MX', { month: 'short' }).toUpperCase()} ${d.getFullYear()}`;
 };
 
-// 🔥 LÓGICA DE CARRUSEL (DIVERSITY FILTER)
-// 🔥 LÓGICA DE CARRUSEL (DIVERSITY FILTER)
 const featuredPosts = Array.from(
   new Map(rawFeatured.map((post: any) => [post.category, post])).values()
 ).slice(0, 5) as Post[]; 
-// ^^^ ESTE "as Post[]" ES EL QUE MATA EL ERROR ROJO
 
 const patches = rawPatches.map((p: any) => ({
   id: p._id, game: p.gameName || 'SYSTEM', version: p.version || 'V1.0', title: p.title, type: p.patchType || 'BAL', desc: p.description, currentDate: formatDate(p.publishedAt), lastUpdate: p.lastUpdateAt ? formatDate(p.lastUpdateAt) : '', img: p.heroImage || null, slug: p.slug
@@ -126,10 +116,9 @@ const gearItems: GearItem[] = rawGear.map((g: any) => ({
   shortDescription: g.shortDescription || "", 
   image: g.image,
   isHero: g.isHero,
-  link: g.buyLink || '#'
+  link: g.buyLink || '/vault' 
 }));
 
-// 🚀 CONSULTA COMPLETA: Traemos guías y tipos
 const guides = await sanityClient.fetch(`*[_type == "guide"] | order(publishedAt desc) {
   title,
   "slug": slug.current,
@@ -143,7 +132,6 @@ const guides = await sanityClient.fetch(`*[_type == "guide"] | order(publishedAt
 
 const guideTypes = await sanityClient.fetch(`*[_type == "guideType"] | order(title asc) { title }`);
 const typeList = guideTypes.map((t: { title: string }) => t.title);
-
 const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as string).toUpperCase())] as string[];
 ---
 
@@ -152,6 +140,7 @@ const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as s
   <main class="bg-black min-h-screen">
     
     <section class="relative h-[100svh] w-full bg-black overflow-hidden">
+      {/* 🛡️ Necesita client:only para que no truene Three.js en el servidor durante el build */}
       <div class="absolute inset-0 z-0">
         <SpaceHeroScene client:only="react" />
       </div>
@@ -186,12 +175,9 @@ const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as s
         <TacticalArsenal client:load entries={tierEntries} />
       </section>
 
-      <section id="charts" class="border-t border-white/5 pt-12">
-        <RankingSystem client:load />
-      </section>
-
+      {/* 🚀 REPARADO: Ahora usa client:load para que AdSense pueda leer los textos del calendario */}
       <section id="radar" class="border-t border-white/5 pt-12">
-        <Radar client:only="react" events={radarEvents} />
+        <Radar client:load events={radarEvents} />
       </section>
 
       <section id="vault" class="border-t border-white/5 pt-12 pb-24">
