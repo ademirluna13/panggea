@@ -18,7 +18,7 @@ export default defineConfig({
   output: 'server',
 
   // Quitamos tailwind de aquí porque en v4 va en los plugins de Vite
-  integrations: [mdx(), sitemap(), react(), sanity({
+  integrations: [mdx(), react(), sanity({
     projectId: 'zjxg4fvd',
     dataset: 'production',
     useCdn: false, // Ponlo en falso para que los cambios se vean en tiempo real
