@@ -1,0 +1,23 @@
+name: Sanity Auto Deploy Trigger
+
+on:
+  repository_dispatch:
+    types: [sanity_update]
+
+jobs:
+  trigger_hostinger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PANGEA_DEPLOY_TOKEN }}
+
+      - name: Trigger Push for Hostinger
+        run: |
+          git config --global user.name "PanGGea Bot"
+          git config --global user.email "bot@panggea.site"
+          echo "Last Sanity Sync: $(date)" > src/sanity-timestamp.txt
+          git add src/sanity-timestamp.txt
+          git commit -m "chore: automated content sync from Sanity Studio [skip ci]"
+          git push origin main
