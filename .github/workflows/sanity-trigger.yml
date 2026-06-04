@@ -11,7 +11,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PANGEA_DEPLOY_TOKEN }}
+          token: ${{ secrets.PANGGEA_DEPLOY_TOKEN }}
 
       - name: Trigger Push for Hostinger
         run: |
