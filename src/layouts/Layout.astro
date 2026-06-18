@@ -1,5 +1,4 @@
 ---
-// src/layouts/Layout.astro
 import { sanityClient } from "sanity:client";
 import Header from '../components/layout/Header'; 
 import Footer from '../components/layout/Footer';
@@ -10,11 +9,11 @@ import '../styles/global.css';
 interface Props {
     title: string;
     description?: string;
-    image?: string; // 🔥 Imagen para redes sociales
+    image?: string; 
     canonicalURL?: string;
 }
 
-// 1. DATA PARA EL BUSCADOR (Corregido y sincronizado con tus rutas)
+// 🔙 Recuperamos la consulta directa de Sanity para tu buscador
 const searchData = await sanityClient.fetch(`*[ _type in ["post", "patchNote", "tierEntry", "radarEvent", "gear"] && defined(title) && defined(slug.current) ]{
   title,
   "category": select(
@@ -29,7 +28,7 @@ const searchData = await sanityClient.fetch(`*[ _type in ["post", "patchNote", "
     _type == "post" => "blog",
     _type == "patchNote" => "updates", 
     _type == "tierEntry" => "tier",
-    _type == "radarEvent" => "radar", // 🔥 Sincronizado con /radar
+    _type == "radarEvent" => "radar", 
     _type == "gear" => "vault",
     "#"
   ) + "/" + slug.current
@@ -38,10 +37,9 @@ const searchData = await sanityClient.fetch(`*[ _type in ["post", "patchNote", "
 const { 
     title, 
     description = "PanGGea | Hardware de alto rendimiento, análisis tácticos y el lore más profundo del gaming.",
-    image = "/og-default.png", // 🔥 Ten una imagen por defecto en tu carpeta public/
+    image = "/og-default.png", 
 } = Astro.props;
 
-// Configuramos la URL para el SEO
 const canonical = new URL(Astro.url.pathname, Astro.site || 'https://panggea.site');
 const socialImage = new URL(image, Astro.url.origin);
 ---
@@ -54,20 +52,18 @@ const socialImage = new URL(image, Astro.url.origin);
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <meta name="generator" content={Astro.generator} />
 
-        {/* 🔍 SEO Básico */}
-        <title>{title} | Blog Digital</title>
+        <title>{title} | PanGGea</title>
         <meta name="title" content={`${title} | PanGGea`} />
         <meta name="description" content={description} />
         <link rel="canonical" href={canonical} />
 
-        {/* 📘 Open Graph / Facebook / Discord / WhatsApp */}
+        {/* Metas Open Graph */}
         <meta property="og:type" content="article" />
         <meta property="og:url" content={canonical} />
         <meta property="og:title" content={`${title} | PanGGea`} />
         <meta property="og:description" content={description} />
         <meta property="og:image" content={socialImage} />
 
-        {/* 🐦 Twitter / X */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content={canonical} />
         <meta property="twitter:title" content={`${title} | PanGGea`} />
@@ -76,24 +72,26 @@ const socialImage = new URL(image, Astro.url.origin);
 
         <GoogleAnalytics />
         
-        {/* Fuentes */}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
         
-        {/* 🔥 Google AdSense (PUB ID Real Cargado) */}
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5617654431862522"
-                crossorigin="anonymous"></script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5617654431862522" crossorigin="anonymous"></script>
+
+        <script is:inline>
+          const savedTheme = localStorage.getItem('pangea-theme') || 'magma';
+          document.documentElement.setAttribute('data-theme', savedTheme);
+        </script>
     </head>
-    <body class="bg-[#0a0a0a] text-white selection:bg-[#FF4500] selection:text-white overflow-x-hidden">
+    
+    <body class="bg-pangea-neutral text-white selection:bg-brand-orange selection:text-white overflow-x-hidden transition-colors duration-500">
         
+        {/* 🔙 Le devolvemos su data al Header directamente */}
         <Header client:load searchData={searchData} />
         
         <slot />
 
         <Community client:load />
         <Footer />
-
-      
     </body>
 </html>

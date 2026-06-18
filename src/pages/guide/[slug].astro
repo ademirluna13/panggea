@@ -2,12 +2,11 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import PortableText from '../../components/PortableText.astro'; // 🔥 Importante para el contenido de Sanity
+import PortableText from '../../components/PortableText.astro';
 import { sanityClient } from "sanity:client";
-import { ArrowLeft, Clock, ShieldCheck, User, Gamepad2, Skull, BookOpen } from 'lucide-react';
-// 🔥 Componentes tácticos
-import SharedButton from '../../components/layout/SharedButton';
-
+import { ArrowLeft, Clock, Gamepad2, Skull, User } from 'lucide-react';
+// 🔥 Importamos tu nuevo Sidebar Táctico
+import SidebarFicha from '../../components/ui/SidebarFicha';
 
 export async function getStaticPaths() {
   const items = await sanityClient.fetch<any[]>(`*[_type == "guide" && defined(slug.current)]{
@@ -21,13 +20,22 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 
+// GROQ MEJORADO
 const guide = await sanityClient.fetch(`*[_type == "guide" && slug.current == $slug][0]{
   "id": _id,
   title,
   "slug": slug.current,
   publishedAt,
-  "gameName": game->name,
-  "authorName": author->name, 
+  "game": game->{
+    name,
+    "logo": logo.asset->url
+  },
+  "author": author->{
+    name,
+    "image": image.asset->url,
+    bio,
+    socials
+  },
   "guideType": type->title,
   "difficulty": level->title,
   "diffColor": level->color,
@@ -40,7 +48,6 @@ if (!guide) {
   return Astro.redirect('/guias');
 }
 
-// Lógica de reescalado para el título
 const nameLength = guide?.title?.length || 0;
 let titleSizeClass = "text-5xl md:text-6xl lg:text-[80px]"; 
 
@@ -57,7 +64,7 @@ const articleDate = new Date(guide.publishedAt || Date.now()).toLocaleDateString
 });
 
 const currentUrl = Astro.url.href;
-const ACCENT_COLOR = "#94A3B8"; // GRIS PLATEADO
+const ACCENT_COLOR = "#94A3B8"; 
 ---
 
 <Layout 
@@ -67,9 +74,9 @@ const ACCENT_COLOR = "#94A3B8"; // GRIS PLATEADO
 >
   <Header client:load />
 
-  <main class="bg-[#020202] min-h-screen relative font-sans text-white overflow-hidden">
+  {/* 🔥 EL FIX ESTÁ AQUÍ: Le quitamos el asesino "overflow-hidden" a la etiqueta main 🔥 */}
+  <main class="bg-[#020202] min-h-screen relative flex flex-col items-center font-sans text-white">
     
-    {/* ─── ESTILO SILVER GLOW ─── */}
     <style is:global>
       .text-silver-glow {
         color: #f8fafc;
@@ -83,13 +90,13 @@ const ACCENT_COLOR = "#94A3B8"; // GRIS PLATEADO
 
     <div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_0%,rgba(148,163,184,0.05)_0%,transparent_70%)]"></div>
 
-    {/* 📸 HERO SECTION */}
-    <div class="relative w-full h-[65vh] min-h-[500px] flex items-end pb-16 border-b border-white/5">
-      <div class="absolute inset-0 z-0 bg-[#050505] flex items-center justify-center overflow-hidden">
+    {/* 📸 HERO SECTION (Este sí puede llevar overflow-hidden localmente para la foto) */}
+    <div class="relative w-full h-[65vh] min-h-[500px] flex items-end pb-16 border-b border-white/5 overflow-hidden">
+      <div class="absolute inset-0 z-0 bg-[#050505] flex items-center justify-center">
         {guide.heroImage && (
-          <img src={guide.heroImage} alt={guide.title} class="w-full h-full object-cover opacity-60 grayscale-[0.3]" />
+          <img src={guide.heroImage} alt={guide.title} class="w-full h-full object-cover opacity-90 grayscale-[0.3]" />
         )}
-        <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent"></div>
       </div>
 
       <div class="max-w-[1200px] mx-auto px-6 w-full relative z-10">
@@ -97,9 +104,9 @@ const ACCENT_COLOR = "#94A3B8"; // GRIS PLATEADO
           <span class="bg-[#94A3B8] text-black font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-sm shadow-[0_0_15px_rgba(148,163,184,0.4)]">
             {guide.guideType || 'PROTOCOLO'}
           </span>
-          <span class="border border-white/10 bg-black/50 backdrop-blur-sm text-white/70 font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2">
+          <span class="border border-white/10 bg-black/50 backdrop-blur-sm text-white/70 font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2 rounded-sm">
             <Gamepad2 size={12} className="text-[#94A3B8]" />
-            {guide.gameName || 'MULTIGAME'}
+            {guide.game?.name || 'MULTIGAME'}
           </span>
         </div>
 
@@ -109,10 +116,9 @@ const ACCENT_COLOR = "#94A3B8"; // GRIS PLATEADO
 
         <div class="flex flex-wrap items-center gap-y-6 border-t border-white/10 pt-6">
           
-          {/* Dificultad */}
           <div class="flex items-center gap-3 pr-8 border-r border-white/10">
-            <div class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center">
-              <Skull size={16} style={{ color: guide.diffColor || ACCENT_COLOR }} />
+            <div class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center shadow-lg">
+              <Skull size={14} style={{ color: guide.diffColor || ACCENT_COLOR }} />
             </div>
             <div>
               <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Nivel de Riesgo</span>
@@ -122,18 +128,18 @@ const ACCENT_COLOR = "#94A3B8"; // GRIS PLATEADO
             </div>
           </div>
 
-          {/* Autor */}
-          {guide.authorName && (
-            <div class="flex items-center gap-3 px-8 border-r border-white/10">
-              <User size={18} className="text-[#94A3B8]" />
-              <div>
-                <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Operativo_Asignado</span>
-                <span class="block font-bold text-xs text-white uppercase">{guide.authorName}</span>
-              </div>
+          <div class="flex items-center gap-3 px-8 border-r border-white/10">
+             {guide.author?.image ? (
+                <img src={guide.author.image} alt={guide.author?.name} class="w-8 h-8 rounded-full object-cover border border-white/20 shadow-lg" />
+             ) : (
+                <User size={18} className="text-[#94A3B8]" />
+             )}
+            <div>
+              <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Operativo_Asignado</span>
+              <span class="block font-bold text-xs text-white uppercase">{guide.author?.name || 'PanGGea Team'}</span>
             </div>
-          )}
+          </div>
 
-          {/* Fecha */}
           <div class="flex items-center gap-3 pl-8">
             <Clock size={18} className="text-white/20" />
             <div>
@@ -146,70 +152,89 @@ const ACCENT_COLOR = "#94A3B8"; // GRIS PLATEADO
       </div>
     </div>
 
-    {/* 📝 CONTENIDO */}
-    <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12 w-full">
+    {/* 📝 CONTENIDO (El contenedor padre estira ambas columnas al máximo) */}
+    <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-stretch gap-8 xl:gap-12 w-full">
       
-   
-
       <div class="flex-1 max-w-[1200px] w-full">
         <div class="mb-12">
-          <a href="/guide" class="group flex items-center gap-4 text-white/30 hover:text-white transition-colors font-mono text-[10px] uppercase tracking-[0.3em] w-max">
-            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-            <span>Volver al Archivo Técnico</span>
-          </a>
+          <button onclick="window.history.back();" class="group flex items-center gap-4 text-white/30 transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max">
+            <div class="p-2 border border-white/5 bg-white/[0.02] transition-all group-hover:border-[#94A3B8]/50 group-hover:shadow-[0_0_15px_rgba(148,163,184,0.3)]">
+              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+            </div>
+            <span class="group-hover:text-[#94A3B8] transition-colors">Volver al Archivo Técnico</span>
+          </button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 relative">
+          
           <div class="lg:col-span-8">
-            <div class="prose prose-invert prose-p:text-white/70 prose-p:leading-relaxed prose-p:text-lg max-w-none break-words mb-20">
-              {/* 🚀 EL CUERPO DE LA GUÍA */}
-              <PortableText value={guide.content} />
+            {guide.description && (
+              <div class="text-xl lg:text-2xl font-headline italic text-white/80 leading-relaxed mb-10 border-l-4 pl-6 break-words overflow-hidden" style={{ borderColor: ACCENT_COLOR }}>
+                {guide.description}
+              </div>
+            )}
+
+            <div class="prose prose-invert prose-p:text-white/70 prose-p:leading-relaxed prose-p:text-lg prose-headings:font-headline prose-headings:uppercase prose-headings:italic prose-a:text-[#94A3B8] hover:prose-a:text-white prose-img:rounded-xl max-w-none break-words mb-20">
+              {guide.content ? (
+                <PortableText value={guide.content} />
+              ) : (
+                <p class="font-mono text-xs opacity-40 italic">&gt;_ Procesando datos de inmersión...</p>
+              )}
             </div>
+
+            {guide.author && (
+              <div class="w-full border border-white/10 bg-[#050505] rounded-2xl p-8 md:p-12 mt-20 flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full" style={`background-color: ${ACCENT_COLOR}`}></div>
+                
+                {guide.author.image && (
+                  <img src={guide.author.image} alt={guide.author.name} class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-white/5 shrink-0" />
+                )}
+                
+                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                  <span class="font-mono text-[9px] text-white/40 uppercase tracking-[0.4em] mb-2">Operativo de Inteligencia</span>
+                  <h4 class="font-headline text-3xl text-white uppercase italic font-black mb-4">{guide.author.name}</h4>
+                  
+                  {guide.author.bio && (
+                    <div class="text-white/60 text-sm md:text-base leading-relaxed mb-6 max-w-2xl prose prose-invert">
+                       <PortableText value={guide.author.bio} />
+                    </div>
+                  )}
+
+                  {guide.author.socials && guide.author.socials.length > 0 && (
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                      {guide.author.socials.map((social: any) => (
+                        <a href={social.url} target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 border border-white/10 bg-white/5 hover:bg-white/10 rounded-full font-mono text-[9px] uppercase tracking-widest text-white/70 hover:text-white transition-colors">
+                          {social.platform}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
-          <aside class="lg:col-span-4 flex flex-col gap-8">
-            <div class="bg-[#050505] border border-white/5 hover:border-[#94A3B8]/30 p-8 shadow-2xl relative transition-colors duration-500 lg:sticky lg:top-32 group overflow-hidden">
-              <div class="flex items-center gap-3 mb-8">
-                <div class="h-[2px] w-6 bg-[#94A3B8] shadow-[0_0_10px_#94A3B8]"></div>
-                <span class="font-mono text-[10px] text-white/60 font-black uppercase tracking-widest">Resumen de Misión</span>
-              </div>
+          {/* 🔥 SIDEBAR TÁCTICO STICKY 🔥 */}
+          <div class="lg:col-span-4 relative">
+             <SidebarFicha 
+                client:load 
+                category={guide.guideType || 'PROTOCOLO'} 
+                platform="GUÍA TÁCTICA"
+                game={guide.game}
+                reviewStats={{ score: '', status: 'VERIFIED' }} 
+                accentColor={ACCENT_COLOR}
+                title={guide.title}
+                url={currentUrl}
+                authorName={guide.author?.name}
+                publishDate={articleDate}
+             />
+          </div>
 
-              <div class="space-y-6 mb-10">
-                <div>
-                  <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Target_System</span>
-                  <span class="block text-white font-bold text-sm tracking-wide uppercase">{guide.gameName}</span>
-                </div>
-                <div>
-                  <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Data_Type</span>
-                  <span class="block text-white font-bold text-sm tracking-wide uppercase">{guide.guideType}</span>
-                </div>
-                <div>
-                  <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Protocol_Status</span>
-                  <span class="block text-[#00FF66] font-bold text-sm tracking-wide uppercase flex items-center gap-2">
-                    <ShieldCheck size={14} /> VERIFIED
-                  </span>
-                </div>
-              </div>
-
-              <div class="pt-8 border-t border-white/10 mb-6">
-                 <SharedButton client:load title={guide.title} text={guide.description} url={currentUrl} />
-              </div>
-
-              <div class="w-full flex items-center justify-between border border-white/10 bg-white/5 px-6 py-4">
-                <span class="font-mono text-[9px] uppercase tracking-widest font-bold text-white/40">
-                  ID_DATABASE: {guide.id.slice(0, 8)}
-                </span>
-                <BookOpen size={16} className="text-[#94A3B8]" />
-              </div>
-            </div>
-          </aside>
         </div>
-
-  
       </div>
-
-   
     </div>
   </main>
   
+  <Footer />
 </Layout>

@@ -114,17 +114,27 @@ export default function Footer() {
             <div className="flex flex-col gap-4 col-span-2 md:col-span-1">
               <span className="font-mono text-[10px] font-black tracking-widest text-white/30 uppercase">Protocolo</span>
               <ul className="flex flex-col gap-2.5 font-mono text-[11px] font-semibold text-white/50">
+                
+                {/* 🔥 ENLACE NUEVO: ABOUT (Identidad del Sistema) 🔥 */}
                 <li>
-                  <a href="/legal/privacidad" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block">Política de Privacidad</a>
+                  <a href="/about" className="hover:text-white transition-colors block">Nosotros</a>
                 </li>
+                
+                {/* 🔥 ENLACE CORREGIDO: PRIVACY-POLICY 🔥 */}
                 <li>
-                  <a href="/legal/terminos" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block">Términos de Uso</a>
+                  <a href="/privacy-policy" className="hover:text-white transition-colors block">Política de Privacidad</a>
                 </li>
+                
+                <li>
+                  <a href="/terms-of-use" className="hover:text-white transition-colors block">Términos de Uso</a>
+                </li>
+                
                 <li className="mt-1">
                   <a href="mailto:contacto@panggea.site" className="text-white hover:text-[#00F0FF] transition-colors block break-all font-mono text-[10px]">
                     contacto@panggea.site
                   </a>
                 </li>
+                
                 <li className="text-[#FF0033]/80 hover:text-[#FF0033] cursor-pointer transition-colors mt-1 flex items-center gap-2">
                   <span className="w-1.5 h-1.5 bg-[#FF0033] rounded-full animate-pulse" />
                   Reportar un Bug
@@ -138,7 +148,7 @@ export default function Footer() {
         {/* ─── BOTTOM BAR ─── */}
         <div className="flex flex-col md:flex-row justify-between items-center pt-6 border-t border-white/10 gap-6">
           <span className="font-mono text-[10px] font-bold tracking-widest text-white/30 uppercase text-center md:text-left">
-            © {currentYear} PANGEA NETWORK • TODOS LOS DERECHOS RESERVADOS
+            © {currentYear} PANGEA NETWORK 2026
           </span>
           
           {/* CREDITS BITXOLO */}

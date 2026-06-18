@@ -1,11 +1,8 @@
 ---
 import { sanityClient } from "sanity:client";
 import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/layout/Header';
-import Footer from '../../components/layout/Footer';
 import ArchiveGrid from '../../components/home/ArchiveGrid';
 import { ArrowLeft } from 'lucide-react'; 
-
 
 const rawPosts = await sanityClient.fetch<any[]>(`*[_type == "post" && isDeepDive != true] | order(publishedAt desc) {
   title, 
@@ -20,54 +17,57 @@ const rawPosts = await sanityClient.fetch<any[]>(`*[_type == "post" && isDeepDiv
 const categories = await sanityClient.fetch<any[]>(`*[_type == "category"] | order(title asc) { title }`);
 const categoryList = categories.map((c: { title: string }) => c.title);
 
+// 🔥 COLOR DE ACENTO PARA EL ARCHIVO (Puedes cambiarlo por una variable CSS si quieres)
 const ACCENT_COLOR = "#FF4500"; 
 ---
 
 <Layout title="Notas | PanGGea">
-  <Header client:load />
-
-  <main class="bg-[#020202] min-h-screen pt-44 pb-20 relative overflow-hidden">
+  
+  {/* 🔥 FIX 1: Quitamos el bg-[#020202] duro para usar el bg-pangea-neutral del Layout. 
+      También cambiamos a un flex-col items-center para centrar los contenedores gigantes. */}
+  <main class="min-h-screen pt-44 pb-20 relative overflow-hidden flex flex-col items-center w-full transition-colors duration-500">
     
+    {/* 🔥 FIX 2: GLOW SEMÁNTICO EN EL FONDO ABSOLUTO */}
     <div class="absolute inset-0 pointer-events-none" 
          style={`background: radial-gradient(circle at 50% 0%, ${ACCENT_COLOR}10 0%, transparent 70%)`}>
     </div>
 
-    <div class="max-w-[1750px] mx-auto px-6 flex justify-center items-start gap-10 relative z-10">
-
-      <div class="flex-1 max-w-[1200px]">
+    {/* 🔥 FIX 3: Estructura Estándar de Contenedores (1600px exterior, 1200px interior) */}
+    <div class="flex w-full max-w-[1600px] justify-center items-start gap-12 px-4 md:px-6 relative z-10">
+      
+      <div class="max-w-[1200px] w-full">
         
-        <button onclick="window.history.back();" class="group flex items-center gap-4 mb-10 text-white/30 hover:text-white transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max">
+        {/* BOTÓN IR ATRÁS */}
+        <button onclick="window.history.back();" class="group flex items-center gap-4 mb-10 text-white/30 hover:text-white transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max focus:outline-none">
           <div class="p-2 border border-white/5 bg-white/[0.02] transition-all group-hover:border-[#FF4500]/60 group-hover:shadow-[0_0_15px_rgba(255,69,0,0.3)]">
             <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
           </div>
           <span class="transition-colors duration-300 group-hover:text-[#FF4500]">IR ATRÁS</span>
         </button>
 
+        {/* HEADER GIGANTE TIPO "VAULT" / "TRENDING" */}
         <header class="mb-14">
-          <h2 class="font-headline text-white text-4xl sm:text-6xl md:text-8xl lg:text-[105px] font-[950] tracking-tighter leading-none uppercase italic drop-shadow-2xl whitespace-nowrap overflow-hidden">
+          <h2 class="font-headline text-white text-5xl sm:text-7xl md:text-8xl lg:text-[105px] font-[950] tracking-tighter leading-[0.85] uppercase italic drop-shadow-2xl whitespace-nowrap overflow-hidden transition-all duration-500">
             ARCHIVO 
             <span class="text-transparent" style={{ WebkitTextStroke: `2px ${ACCENT_COLOR}` }}> PANGEA</span>
           </h2>
-          <div class="flex items-center gap-4 mt-8 text-white/20 font-mono text-[10px] tracking-[0.4em] uppercase">
-            <div class="w-12 h-[1px]" style={{ backgroundColor: ACCENT_COLOR, boxShadow: `0 0 10px ${ACCENT_COLOR}` }}></div>
+          
+          <div class="flex items-center gap-4 mt-8 text-white/20 font-mono text-[9px] md:text-[10px] tracking-[0.4em] uppercase">
+            <div class="w-12 h-[2px]" style={{ backgroundColor: ACCENT_COLOR, boxShadow: `0 0 10px ${ACCENT_COLOR}` }}></div>
             <span>Registros Detectados: {rawPosts.length}</span>
           </div>
         </header>
 
+        {/* GRID DE NOTAS (Debe recibir el mismo espacio que el Bento de TrendingNow) */}
         <ArchiveGrid 
           client:load 
           posts={rawPosts} 
           categories={categoryList} 
           accentColor={ACCENT_COLOR} 
         />
-        </div>
 
       </div>
 
-   
-
     </div>
   </main>
-
-  
 </Layout>

@@ -3,14 +3,13 @@ import { sanityClient } from "sanity:client";
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import Community from '../../components/home/Community';
 import PortableText from '../../components/PortableText.astro';
-import SharedButton from '../../components/layout/SharedButton';
-
-import { ArrowLeft, Clock, Monitor, Activity, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Clock, Monitor, PenTool, Calendar } from 'lucide-react';
+// 🔥 RUTA ACTUALIZADA AL UI 🔥
+import SidebarFicha from '../../components/ui/SidebarFicha';
 
 export async function getStaticPaths() {
-  const posts = await sanityClient.fetch(`*[_type == "post"]{ "slug": slug.current }`);
+  const posts = await sanityClient.fetch(`*[_type == "post" && !(isDeepDive == true)]{ "slug": slug.current }`);
   return posts.map((post: any) => ({
     params: { slug: post.slug },
   }));
@@ -18,19 +17,27 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.params;
 
-
-
-// 2. QUERY ACTUALIZADA SEGÚN TU SCHEMA
 const post = await sanityClient.fetch(`*[_type == "post" && slug.current == $slug][0]{
   title,
   publishedAt,
   "heroImage": mainImage.asset->url,
-  "category": categories[0]->title, 
+  "category": coalesce(categories[0]->title, "NOTICIA"), 
   platform,
-  specs,
   body,
   description,
-  readTime
+  readTime,
+  isReview,
+  reviewStats,
+  "game": game->{
+    name,
+    "logo": logo.asset->url
+  },
+  "author": author->{
+    name,
+    "image": image.asset->url,
+    bio,
+    socials
+  }
 }`, { slug });
 
 if (!post) return Astro.redirect('/404');
@@ -41,146 +48,166 @@ const articleDate = new Date(post.publishedAt || Date.now()).toLocaleDateString(
   year: 'numeric'
 });
 
-
-// Lógica de reescalado (TAMAÑOS MÁS PEQUEÑOS)
 const nameLength = post?.title?.length || 0;
-let titleSizeClass = "text-5xl md:text-6xl lg:text-[80px]"; // Tamaño base
+let titleSizeClass = "text-5xl md:text-6xl lg:text-[80px]"; 
 
 if (nameLength > 60) {
-  titleSizeClass = "text-3xl md:text-4xl lg:text-[45px]"; // Títulos muy largos
+  titleSizeClass = "text-3xl md:text-4xl lg:text-[45px]"; 
 } else if (nameLength > 35) {
-  titleSizeClass = "text-4xl md:text-5xl lg:text-[60px]"; // Títulos medianos/largos
+  titleSizeClass = "text-4xl md:text-5xl lg:text-[60px]"; 
 }
 
 const currentUrl = Astro.url.href;
-const ACCENT = "#FF4500";
+const ACCENT_COLOR = "#FF4500";
 ---
-
-
 
 <Layout title={`${post.title} | PanGGea`} description={post.description} image={post.heroImage}>
   <Header client:load />
 
-  <main class="bg-[#020202] min-h-screen relative overflow-hidden flex flex-col items-center">
+  <main class="bg-[#020202] min-h-screen relative flex flex-col items-center font-sans text-white">
     
-    {/* ─── 1. HERO SECTION ─── */}
-    <section class="relative w-full h-[60vh] md:h-[75vh] flex items-end overflow-hidden border-b border-white/5">
-      <div class="absolute inset-0 z-0">
-        <img 
-          src={post.heroImage} 
-          alt={post.title} 
-          class="w-full h-full object-cover opacity-60"
-        />
-        <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/40 to-transparent"></div>
-        <div class="absolute inset-0 bg-gradient-to-r from-[#020202] via-transparent to-transparent"></div>
+    <section class="relative w-full h-[60vh] md:h-[75vh] flex items-end border-b border-white/5 overflow-hidden">
+      <div class="absolute inset-0 z-0 bg-[#050505] flex items-center justify-center">
+        {post.heroImage ? (
+           <img src={post.heroImage} alt={post.title} class="w-full h-full object-cover opacity-90" />
+        ) : (
+           <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,69,0,0.1)_0%,transparent_70%)]"></div>
+        )}
+        <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/80 to-transparent"></div>
       </div>
 
       <div class="relative z-10 w-full max-w-[1440px] mx-auto px-6 pb-16">
-        <div class="flex flex-wrap gap-3 mb-6">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
           <span class="px-3 py-1 bg-[#FF4500] text-black font-mono text-[10px] font-black uppercase tracking-widest rounded-sm shadow-[0_0_20px_rgba(255,69,0,0.4)]">
-            {post.category || 'NOTICIA'}
+            {post.category}
           </span>
-          <span class="px-3 py-1 bg-white/5 border border-white/10 text-white/70 font-mono text-[10px] font-black uppercase tracking-widest rounded-sm backdrop-blur-md">
-            {post.platform || 'MULTIPLATAFORMA'}
-          </span>
+          {post.platform && (
+            <span class="px-3 py-1 bg-white/5 border border-white/10 text-white/70 font-mono text-[10px] font-black uppercase tracking-widest rounded-sm backdrop-blur-md flex items-center gap-2">
+              <Monitor size={12} style={{ color: ACCENT_COLOR }} />
+              {post.platform}
+            </span>
+          )}
         </div>
         
         <h1 class={`font-headline ${titleSizeClass} font-black uppercase italic leading-[0.8] mb-8 text-white break-words drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]`}>
           {post.title}
         </h1>
 
-        <div class="flex items-center gap-6 mt-8 text-white/40 font-mono text-[11px] uppercase tracking-[0.2em]">
-          <div class="flex items-center gap-2">
-            <Clock size={14} className="text-[#FF4500]" />
-            <span>{articleDate} // {post.readTime || '5 MIN'} READ</span>
+        <div class="flex flex-wrap items-center gap-8 md:gap-12 border-t border-white/10 pt-6">
+          <div class="flex items-center gap-4">
+             {post.author?.image ? (
+                <img src={post.author.image} alt={post.author?.name} class="w-10 h-10 rounded-full object-cover border border-white/20" />
+             ) : (
+                <PenTool size={18} style={{ color: ACCENT_COLOR }} />
+             )}
+            <div class="flex flex-col">
+              <span class="font-mono text-[7px] text-white/40 uppercase tracking-[0.3em] mb-0.5">Autor</span>
+              <span class="font-headline text-white font-bold tracking-widest uppercase italic text-sm">{post.author?.name || 'Redacción PanGGea'}</span>
+            </div>
           </div>
+          
+          <div class="flex items-center gap-3 border-l border-white/10 pl-8">
+            <Calendar size={18} className="text-white/20" />
+            <div class="flex flex-col">
+              <span class="font-mono text-[7px] text-white/40 uppercase tracking-[0.3em] mb-0.5">Fecha de Ingreso</span>
+              <span class="font-headline text-white font-bold tracking-widest uppercase italic text-sm">{articleDate}</span>
+            </div>
+          </div>
+          
+          {post.readTime && (
+            <div class="flex items-center gap-3 border-l border-white/10 pl-8">
+              <Clock size={18} style={{ color: ACCENT_COLOR }} />
+              <div class="flex flex-col">
+                <span class="font-mono text-[7px] text-white/40 uppercase tracking-[0.3em] mb-0.5">Lectura</span>
+                <span class="font-headline text-white font-bold tracking-widest uppercase italic text-sm">{post.readTime}</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
 
-    {/* ─── 2. ZONA DE LECTURA (4 COLUMNAS TÁCTICAS) ─── */}
-    <div class="max-w-[1440px] mx-auto flex flex-col lg:flex-row justify-center items-start gap-8 px-6 py-20 relative z-10 w-full">
+    {/* 🔥 FIX STICKY: items-stretch obliga a la columna del Sidebar a bajar hasta el final del texto 🔥 */}
+    <div class="max-w-[1440px] mx-auto flex flex-col lg:flex-row justify-center items-stretch gap-12 px-6 py-20 relative z-10 w-full">
       
-   
-
-      {/* ─── COLUMNA DE TEXTO ─── */}
-      <article class="flex-1 max-w-[800px] w-full break-words overflow-hidden">
+      <article class="flex-1 w-full max-w-[800px] break-words overflow-hidden">
         
-        {/* 🔙 BOTÓN REGRESO (Hasta arriba del texto) */}
-        <button onclick="window.history.back()" class="group flex items-center gap-3 mb-12 text-white/30 hover:text-[#FF4500] transition-all font-mono text-[11px] uppercase tracking-[0.4em] cursor-pointer">
-           <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-           <span>Volver a la base de datos</span>
+        <button onclick="window.history.back()" class="group flex items-center gap-4 mb-12 text-white/30 hover:text-white transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max focus:outline-none">
+          <div class="p-2 border border-white/5 bg-white/[0.02] transition-all group-hover:border-[#FF4500]/50 group-hover:shadow-[0_0_15px_rgba(255,69,0,0.3)]">
+             <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          </div>
+          <span class="group-hover:text-[#FF4500] transition-colors">Volver a la base de datos</span>
         </button>
+
+        {post.description && (
+          <div class="text-xl lg:text-2xl font-headline italic text-white/80 leading-relaxed mb-10 border-l-4 pl-6 break-words overflow-hidden" style={{ borderColor: ACCENT_COLOR }}>
+            {post.description}
+          </div>
+        )}
 
         <div class="prose prose-invert prose-orange max-w-none 
           prose-p:text-white/80 prose-p:leading-relaxed prose-p:text-lg prose-p:italic prose-p:mb-8
           prose-headings:font-headline prose-headings:uppercase prose-headings:italic prose-headings:tracking-tighter prose-headings:text-white
           prose-strong:text-[#FF4500] prose-strong:font-[950]
+          prose-a:text-[#FF4500] hover:prose-a:text-white prose-img:rounded-xl
           break-words">
-          <PortableText value={post.body} />
+          {post.body ? (
+             <PortableText value={post.body} />
+          ) : (
+             <p class="font-mono text-xs opacity-40 italic">&gt;_ Procesando base de datos...</p>
+          )}
         </div>
-      </article>
 
-      {/* ─── COLUMNA DERECHA (Specs + Ad) ─── */}
-      <aside class="w-full lg:w-[350px] shrink-0 flex flex-col gap-8">
-        
-        {/* CUADRO DE SPECS (Mapeo directo del objeto) */}
-        {post.specs && (
-          <div class="bg-[#050505] border border-white/5 p-8 relative overflow-hidden group">
-            <div class="flex items-center gap-3 mb-8">
-               <div class="w-8 h-[1px] bg-[#FF4500]"></div>
-               <span class="font-mono text-[10px] text-[#FF4500] font-black uppercase tracking-[0.4em]">Ficha_Técnica</span>
-            </div>
-
-            <div class="space-y-6 mb-10">
-              {/* CAMPO: PLATAFORMA */}
-              <div>
-                <div class="flex items-center gap-2 mb-1 text-white/20">
-                  <Monitor size={10} />
-                  <span class="font-mono text-[9px] uppercase tracking-widest">Hardware</span>
+        {post.author && (
+          <div class="w-full border border-white/10 bg-[#050505] rounded-2xl p-8 md:p-12 mt-20 flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-2 h-full" style={`background-color: ${ACCENT_COLOR}`}></div>
+            
+            {post.author.image && (
+              <img src={post.author.image} alt={post.author.name} class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-white/5 shrink-0" />
+            )}
+            
+            <div class="flex flex-col items-center md:items-start text-center md:text-left">
+              <span class="font-mono text-[9px] text-white/40 uppercase tracking-[0.4em] mb-2">Escrito Por</span>
+              <h4 class="font-headline text-3xl text-white uppercase italic font-black mb-4">{post.author.name}</h4>
+              
+              {post.author.bio && (
+                <div class="text-white/60 text-sm md:text-base leading-relaxed mb-6 max-w-2xl prose prose-invert">
+                   <PortableText value={post.author.bio} />
                 </div>
-                <span class="block font-headline text-white text-xl font-black uppercase italic tracking-tighter break-words">
-                  {post.specs.platform || 'S/D'}
-                </span>
-              </div>
+              )}
 
-              {/* CAMPO: VERSIÓN */}
-              <div>
-                <div class="flex items-center gap-2 mb-1 text-white/20">
-                  <Activity size={10} />
-                  <span class="font-mono text-[9px] uppercase tracking-widest">Build_Version</span>
+              {post.author.socials && post.author.socials.length > 0 && (
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                  {post.author.socials.map((social: any) => (
+                    <a href={social.url} target="_blank" rel="noopener noreferrer" 
+                       class="px-4 py-2 border border-white/10 bg-white/5 hover:bg-white/10 rounded-full font-mono text-[9px] uppercase tracking-widest text-white/70 hover:text-white transition-colors">
+                      {social.platform}
+                    </a>
+                  ))}
                 </div>
-                <span class="block font-headline text-white text-xl font-black uppercase italic tracking-tighter break-words">
-                  {post.specs.version || 'S/D'}
-                </span>
-              </div>
-
-              {/* CAMPO: STATUS */}
-              <div>
-                <div class="flex items-center gap-2 mb-1 text-white/20">
-                  <ShieldCheck size={10} />
-                  <span class="font-mono text-[9px] uppercase tracking-widest">System_Status</span>
-                </div>
-                <span class="block font-headline text-white text-xl font-black uppercase italic tracking-tighter break-words" style={{ color: post.specs.status?.includes('VER') ? '#00FF66' : '' }}>
-                  {post.specs.status || 'ANALIZANDO'}
-                </span>
-              </div>
-            </div>
-
-            {/* 🔥 SHARED BUTTON INTEGRADO 🔥 */}
-            <div class="pt-6 border-t border-white/10">
-               <SharedButton 
-                  client:load 
-                  title={post.title} 
-                  text={post.description} 
-                  url={currentUrl} 
-               />
+              )}
             </div>
           </div>
         )}
 
+      </article>
 
-    </div>
+      {/* ─── COLUMNA DERECHA: AL SER EL PADRE STRETCH, EL STICKY TIENE ESPACIO PARA BAJAR ─── */}
+      <div class="w-full lg:w-[350px] shrink-0 relative">
+         <SidebarFicha 
+            client:load 
+            category={post.category} 
+            platform={post.platform} 
+            readTime={post.readTime}
+            game={post.game}
+            reviewStats={post.reviewStats}
+            accentColor={ACCENT_COLOR}
+            title={post.title}
+            url={currentUrl}
+            authorName={post.author?.name}
+            publishDate={articleDate}
+         />
+      </div>
 
     </div>
 

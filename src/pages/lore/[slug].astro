@@ -4,12 +4,9 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import PortableText from '../../components/PortableText.astro';
 import { sanityClient } from "sanity:client";
-import { ArrowLeft, Clock, PenTool, Monitor, Info, CheckCircle2 } from 'lucide-react';
-// 🔥 Importamos componentes tácticos
-import SharedButton from '../../components/layout/SharedButton';
+import { ArrowLeft, Clock, PenTool, Monitor } from 'lucide-react';
+import SidebarFicha from '../../components/ui/SidebarFicha';
 
-
-// ─── ADN LEGENDARIO (AMARILLO DEEP DIVE) ───
 const ACCENT_COLOR = "#FFD700";
 
 export async function getStaticPaths() {
@@ -30,19 +27,30 @@ const post = await sanityClient.fetch(`*[_type == "post" && isDeepDive == true &
   description,
   platform,
   readTime,
-  "authorName": author->name,
+  isReview,
+  reviewStats,
+  "game": game->{
+    name,
+    "logo": logo.asset->url
+  },
+  "author": author->{
+    name,
+    "image": image.asset->url,
+    bio,
+    socials
+  },
   "mainImage": mainImage.asset->url,
   "sectionBg": sectionBg.asset->url,
   "category": coalesce(categories[0]->title, "LORE"),
   publishedAt,
-  body,
-  specs
+  body
 }`, { slug });
 
 if (!post) {
   return Astro.redirect('/lore'); 
 }
 
+// Formateamos la fecha para pasarla al Sidebar
 const articleDate = new Date(post.publishedAt || Date.now()).toLocaleDateString('es-MX', {
   day: '2-digit',
   month: 'long',
@@ -50,12 +58,12 @@ const articleDate = new Date(post.publishedAt || Date.now()).toLocaleDateString(
 });
 
 const nameLength = post?.title?.length || 0;
-let titleSizeClass = "text-5xl md:text-6xl lg:text-[80px]"; // Tamaño base
+let titleSizeClass = "text-5xl md:text-6xl lg:text-[80px]";
 
 if (nameLength > 60) {
-  titleSizeClass = "text-3xl md:text-4xl lg:text-[45px]"; // Títulos muy largos
+  titleSizeClass = "text-3xl md:text-4xl lg:text-[45px]"; 
 } else if (nameLength > 35) {
-  titleSizeClass = "text-4xl md:text-5xl lg:text-[60px]"; // Títulos medianos/largos
+  titleSizeClass = "text-4xl md:text-5xl lg:text-[60px]"; 
 }
 
 const heroImage = post.sectionBg || post.mainImage;
@@ -65,17 +73,18 @@ const currentUrl = Astro.url.href;
 <Layout title={`${post.title} | PanGGea`} description={post.description} image={post.sectionBg || post.mainImage}>
   <Header client:load />
 
-  <main class="bg-[#020202] min-h-screen relative font-sans text-white overflow-hidden">
+  {/* 🔥 FIX STICKY: Le quitamos el overflow-hidden a main. Eso rompía el sticky en CSS 🔥 */}
+  <main class="bg-[#020202] min-h-screen relative font-sans text-white">
     
     <div class="absolute inset-0 pointer-events-none" 
          style={`background: radial-gradient(circle at 50% 0%, ${ACCENT_COLOR}15 0%, transparent 70%)`}>
     </div>
 
-    {/* 📸 HERO SECTION */}
-    <div class="relative w-full h-[70vh] min-h-[550px] flex items-end pb-16 border-b border-white/5">
-      <div class="absolute inset-0 z-0 bg-[#050505] flex items-center justify-center overflow-hidden">
+    {/* 📸 HERO SECTION (Este sí puede llevar overflow-hidden localmente) */}
+    <div class="relative w-full h-[70vh] min-h-[550px] flex items-end pb-16 border-b border-white/5 overflow-hidden">
+      <div class="absolute inset-0 z-0 bg-[#050505] flex items-center justify-center">
         {heroImage ? (
-          <img src={heroImage} alt={post.title} class="w-full h-full object-cover opacity-30 " />
+          <img src={heroImage} alt={post.title} class="w-full h-full object-cover opacity-90" />
         ) : (
           <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,215,0,0.1)_0%,transparent_70%)]"></div>
         )}
@@ -84,29 +93,35 @@ const currentUrl = Astro.url.href;
 
       <div class="max-w-[1200px] mx-auto px-6 w-full relative z-10">
         <div class="flex flex-wrap items-center gap-3 mb-6">
-          <span class="font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 border border-[#FFD700]/30 bg-[#FFD700]/10 text-[#FFD700]">
+          <span class="font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 border backdrop-blur-md rounded-sm"
+                style={`color: ${ACCENT_COLOR}; border-color: ${ACCENT_COLOR}40; background-color: rgba(0,0,0,0.5);`}>
             {post.category}
           </span>
           {post.platform && (
-            <span class="border border-white/10 bg-black/50 backdrop-blur-sm text-white/70 font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2">
-              <Monitor size={12} className="text-[#FFD700]" />
+            <span class="border border-white/10 bg-black/50 backdrop-blur-sm text-white/70 font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2 rounded-sm">
+              <Monitor size={12} style={{ color: ACCENT_COLOR }} />
               {post.platform}
             </span>
           )}
         </div>
 
-        <h1 class={`font-headline ${titleSizeClass} font-black uppercase italic leading-[0.8] mb-8 text-white break-words drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]`}>
+        <h1 class={`font-headline ${titleSizeClass} font-black uppercase italic leading-[0.8] mb-8 text-white break-words drop-shadow-2xl`}>
           {post.title}
         </h1>
 
         <div class="flex flex-wrap items-center gap-8 border-t border-white/10 pt-6">
           <div class="flex items-center gap-3">
-            <PenTool size={16} className="text-[#FFD700]" />
+             {post.author?.image ? (
+                <img src={post.author.image} alt={post.author?.name} class="w-8 h-8 rounded-full object-cover border border-white/20" />
+             ) : (
+                <PenTool size={16} style={{ color: ACCENT_COLOR }} />
+             )}
             <div>
               <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Autor</span>
-              <span class="block font-bold text-sm text-white">{post.authorName || 'PanGGea Team'}</span>
+              <span class="block font-bold text-sm text-white">{post.author?.name || 'PanGGea Team'}</span>
             </div>
           </div>
+          
           <div class="flex items-center gap-3">
             <div class="w-1 h-6 bg-white/10 hidden md:block"></div>
             <div>
@@ -114,10 +129,11 @@ const currentUrl = Astro.url.href;
               <span class="block font-bold text-sm text-white">{articleDate}</span>
             </div>
           </div>
+          
           {post.readTime && (
             <div class="flex items-center gap-3">
               <div class="w-1 h-6 bg-white/10 hidden md:block"></div>
-              <Clock size={16} className="text-[#FFD700]" />
+              <Clock size={16} style={{ color: ACCENT_COLOR }} />
               <div>
                 <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Lectura</span>
                 <span class="block font-bold text-sm text-white">{post.readTime}</span>
@@ -128,11 +144,8 @@ const currentUrl = Astro.url.href;
       </div>
     </div>
 
-    {/* 📝 SECCIÓN DE CONTENIDO CON ESCOLTA DE ADS */}
     <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12 w-full">
- 
 
-      {/* ── COLUMNA CENTRAL ── */}
       <div class="flex-1 max-w-[1200px] w-full">
         
         <div class="mb-12">
@@ -144,74 +157,75 @@ const currentUrl = Astro.url.href;
           </button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 relative">
           
           <div class="lg:col-span-8">
             {post.description && (
-              <div class="text-xl lg:text-2xl font-headline italic text-white/80 leading-relaxed mb-10 border-l-4 border-[#FFD700] pl-6 break-words overflow-hidden">
+              <div class="text-xl lg:text-2xl font-headline italic text-white/80 leading-relaxed mb-10 border-l-4 pl-6 break-words overflow-hidden" style={{ borderColor: ACCENT_COLOR }}>
                 {post.description}
               </div>
             )}
 
-            <div class="prose prose-invert prose-p:text-white/70 prose-headings:text-white prose-a:text-[#FFD700] hover:prose-a:text-white prose-img:rounded-xl max-w-none break-words marker:text-[#FFD700] mb-20">
+            <div class="prose prose-invert prose-lg md:prose-xl prose-p:text-white/70 prose-headings:text-white prose-headings:font-headline prose-headings:uppercase prose-headings:italic prose-a:text-[#FFD700] hover:prose-a:text-white prose-img:rounded-xl max-w-none break-words mb-20">
               {post.body ? (
                 <PortableText value={post.body} />
               ) : (
                 <p class="font-mono text-xs opacity-40 italic">&gt;_ Procesando datos de inmersión...</p>
               )}
             </div>
+
+            {/* TARJETA DEL AUTOR */}
+            {post.author && (
+              <div class="w-full border border-white/10 bg-[#050505] rounded-2xl p-8 md:p-12 mt-20 flex flex-col md:flex-row items-center md:items-start gap-8 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full" style={`background-color: ${ACCENT_COLOR}`}></div>
+                
+                {post.author.image && (
+                  <img src={post.author.image} alt={post.author.name} class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-white/5 shrink-0" />
+                )}
+                
+                <div class="flex flex-col items-center md:items-start text-center md:text-left">
+                  <span class="font-mono text-[9px] text-white/40 uppercase tracking-[0.4em] mb-2">Escrito Por</span>
+                  <h4 class="font-headline text-3xl text-white uppercase italic font-black mb-4">{post.author.name}</h4>
+                  
+                  {post.author.bio && (
+                    <div class="text-white/60 text-sm md:text-base leading-relaxed mb-6 max-w-2xl prose prose-invert">
+                       <PortableText value={post.author.bio} />
+                    </div>
+                  )}
+
+                  {post.author.socials && post.author.socials.length > 0 && (
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                      {post.author.socials.map((social: any) => (
+                        <a href={social.url} target="_blank" rel="noopener noreferrer" 
+                           class="px-4 py-2 border border-white/10 bg-white/5 hover:bg-white/10 rounded-full font-mono text-[9px] uppercase tracking-widest text-white/70 hover:text-white transition-colors">
+                          {social.platform}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
           </div>
 
-          {/* SIDEBAR TÁCTICO */}
-          <aside class="lg:col-span-4 flex flex-col gap-8">
-            <div class="bg-[#050505] border border-white/5 p-8 shadow-2xl relative lg:sticky lg:top-32 group overflow-hidden transition-colors hover:border-[#FFD700]/30">
-              <div class="flex items-center gap-3 mb-8">
-                <div class="h-[2px] w-6 bg-[#FFD700]"></div>
-                <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Ficha Técnica</span>
-              </div>
+          {/* 🔥 SIDEBAR TÁCTICO STICKY (Ahora sí te sigue porque quitamos overflow-hidden) 🔥 */}
+          <div class="lg:col-span-4 relative">
+             <SidebarFicha 
+                client:load 
+                category={post.category} 
+                platform={post.platform} 
+                readTime={post.readTime}
+                game={post.game}
+                reviewStats={post.reviewStats}
+                accentColor={ACCENT_COLOR}
+                title={post.title}
+                url={currentUrl}
+                authorName={post.author?.name}
+                publishDate={articleDate}
+             />
+          </div>
 
-              {/* Mapeo del objeto specs */}
-              <div class="space-y-6 mb-10">
-                {post.specs ? (
-                  <>
-                    <div class="border-b border-white/5 pb-3">
-                      <span class="flex items-center gap-2 text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">
-                        <Monitor size={10} className="text-[#FFD700]" /> Hardware
-                      </span>
-                      <span class="block text-white font-bold text-sm tracking-wide break-words">{post.specs.platform || post.platform || 'S/D'}</span>
-                    </div>
-                    <div class="border-b border-white/5 pb-3">
-                      <span class="flex items-center gap-2 text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">
-                        <Info size={10} className="text-[#FFD700]" /> Build_Version
-                      </span>
-                      <span class="block text-white font-bold text-sm tracking-wide break-words">{post.specs.version || 'INITIAL_DEPLOY'}</span>
-                    </div>
-                    <div>
-                      <span class="flex items-center gap-2 text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">
-                        <CheckCircle2 size={10} className="text-[#FFD700]" /> Review_Status
-                      </span>
-                      <span class="block text-[#FFD700] font-bold text-sm tracking-wide break-words">{post.specs.status || 'SYNC_COMPLETE'}</span>
-                    </div>
-                  </>
-                ) : (
-                  <div class="text-white/10 font-mono text-[9px] italic">Buscando parámetros...</div>
-                )}
-              </div>
-
-              {/* 🔥 SHARED BUTTON INTEGRADO EN EL SIDEBAR 🔥 */}
-              <div class="pt-8 border-t border-white/10">
-                 <SharedButton 
-                    client:load 
-                    title={post.title} 
-                    text={post.description} 
-                    url={currentUrl} 
-                 />
-              </div>
-            </div>
-          </aside>
-        </div>
-
-    
         </div>
 
       </div>

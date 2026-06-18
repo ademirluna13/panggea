@@ -1,9 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { sanityClient } from "sanity:client";
-import { ArrowLeft, Target } from 'lucide-react';
-// 🔥 Importamos el componente de anuncios
-
+import { ArrowLeft, Target, Clock, ArrowRight } from 'lucide-react';
 
 const tierEntries = await sanityClient.fetch(`*[_type == "tierEntry"] | order(rankScore desc) {
   title,
@@ -33,27 +31,41 @@ const filters = [
 const ACCENT_COLOR = "#00FF66"; 
 const pageTitle = "TIER ARSENAL | PanGGea DATABASE";
 const pageDescription = "Clasificación de élite y análisis del meta actual en el despliegue de combate.";
+
+// 🧠 FUNCIÓN HELPER PARA REESCALAR EL TITULO POR SU LONGITUD
+const getFontSize = (title: string, isBig: boolean) => {
+  const length = title?.length || 0;
+  if (isBig) {
+    if (length > 50) return 'text-3xl sm:text-4xl md:text-5xl';
+    if (length > 30) return 'text-4xl sm:text-5xl md:text-6xl';
+    return 'text-5xl md:text-7xl';
+  } else {
+    if (length > 45) return 'text-lg md:text-xl';
+    if (length > 25) return 'text-xl md:text-2xl';
+    return 'text-xl md:text-3xl';
+  }
+};
 ---
 
 <Layout title={pageTitle} description={pageDescription}>
   
-  <main class="bg-[#020202] min-h-screen pt-44 pb-32 relative overflow-hidden font-sans">
+  {/* 🔥 FIX 1: Cambiado a flex-col items-center y bg-pangea-neutral */}
+  <main class="min-h-screen pt-44 pb-32 relative overflow-hidden font-sans flex flex-col items-center w-full transition-colors duration-500">
     
-    {/* Glow Verde Táctico */}
+    {/* Glow Verde Táctico absoluto */}
     <div class="absolute inset-0 pointer-events-none" 
          style={{ background: `radial-gradient(circle at 50% 0%, ${ACCENT_COLOR}10 0%, transparent 70%)` }}>
     </div>
 
-    <div class="max-w-[1750px] mx-auto px-6 flex justify-center items-start gap-10 relative z-10">
+    {/* 🔥 FIX 2: Estructura Estándar de Contenedores (1600px exterior, 1200px interior) */}
+    <div class="flex w-full max-w-[1600px] justify-center items-start gap-12 px-4 md:px-6 relative z-10">
       
-   
-
-      <div class="flex-1 max-w-[1200px]">
+      <div class="max-w-[1200px] w-full">
 
         {/* BOTÓN DE REGRESO */}
         <button 
           onclick="window.history.back()" 
-          class="group flex items-center gap-4 mb-14 transition-all duration-500 font-mono text-[10px] tracking-[0.4em] uppercase"
+          class="group flex items-center gap-4 mb-14 transition-all duration-500 font-mono text-[10px] tracking-[0.4em] uppercase w-max focus:outline-none"
         >
           <div class="p-2.5 border border-white/10 bg-white/[0.02] transition-all group-hover:border-[#00FF66]/60 group-hover:shadow-[0_0_15px_rgba(0,255,102,0.3)]">
             <ArrowLeft size={16} className="text-white/20 group-hover:text-[#00FF66]" />
@@ -68,7 +80,7 @@ const pageDescription = "Clasificación de élite y análisis del meta actual en
             <span class="font-mono text-[10px] tracking-[0.5em] text-white/40 uppercase italic">Meta_Stream // Tier_Access_Granted</span>
           </div>
 
-          <h1 class="font-headline text-white text-6xl md:text-8xl lg:text-[115px] font-[950] tracking-tighter leading-[0.8] uppercase italic drop-shadow-2xl">
+          <h1 class="font-headline text-white text-6xl md:text-8xl lg:text-[115px] font-[950] tracking-tighter leading-[0.8] uppercase italic drop-shadow-2xl whitespace-nowrap overflow-hidden transition-all duration-500">
             TIER 
             <span class="text-transparent block sm:inline" style={{ WebkitTextStroke: `2px ${ACCENT_COLOR}` }}> ARSENAL</span>
           </h1>
@@ -92,77 +104,92 @@ const pageDescription = "Clasificación de élite y análisis del meta actual en
           {filters.map((filter) => {
             const isAll = filter.name === 'ALL';
             return (
-              <button data-filter={filter.name} class={`filter-btn group flex flex-col items-center gap-4 min-w-[80px] sm:min-w-[90px] transition-all ${isAll ? 'active' : ''}`}>
-                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 flex items-center justify-center transition-all duration-500 relative overflow-hidden border-white/10 bg-[#050505] group-[.active]:border-[#00FF66] group-[.active]:shadow-[0_0_20px_rgba(0,255,102,0.4)] hover:border-white/30 hover:scale-105">
+              <button data-filter={filter.name} class={`filter-btn group flex flex-col items-center gap-4 min-w-[80px] sm:min-w-[90px] transition-all focus:outline-none ${isAll ? 'active' : ''}`}>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 flex items-center justify-center transition-all duration-500 relative overflow-hidden border-white/10 bg-pangea-card group-[.active]:border-[#00FF66] group-[.active]:shadow-[0_0_20px_rgba(0,255,102,0.4)] hover:border-white/30 hover:scale-105">
                   {filter.logo ? (
                     <img src={filter.logo} alt={filter.name} class="w-full h-full object-cover transition-all duration-500 opacity-30 grayscale group-[.active]:opacity-100 group-[.active]:grayscale-0 group-hover:grayscale-0 group-hover:opacity-100" />
                   ) : (
-                    <Target size={24} className="text-white/20 group-[.active]:text-[#00FF66]" />
+                    <Target size={20} className="text-white/20 group-[.active]:text-[#00FF66]" />
                   )}
                 </div>
-                <span class="font-mono text-[9px] font-bold tracking-widest uppercase text-white/20 group-[.active]:text-[#00FF66] group-hover:text-white">{filter.name}</span>
+                <span class="font-mono text-[8px] sm:text-[9px] font-bold tracking-widest uppercase text-white/20 group-[.active]:text-[#00FF66] group-hover:text-white transition-colors">{filter.name}</span>
               </button>
             );
           })}
         </div>
 
-        {/* ─── BENTO GRID ─── */}
-        <div class="grid grid-cols-1 md:grid-cols-6 auto-rows-[280px] gap-6" id="tier-grid">
+        {/* ─── BENTO GRID ESTANDARIZADO PANGEA ─── */}
+        <div class="grid grid-cols-1 md:grid-cols-6 auto-rows-[410px] gap-8" id="tier-grid">
           {tierEntries.map((entry: any, i: number) => {
             const isBig = i === 0;
             return (
               <a 
                 href={`/tier/${entry.slug}`} 
                 data-game={(entry.gameName || 'UNKNOWN').toUpperCase()}
-                class={`tier-card group relative bg-[#050505] border border-white/5 overflow-hidden transition-all duration-500 hover:border-[#00FF66]/40 flex flex-col shadow-2xl ${isBig ? "md:col-span-4 md:row-span-2" : "md:col-span-2 md:row-span-1"}`}
+                
+                class={`tier-card group relative bg-pangea-card/40 backdrop-blur-xl border border-white/5 rounded-[1.8rem] overflow-hidden transition-all duration-500 lg:hover:-translate-y-2 flex flex-col shadow-2xl ${isBig ? "md:col-span-4 md:row-span-2" : "md:col-span-2 md:row-span-1"}`}
+                onmouseenter="this.style.borderColor='#00FF66'; this.style.boxShadow='0 0 25px rgba(0,255,102,0.6), inset 0 0 10px rgba(0,255,102,0.3)';"
+                onmouseleave="this.style.borderColor='rgba(255,255,255,0.05)'; this.style.boxShadow='none';"
               >
-                {/* 🔥 IMAGEN RESPONSIVA: Color en móvil, Gris en PC 🔥 */}
-                {entry.heroImage && (
-                  <div class="absolute inset-0 z-0">
-                    <img src={entry.heroImage} alt={entry.title} class="w-full h-full object-cover grayscale-0 opacity-80 lg:grayscale lg:opacity-20 lg:group-hover:grayscale-0 lg:group-hover:opacity-60 transition-all duration-1000" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/50 to-transparent"></div>
-                  </div>
-                )}
+                {/* Imagen Responsiva y Gradiente */}
+                <div class="absolute inset-0 z-0 pointer-events-none">
+                  {entry.heroImage && (
+                    <img src={entry.heroImage} alt={entry.title} class="w-full h-full object-cover grayscale-0 opacity-80 lg:grayscale lg:opacity-40 lg:group-hover:grayscale-0 lg:group-hover:opacity-80 transition-all duration-700" />
+                  )}
+                  {/* bg-linear-to-t (Tailwind v4 ready) o bg-gradient-to-t */}
+                  <div class="absolute h-[60%] bottom-0 inset-x-0 bg-gradient-to-t from-[#020202] via-[#020202]/95 to-transparent z-10 transition-all duration-500"></div>
+                </div>
 
-                <div class="relative z-10 h-full p-8 flex flex-col justify-between">
-                  <div class="flex justify-between items-start">
-                    <div class="flex flex-col gap-1">
-                      <span class="text-[#00FF66] font-mono text-[10px] font-bold tracking-widest uppercase">{entry.gameName}</span>
-                      <span class="text-white/20 font-mono text-[8px] uppercase tracking-widest">Score // {entry.rankScore}%</span>
-                    </div>
-                    <div class="px-4 py-2 border-2 border-[#00FF66] bg-[#00FF66]/10 backdrop-blur-sm shadow-[0_0_15px_rgba(0,255,102,0.2)]">
-                      <span class="font-headline text-[#00FF66] text-2xl font-black italic">{entry.rank || 'S'}</span>
-                    </div>
+                {/* Contenido (Etiquetas Top) */}
+                <div class="relative z-20 p-6 md:p-8 flex justify-between items-start w-full">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-[#00FF66] font-mono text-[10px] font-bold tracking-widest uppercase">{entry.gameName}</span>
+                    <span class="text-white/40 font-mono text-[8px] uppercase tracking-widest">Score // {entry.rankScore}%</span>
                   </div>
-
-                  <div class="flex flex-col gap-3">
-                    <h2 class={`font-headline font-[950] text-white uppercase italic tracking-tighter leading-[0.9] lg:group-hover:text-[#00FF66] transition-colors ${isBig ? "text-5xl md:text-7xl" : "text-3xl md:text-4xl"}`}>
-                      {entry.title}
-                    </h2>
-                    
-                    {/* 🔥 DESCRIPCIÓN RESPONSIVA TAILWIND 🔥 */}
-                    <div class="grid transition-all duration-500 ease-in-out grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr]">
-                      <div class="overflow-hidden opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-500">
-                        <p class="text-white/70 text-xs italic line-clamp-2 leading-relaxed max-w-sm pt-2">
-                          {entry.description}
-                        </p>
-                      </div>
-                    </div>
+                  {/* Rango (S, A, B) */}
+                  <div class="px-4 py-2 border-2 rounded-lg backdrop-blur-md shadow-lg transition-transform duration-500 group-hover:scale-105" style={{ borderColor: ACCENT_COLOR, backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <span class="font-headline text-2xl font-[950] italic tracking-tighter" style={{ color: ACCENT_COLOR }}>{entry.rank || 'S'}</span>
                   </div>
                 </div>
+
+                {/* Título y Descripción Inferior */}
+                <div class="relative z-20 p-6 md:p-8 flex flex-col w-full mt-auto">
+                  <h2 class={`font-headline font-[950] text-white uppercase italic tracking-tighter leading-[0.9] mb-2 break-words hyphens-auto transition-all duration-300 ${getFontSize(entry.title, isBig)}`} style={{ textShadow: `0 2px 10px rgba(0,0,0,0.5)` }}>
+                    {entry.title}
+                  </h2>
+                  
+                  <div class="grid transition-all duration-500 ease-in-out grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] w-full">
+                    <div class="overflow-hidden opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500">
+                      <p class="text-white/70 text-[11px] md:text-sm italic leading-relaxed line-clamp-2 mt-2 break-words">
+                        {entry.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Footer del Bento */}
+                  <div class="flex items-center justify-between border-t border-white/5 pt-4 mt-4">
+                    <div class="flex items-center gap-2 text-white/40 font-mono text-[9px] font-black uppercase tracking-widest">
+                      <Clock size={12} style={{ color: ACCENT_COLOR }} /> 
+                      {entry.publishedAt ? new Date(entry.publishedAt).toLocaleDateString('es-MX', { month: 'short', day: '2-digit' }) : 'ARCHIVO_ACTIVO'}
+                    </div>
+                    <ArrowRight size={18} className="text-white/40 -translate-x-2 group-hover:text-white group-hover:translate-x-0 transition-all duration-500" style={{ color: ACCENT_COLOR }} />
+                  </div>
+                </div>
+
+                {/* 🔥 FIX 4: BARRA INFERIOR NEÓN ESTANDARIZADA 🔥 */}
+                <div 
+                  class="absolute bottom-0 left-0 h-1.5 transition-all duration-1000 w-0 lg:group-hover:w-full z-30" 
+                  style={{ backgroundColor: ACCENT_COLOR, boxShadow: `0 0 15px ${ACCENT_COLOR}` }}
+                ></div>
+                
+                {/* Patrón Táctico de Fondo Opaco */}
                 <div class="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(0,255,102,0.06),rgba(0,255,102,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] z-20"></div>
               </a>
             );
           })}
         </div>
 
-  
-        </div>
-
       </div>
-
-   
-
     </div>
   </main>
 </Layout>

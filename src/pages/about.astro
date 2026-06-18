@@ -1,63 +1,150 @@
 ---
-import AboutHeroImage from '../assets/blog-placeholder-about.jpg';
-import Layout from '../layouts/BlogPost.astro';
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/layout/Header';
+import Footer from '../components/layout/Footer';
+import { Terminal, ShieldAlert, Cpu, Crosshair, Mail, MessageSquare, Globe, AlertTriangle } from 'lucide-react';
+
+const ACCENT_COLOR = "#FF4500"; // Naranja táctico de tu marca
 ---
 
-<Layout
-	title="About Me"
-	description="Lorem ipsum dolor sit amet"
-	pubDate={new Date('August 08 2021')}
-	heroImage={AboutHeroImage}
+<Layout 
+  title="Identidad del Sistema | PanGGea" 
+  description="Conoce el centro de datos de PanGGea. Tu fuente principal de inteligencia táctica, hardware de alto rendimiento y análisis del meta."
 >
-	<p>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-		labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo
-		viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam
-		adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus
-		et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus
-		vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque
-		sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
-	</p>
+  <Header client:load />
 
-	<p>
-		Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non
-		tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non
-		blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna
-		porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis
-		massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc.
-		Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis
-		bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra
-		massa massa ultricies mi.
-	</p>
+  <main class="bg-[#020202] min-h-screen relative font-sans text-white">
+    
+    {/* 🌐 FONDO DE CUADRÍCULA TÁCTICA */}
+    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+      <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#FF4500]/10 blur-[120px] rounded-full"></div>
+    </div>
 
-	<p>
-		Mollis nunc sed id semper risus in. Convallis a cras semper auctor neque. Diam sit amet nisl
-		suscipit. Lacus viverra vitae congue eu consequat ac felis donec. Egestas integer eget aliquet
-		nibh praesent tristique magna sit amet. Eget magna fermentum iaculis eu non diam. In vitae
-		turpis massa sed elementum. Tristique et egestas quis ipsum suspendisse ultrices. Eget lorem
-		dolor sed viverra ipsum. Vel turpis nunc eget lorem dolor sed viverra. Posuere ac ut consequat
-		semper viverra nam. Laoreet suspendisse interdum consectetur libero id faucibus. Diam phasellus
-		vestibulum lorem sed risus ultricies tristique. Rhoncus dolor purus non enim praesent elementum
-		facilisis. Ultrices tincidunt arcu non sodales neque. Tempus egestas sed sed risus pretium quam
-		vulputate. Viverra suspendisse potenti nullam ac tortor vitae purus faucibus ornare. Fringilla
-		urna porttitor rhoncus dolor purus non. Amet dictum sit amet justo donec enim.
-	</p>
+    {/* 📸 HERO SECTION */}
+    <div class="relative w-full pt-40 pb-20 border-b border-white/5 z-10">
+      <div class="max-w-[1200px] mx-auto px-6 w-full">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="bg-[#FF4500] text-black font-mono text-[10px] font-black uppercase tracking-widest px-3 py-1.5 shadow-[0_0_15px_rgba(255,69,0,0.4)]">
+            SYS_INFO
+          </span>
+          <span class="border border-white/10 bg-black/50 backdrop-blur-sm text-white/70 font-mono text-[10px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2">
+            <Globe size={12} className="text-[#FF4500]" />
+            Directorio Principal
+          </span>
+        </div>
 
-	<p>
-		Mattis ullamcorper velit sed ullamcorper morbi tincidunt. Tortor posuere ac ut consequat semper
-		viverra. Tellus mauris a diam maecenas sed enim ut sem viverra. Venenatis urna cursus eget nunc
-		scelerisque viverra mauris in. Arcu ac tortor dignissim convallis aenean et tortor at. Curabitur
-		gravida arcu ac tortor dignissim convallis aenean et tortor. Egestas tellus rutrum tellus
-		pellentesque eu. Fusce ut placerat orci nulla pellentesque dignissim enim sit amet. Ut enim
-		blandit volutpat maecenas volutpat blandit aliquam etiam. Id donec ultrices tincidunt arcu. Id
-		cursus metus aliquam eleifend mi.
-	</p>
+        <h1 class="font-headline text-5xl md:text-7xl lg:text-[90px] font-black uppercase italic leading-[0.85] mb-6 tracking-tighter text-white drop-shadow-2xl break-words">
+          OPERATIVA <br/> <span class="text-[#FF4500]">PANGGEA</span>
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-white/60 font-mono max-w-2xl mt-8 border-l-2 border-[#FF4500] pl-6">
+          No somos un blog convencional. Somos tu centro de mando e inteligencia para dominar el ecosistema digital y competitivo.
+        </p>
+      </div>
+    </div>
 
-	<p>
-		Tempus quam pellentesque nec nam aliquam sem. Risus at ultrices mi tempus imperdiet. Id porta
-		nibh venenatis cras sed felis eget velit. Ipsum a arcu cursus vitae. Facilisis magna etiam
-		tempor orci eu lobortis elementum. Tincidunt dui ut ornare lectus sit. Quisque non tellus orci
-		ac. Blandit libero volutpat sed cras. Nec tincidunt praesent semper feugiat nibh sed pulvinar
-		proin gravida. Egestas integer eget aliquet nibh praesent tristique magna.
-	</p>
+    {/* 📝 CONTENIDO Y CONTACTO */}
+    <div class="max-w-[1440px] mx-auto px-4 md:px-6 py-20 flex justify-center items-stretch gap-12 w-full z-10 relative">
+      <div class="flex-1 max-w-[1200px] w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
+        
+        {/* 📜 COLUMNA IZQUIERDA: NOSOTROS */}
+        <article class="lg:col-span-8 flex flex-col gap-12">
+          
+          <section>
+            <div class="flex items-center gap-3 mb-6">
+              <Terminal size={20} color={ACCENT_COLOR} />
+              <h2 class="font-headline text-3xl font-black uppercase italic tracking-wide">¿Qué es PanGGea?</h2>
+            </div>
+            <div class="prose prose-invert prose-p:text-white/70 prose-p:leading-relaxed prose-p:text-lg max-w-none break-words [overflow-wrap:anywhere]">
+              <p>
+                PanGGea nace de la necesidad de tener datos precisos, directos y sin relleno. En un entorno donde el meta cambia cada semana y el hardware evoluciona a pasos agigantados, los jugadores y entusiastas de la tecnología necesitan inteligencia táctica real.
+              </p>
+              <p>
+                Nuestro objetivo principal es desfragmentar la información de la industria del gaming y la tecnología para entregarte reportes claros: desde el análisis de periféricos de alto rendimiento, hasta la disección de estrategias en títulos competitivos.
+              </p>
+            </div>
+          </section>
+
+          <section class="border-t border-white/5 pt-12">
+            <div class="flex items-center gap-3 mb-8">
+              <Crosshair size={20} color={ACCENT_COLOR} />
+              <h2 class="font-headline text-3xl font-black uppercase italic tracking-wide">Nuestros Protocolos</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="bg-white/5 border border-white/10 p-6 rounded-lg hover:border-[#FF4500]/50 transition-colors">
+                <ShieldAlert size={24} className="text-[#FF4500] mb-4" />
+                <h3 class="font-mono text-sm font-bold uppercase tracking-widest mb-2">Arsenal & Tiers</h3>
+                <p class="text-white/60 text-sm leading-relaxed">Clasificaciones rigurosas y guías de meta para mantenerte siempre con ventaja táctica en tus partidas.</p>
+              </div>
+              <div class="bg-white/5 border border-white/10 p-6 rounded-lg hover:border-[#FF4500]/50 transition-colors">
+                <Cpu size={24} className="text-[#FF4500] mb-4" />
+                <h3 class="font-mono text-sm font-bold uppercase tracking-widest mb-2">The Vault (Hardware)</h3>
+                <p class="text-white/60 text-sm leading-relaxed">Revisiones exhaustivas de componentes y periféricos. Si no rinde bajo fuego, no entra en nuestra bóveda.</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="border-t border-white/5 pt-12">
+            <div class="prose prose-invert prose-p:text-white/70 prose-p:leading-relaxed prose-p:text-sm max-w-none">
+              <p class="italic opacity-70">
+                PanGGea opera bajo un estricto código de imparcialidad. Nuestras reseñas, clasificaciones y artículos se basan en el rendimiento empírico y la experiencia de campo.
+              </p>
+            </div>
+          </section>
+
+        </article>
+
+        {/* 📬 COLUMNA DERECHA: CONTACTO (STICKY) */}
+        <aside class="lg:col-span-4 relative">
+          <div class="bg-[#050505] border border-white/5 p-8 shadow-2xl relative lg:sticky lg:top-32 group overflow-hidden rounded-xl transition-all duration-500 hover:border-[#FF4500]/30">
+            
+            <div class="flex items-center gap-3 mb-8">
+              <MessageSquare size={16} color={ACCENT_COLOR} />
+              <span class="font-mono text-[10px] text-white/60 font-black uppercase tracking-widest">Enlace de Comunicación</span>
+            </div>
+
+            <h3 class="font-headline text-2xl uppercase italic font-black mb-6">Transmisión Directa</h3>
+            <p class="text-white/60 text-sm mb-8 leading-relaxed">
+              ¿Dudas sobre hardware, reportes de inteligencia o alianzas estratégicas? Abre un canal seguro con nuestra redacción.
+            </p>
+
+            <div class="space-y-6 mb-10">
+              <div class="border-b border-white/5 pb-4">
+                <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-2">Comunicaciones Generales</span>
+                <a href="mailto:contacto@panggea.site" class="flex items-center gap-3 text-white font-bold text-sm break-all hover:text-[#FF4500] transition-colors">
+                  <Mail size={16} className="text-[#FF4500]" />
+                  contacto@panggea.site
+                </a>
+              </div>
+              
+              <div class="border-b border-white/5 pb-4">
+                <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-2">Soporte Técnico / Bugs</span>
+                <a href="mailto:soporte@panggea.site" class="flex items-center gap-3 text-white font-bold text-sm break-all hover:text-[#FF4500] transition-colors">
+                  <AlertTriangle size={16} className="text-[#FF4500]" />
+                  Reportar Anomalía
+                </a>
+              </div>
+            </div>
+
+            <div class="pt-6 border-t border-white/10 mt-auto bg-[#FF4500]/5 border border-[#FF4500]/20 p-4 rounded-lg text-center">
+               <span class="block font-mono text-[9px] uppercase tracking-widest text-[#FF4500] font-bold mb-1">
+                 Status del Servidor
+               </span>
+               <span class="flex items-center justify-center gap-2 text-white/70 text-xs font-mono">
+                 <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                 Sistemas Operativos
+               </span>
+            </div>
+
+            {/* 🔥 BARRA NEÓN INFERIOR 🔥 */}
+            <div class="absolute bottom-0 left-0 h-1.5 bg-[#FF4500] w-0 transition-all duration-700 group-hover:w-full shadow-[0_0_15px_#FF4500]"></div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
 </Layout>

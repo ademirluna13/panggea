@@ -12,7 +12,6 @@ const BRAND_COLORS: Record<string, string> = {
   TODOS: '#FFFFFF'
 };
 
-// 🛠️ Mapeo de nombres de Sanity a tus nombres de archivo en public/icons/
 const ICON_FILES: Record<string, string> = {
   XBOX: 'xbox.svg',
   PS: 'playstation.svg',
@@ -27,7 +26,6 @@ const GetIcon = ({ name, color, isHovered }: { name: string, color: string, isHo
   const fileName = ICON_FILES[name];
   if (!fileName) return null;
 
-  // Si es hover, usamos el color de marca, si no, el color que viene por prop
   const activeColor = isHovered ? BRAND_COLORS[name] : color;
 
   return (
@@ -101,7 +99,6 @@ export default function ArchiveGrid({
     });
   }, [activeCat, activePlat, search, sortOrder, posts, hideCategory]);
 
-  // 🧠 FUNCIÓN HELPER PARA REESCALAR EL TITULO POR SU LONGITUD EN EL BENTO
   const getFontSize = (title: string, isBig: boolean) => {
     const length = title.length;
     if (isBig) {
@@ -117,12 +114,13 @@ export default function ArchiveGrid({
 
   return (
     <div className="flex flex-col gap-10" ref={rackRef}>
-      {/* 🚀 CSS PARA MATAR EL SCROLLBAR BLANCO DE WINDOWS */}
+      
       <style dangerouslySetInnerHTML={{ __html: `
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}} />
 
+      {/* ZONA DE FILTROS */}
       <div className="flex flex-col lg:flex-row items-end w-full border-b border-white/10 pb-8 gap-8 lg:gap-12 relative z-[60]">
         
         {!hideCategory && (
@@ -161,7 +159,6 @@ export default function ArchiveGrid({
           </div>
         </div>
 
-        {/* 🎮 PLATAFORMAS (FIX DE ICONOS Y SCROLL) */}
         <div className="flex flex-col gap-2">
           <span className="font-mono text-[9px] font-bold tracking-[0.4em]" style={{ color: accentColor }}>PLATAFORMA</span>
           <div className="flex items-center gap-6 bg-white/[0.02] border border-white/5 p-3 px-5 rounded-sm overflow-x-auto overflow-y-hidden no-scrollbar min-h-[56px]">
@@ -177,12 +174,7 @@ export default function ArchiveGrid({
                   onMouseLeave={() => setHoveredPlat(null)}
                   className={`group relative transition-all duration-300 hover:scale-125 flex-shrink-0 flex items-center justify-center ${isSelected ? 'opacity-100' : 'opacity-30 hover:opacity-100'}`}
                 >
-                  <GetIcon 
-                    name={plat} 
-                    color={isSelected ? accentColor : 'white'} 
-                    isHovered={isHovered}
-                  />
-                  
+                  <GetIcon name={plat} color={isSelected ? accentColor : 'white'} isHovered={isHovered} />
                   {isSelected && (
                     <div 
                       className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full shadow-[0_0_10px_currentColor] animate-pulse" 
@@ -204,47 +196,94 @@ export default function ArchiveGrid({
         </div>
       </div>
 
-      {/* GRID DE CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-6 auto-rows-[390px] gap-8">
+      {/* GRID DE CARDS ESTILO PANGEA */}
+      <div className="grid grid-cols-1 md:grid-cols-6 auto-rows-[410px] gap-8">
         {filteredPosts.map((post, i) => {
           const isBig = i === 0;
           const platList = post.platform?.split(',').map((p: string) => p.trim().toUpperCase()) || [];
+          
           return (
-            <a key={post.slug} href={`${basePath}/${post.slug}`} className={`group relative bg-[#050505] overflow-hidden border border-white/5 transition-all duration-500 hover:border-white/20 flex flex-col ${isBig ? "md:col-span-4 md:row-span-2" : "md:col-span-2 md:row-span-1"}`}>
-              <div className="absolute inset-0 z-0 opacity-30 group-hover:opacity-60 transition-opacity duration-700">
-                <img src={post.heroImage} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105" loading="lazy" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent" />
+            <a 
+              key={post.slug} 
+              href={`${basePath}/${post.slug}`} 
+              className={`group relative bg-pangea-card/40 backdrop-blur-xl overflow-hidden border rounded-[1.8rem] transition-all duration-500 shadow-2xl flex flex-col lg:hover:-translate-y-2 ${isBig ? "md:col-span-4 md:row-span-2" : "md:col-span-2 md:row-span-1"}`}
+              style={{
+                borderColor: 'rgba(255, 255, 255, 0.05)',
+                // Aplicamos el glow en hover usando el accentColor general
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = accentColor;
+                e.currentTarget.style.boxShadow = `0 0 25px ${accentColor}60, inset 0 0 10px ${accentColor}30`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              {/* Imagen y Gradiente Inferior */}
+              <div className="absolute inset-0 z-0 pointer-events-none">
+                {post.heroImage && (
+                  <img 
+                    src={post.heroImage} 
+                    alt={post.title} 
+                    className="absolute inset-0 w-full h-full object-cover grayscale-0 opacity-80 lg:grayscale lg:opacity-40 lg:group-hover:grayscale-0 lg:group-hover:opacity-80 transition-all duration-700" 
+                  />
+                )}
+                {/* Usamos bg-linear-to-t (Tailwind v4 ready) o bg-gradient-to-t */}
+                <div className="absolute h-[60%] bottom-0 inset-x-0 bg-linear-to-t from-[#020202] via-[#020202]/95 to-transparent z-10 transition-all duration-500" />
               </div>
-              <div className="relative z-10 h-full p-8 flex flex-col justify-end">
-                <div className="flex items-center gap-5 mb-5">
-                  <span className="text-white font-mono text-[10px] font-[900] tracking-[0.2em] uppercase border-l-2 pl-3" style={{ borderColor: accentColor }}>{post.category}</span>
+
+              {/* Contenido (Etiquetas Top) */}
+              <div className="relative z-20 p-6 md:p-8 flex justify-between items-start w-full">
+                <div className="flex flex-wrap gap-2">
+                  <span 
+                    className="font-mono text-[8px] font-black px-2 py-1 rounded-sm border bg-black/50 uppercase tracking-widest backdrop-blur-md w-fit"
+                    style={{ borderColor: `${accentColor}40`, color: accentColor }}
+                  >
+                    {post.category}
+                  </span>
                   {platList.length > 0 && (
-                    <div className="flex items-center gap-4 bg-black/60 backdrop-blur-md px-4 py-2 rounded-sm border border-white/5">
+                    <div className="flex items-center gap-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-sm border border-white/10">
                       {platList.map((p: string, idx: number) => (
-                        <div key={idx} className="opacity-80 group-hover:opacity-100 transition-all duration-300">
+                        <div key={idx} className="opacity-70 group-hover:opacity-100 transition-all duration-300 scale-75">
                           <GetIcon name={p} color="white" isHovered={false} />
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-                <h2 className={`font-headline font-black text-white uppercase italic tracking-tighter leading-[0.85] group-hover:text-white transition-all ${getFontSize(post.title, isBig)}`}>{post.title}</h2>
+              </div>
+
+              {/* Título y Descripción Inferior */}
+              <div className="relative z-20 p-6 md:p-8 flex flex-col w-full mt-auto">
+                <h2 
+                  className={`font-headline font-black text-white uppercase italic tracking-tighter leading-[0.9] mb-2 break-words hyphens-auto transition-all duration-300 ${getFontSize(post.title, isBig)}`}
+                  style={{ textShadow: `0 2px 10px rgba(0,0,0,0.5)` }}
+                >
+                  {post.title}
+                </h2>
                 
-                {/* 🔥 REPARADO: Muestra siempre en móviles (grid-rows-[1fr]), transiciona al hover en Desktop (lg:grid-rows-[0fr] -> lg:group-hover:grid-rows-[1fr]) 🔥 */}
                 <div className="grid transition-all duration-500 ease-in-out grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] w-full">
                   <div className="overflow-hidden opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500">
-                    <p className="text-white/40 text-sm italic leading-relaxed line-clamp-2 mt-6">{post.description}</p>
+                    <p className="text-white/70 text-[11px] md:text-sm italic leading-relaxed line-clamp-2 mt-2 break-words">{post.description}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between border-t border-white/5 pt-6 mt-6">
-                  <div className="flex items-center gap-2 text-white/20 font-mono text-[9px] font-bold uppercase group-hover:text-white/50 transition-colors">
+                {/* Footer del Bento */}
+                <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-4">
+                  <div className="flex items-center gap-2 text-white/40 font-mono text-[9px] font-black uppercase tracking-widest">
                     <Clock size={12} style={{ color: accentColor }} /> 
                     {new Date(post.publishedAt).toLocaleDateString('es-MX', { month: 'short', day: '2-digit' })}
                   </div>
-                  <ArrowRight size={22} className="text-white/40 -translate-x-full group-hover:text-white group-hover:translate-x-0 transition-all duration-500" />
+                  <ArrowRight size={18} className="text-white/40 -translate-x-2 group-hover:text-white group-hover:translate-x-0 transition-all duration-500" style={{ color: accentColor }} />
                 </div>
               </div>
+
+              {/* 🔥 BARRA INFERIOR NEÓN ESTANDARIZADA 🔥 */}
+              <div 
+                className="absolute bottom-0 left-0 h-1.5 transition-all duration-1000 w-0 lg:group-hover:w-full z-30" 
+                style={{ backgroundColor: accentColor, boxShadow: `0 0 15px ${accentColor}` }}
+              />
             </a>
           );
         })}

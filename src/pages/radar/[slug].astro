@@ -8,7 +8,6 @@ import { ArrowLeft, Radio, Calendar, Monitor, Activity, Info, Timer } from 'luci
 // 🔥 Importamos componentes tácticos
 import SharedButton from '../../components/layout/SharedButton';
 
-
 const ACCENT_COLOR = "#00F0FF";
 const HYPE_RED = "#FF0055"; 
 
@@ -71,155 +70,151 @@ if (nameLength > 60) {
 <Layout title={`${event.title} | RADAR PanGGea`} description={event.description}>
   <Header client:load />
 
-  <main class="bg-[#020202] min-h-screen relative font-sans text-white overflow-hidden">
+  {/* 🔥 FIX STICKY DEFINITIVO: Quitamos el 'overflow-hidden' global que rompía el sticky 🔥 */}
+  <main class="bg-[#020202] min-h-screen relative flex flex-col items-center font-sans text-white">
     
-    {/* ANIMACIÓN DE RADAR FONDO */}
-    <div class="absolute inset-0 pointer-events-none z-0">
+    {/* ANIMACIÓN DE RADAR FONDO (El overflow-hidden solo vive aquí para no romper el scroll) */}
+    <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] rounded-full border border-cyan-500/5"></div>
         <div class="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-[conic-gradient(from_0deg,transparent_0%,#00F0FF05_50%,transparent_100%)] animate-radar-spin"></div>
     </div>
 
-    {/* 📸 HERO SECTION */}
-    <div class="relative w-full min-h-[75vh] flex items-end pb-20 border-b border-white/5">
-      <div class="absolute inset-0 z-0 bg-[#050505]">
+    {/* 📸 HERO SECTION CORREGIDO */}
+    <section class="relative w-full h-[60vh] md:h-[75vh] flex items-end border-b border-white/5 overflow-hidden">
+      <div class="absolute inset-0 z-0 bg-[#020202]">
         {event.heroImage ? (
-          <img src={event.heroImage} alt={event.title} class="w-full h-full object-cover opacity-30 grayscale hover:grayscale-0 transition-all duration-1000" />
+          <img src={event.heroImage} alt={event.title} class="w-full h-full object-cover opacity-70" />
         ) : (
           <div class="absolute inset-0 bg-zinc-900/20"></div>
         )}
-        <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/70 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/50 to-transparent"></div>
       </div>
 
-      <div class="max-w-[1200px] mx-auto px-6 w-full relative z-10">
-        <div class="flex flex-wrap items-center gap-3 mb-8">
-          <span class="bg-[#00F0FF] text-black font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5">
+      <div class="relative z-10 w-full max-w-[1440px] mx-auto px-6 pb-16">
+        <div class="flex flex-wrap items-center gap-3 mb-6">
+          <span class="px-3 py-1 bg-[#00F0FF] text-black font-mono text-[10px] font-black uppercase tracking-widest rounded-sm shadow-[0_0_20px_rgba(0,240,255,0.4)]">
             {event.category || 'SIGNAL'}
           </span>
-          {/* 🚀 BADGE DEL JUEGO (SI EXISTE) */}
           {event.gameName && (
-            <span class="border border-[#00F0FF]/30 bg-[#00F0FF]/10 text-[#00F0FF] font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5">
+            <span class="px-3 py-1 bg-[#00F0FF]/10 border border-[#00F0FF]/30 text-[#00F0FF] font-mono text-[10px] font-black uppercase tracking-widest rounded-sm backdrop-blur-md">
               {event.gameName}
             </span>
           )}
-          <span class="border border-white/10 bg-black/50 backdrop-blur-sm text-white/70 font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 flex items-center gap-2">
+          <span class="px-3 py-1 bg-white/5 border border-white/10 text-white/70 font-mono text-[10px] font-black uppercase tracking-widest rounded-sm backdrop-blur-md flex items-center gap-2">
             <Activity size={12} color={ACCENT_COLOR} />
             LIVE_TRACKING
           </span>
         </div>
-
-        {/* 🚀 TÍTULO REESCALABLE APLICADO AQUÍ */}
-        <h1 class={`font-headline ${titleSizeClass} font-black uppercase italic leading-[0.85] mb-12 tracking-tighter text-white drop-shadow-2xl break-words`}>
+        
+        <h1 class={`font-headline ${titleSizeClass} font-black uppercase italic leading-[0.8] mb-8 text-white break-words drop-shadow-[0_0_30px_rgba(255,255,255,0.1)]`}>
           {event.title}
         </h1>
 
-        <div class="flex flex-wrap items-center gap-y-8 gap-x-12 border-t border-white/10 pt-10">
-          <div class="flex items-center gap-4 pr-12 border-r border-white/5">
-            <Timer size={24} color={HYPE_RED} className="animate-pulse" />
-            <div class="countdown-badge-detail" data-target-date={event.eventDate}>
-               <span class="block font-mono text-[10px] font-black tracking-[0.3em] uppercase mb-1" style={{ color: HYPE_RED }}>
-                 HYPE TIMER
-               </span>
-               <span class="block font-headline text-3xl sm:text-4xl font-black italic text-[#00F0FF] cd-text-detail tracking-tighter uppercase leading-none">
-                 SCANNING...
-               </span>
-            </div>
-          </div>
-          <div class="flex items-center gap-4 pr-12 border-r border-white/5">
-            <Calendar size={22} color={ACCENT_COLOR} className="opacity-50" />
-            <div>
-              <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-1">Estimated Drop</span>
-              <span class="block font-bold text-sm text-white uppercase">{formatDate(event.eventDate)}</span>
-            </div>
-          </div>
+        <div class="flex flex-wrap items-center gap-8 md:gap-12 border-t border-white/10 pt-6">
           <div class="flex items-center gap-4">
-            <Monitor size={22} color={ACCENT_COLOR} className="opacity-50" />
-            <div>
-              <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-1">Platform_Target</span>
-              <span class="block font-bold text-sm text-white uppercase">{event.platform || 'GLOBAL'}</span>
+            <Timer size={18} color={HYPE_RED} className="animate-pulse" />
+            <div class="countdown-badge-detail flex flex-col" data-target-date={event.eventDate}>
+              <span class="font-mono text-[7px] text-white/40 uppercase tracking-[0.3em] mb-0.5" style={{ color: HYPE_RED }}>HYPE TIMER</span>
+              <span class="font-headline text-white font-bold tracking-widest uppercase italic text-sm text-[#00F0FF] cd-text-detail leading-none">SCANNING...</span>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-3 border-l border-white/10 pl-8">
+            <Calendar size={18} className="text-white/20" />
+            <div class="flex flex-col">
+              <span class="font-mono text-[7px] text-white/40 uppercase tracking-[0.3em] mb-0.5">Estimated Drop</span>
+              <span class="font-headline text-white font-bold tracking-widest uppercase italic text-sm">{formatDate(event.eventDate)}</span>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-3 border-l border-white/10 pl-8">
+            <Monitor size={18} style={{ color: ACCENT_COLOR }} className="opacity-50" />
+            <div class="flex flex-col">
+              <span class="font-mono text-[7px] text-white/40 uppercase tracking-[0.3em] mb-0.5">Platform Target</span>
+              <span class="font-headline text-white font-bold tracking-widest uppercase italic text-sm">{event.platform || 'GLOBAL'}</span>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    {/* 📝 SECCIÓN DE CONTENIDO CON ESCOLTA DE ADS */}
-    <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12 w-full">
+    {/* 🔥 CONTENEDOR PRINCIPAL: items-start permite que el sidebar baje 🔥 */}
+    <div class="max-w-[1440px] mx-auto flex flex-col lg:flex-row justify-center items-start gap-12 px-6 py-20 relative z-10 w-full">
       
-    
+      <article class="flex-1 w-full max-w-[800px] break-words overflow-hidden">
+        
+        <button onclick="window.history.back()" class="group flex items-center gap-4 mb-12 text-white/30 hover:text-white transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max focus:outline-none">
+          <div class="p-2 border border-white/5 bg-white/[0.02] transition-all group-hover:border-[#00F0FF]/50 group-hover:shadow-[0_0_15px_rgba(0,240,255,0.3)]">
+             <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          </div>
+          <span class="group-hover:text-[#00F0FF] transition-colors">Abortar_Consulta // Volver</span>
+        </button>
 
-      <div class="flex-1 max-w-[1200px] w-full">
-        <div class="mb-16">
-          <button onclick="window.history.back();" class="group flex items-center gap-4 text-white/30 transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max">
-            <div class="p-2.5 border border-white/5 bg-white/[0.02] transition-all group-hover:border-cyan-500/50 group-hover:bg-cyan-500/5 group-hover:shadow-[0_0_20px_rgba(0,240,255,0.2)]">
-              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-            </div>
-            <span>Abortar_Consulta // Volver</span>
-          </button>
+        {event.description && (
+          <div class="text-xl lg:text-2xl font-headline italic text-white/80 leading-relaxed mb-10 border-l-4 pl-6 break-words overflow-hidden" style={{ borderColor: ACCENT_COLOR }}>
+            {event.description}
+          </div>
+        )}
+
+        <div class="prose prose-invert prose-cyan max-w-none 
+          prose-p:text-white/80 prose-p:leading-relaxed prose-p:text-lg prose-p:italic prose-p:mb-8
+          prose-headings:font-headline prose-headings:uppercase prose-headings:italic prose-headings:tracking-tighter prose-headings:text-white
+          prose-strong:text-[#00F0FF] prose-strong:font-[950]
+          prose-a:text-[#00F0FF] hover:prose-a:text-white prose-img:rounded-xl
+          break-words">
+          {event.content ? (
+             <PortableText value={event.content} />
+          ) : (
+             <p class="font-mono text-xs opacity-40 italic">&gt;_ Sincronizando datos...</p>
+          )}
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
-          <div class="lg:col-span-8">
-            {event.description && (
-              <div class="text-xl lg:text-2xl font-headline italic text-white/80 leading-relaxed mb-12 border-l-4 pl-6 break-words" style={{ borderColor: ACCENT_COLOR }}>
-                {event.description}
-              </div>
-            )}
+      </article>
 
-            <div class="prose prose-invert prose-p:text-white/60 max-w-none break-words prose-li:marker:text-cyan-500 prose-a:text-cyan-400 mb-20">
-              {event.content ? <PortableText value={event.content} /> : <p class="font-mono text-xs opacity-40 italic">&gt;_ Sincronizando datos...</p>}
+      {/* ─── COLUMNA DERECHA: SIDEBAR CON h-fit y self-start PARA STICKY ─── */}
+      <aside class="w-full lg:w-[350px] shrink-0 relative lg:sticky lg:top-32 flex flex-col gap-8 h-fit self-start">
+        <div class="bg-[#050505] border border-white/5 p-8 shadow-2xl overflow-hidden group hover:border-cyan-500/30 transition-colors rounded-2xl">
+          <div class="flex items-center gap-3 mb-8">
+            <Radio size={16} color={ACCENT_COLOR} className="animate-pulse" />
+            <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Signal_Strength</span>
+          </div>
+
+          <div class="mb-10">
+              <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest mb-3">
+                  <span class="text-white/30">Hype_Capacity</span>
+                  <span style={{ color: hypeColor }} class="font-bold">{event.hypeLevel}%</span>
+              </div>
+              <div class="h-2 bg-white/5 w-full overflow-hidden p-[1px] rounded-full">
+                  <div class="h-full transition-all duration-1000 shadow-[0_0_15px_currentColor]" 
+                       style={{ width: `${event.hypeLevel}%`, backgroundColor: hypeColor }}></div>
+              </div>
+          </div>
+
+          <div class="space-y-6 pt-8 border-t border-white/10 mb-10">
+            <div class="border-b border-white/5 pb-4">
+              <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Source_Category</span>
+              <span class="block text-white font-bold text-sm tracking-wide">{event.category}</span>
+            </div>
+            <div class="flex justify-between items-center opacity-40 hover:opacity-100 transition-opacity">
+              <div class="flex items-center gap-2">
+                 <Info size={14} color={ACCENT_COLOR} />
+                 <span class="font-mono text-[9px] uppercase tracking-widest text-white">Status_Check</span>
+              </div>
+              <span class="font-mono text-[8px] text-green-400">EN_RADAR</span>
             </div>
           </div>
 
-          {/* SIDEBAR TÁCTICA */}
-          <aside class="lg:col-span-4 flex flex-col gap-8">
-            <div class="bg-[#050505] border border-white/5 p-8 shadow-2xl relative lg:sticky lg:top-32 overflow-hidden group hover:border-cyan-500/30 transition-colors">
-              <div class="flex items-center gap-3 mb-8">
-                <Radio size={16} color={ACCENT_COLOR} className="animate-pulse" />
-                <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Signal_Strength</span>
-              </div>
-
-              <div class="mb-10">
-                  <div class="flex justify-between font-mono text-[9px] uppercase tracking-widest mb-3">
-                      <span class="text-white/30">Hype_Capacity</span>
-                      <span style={{ color: hypeColor }} class="font-bold">{event.hypeLevel}%</span>
-                  </div>
-                  <div class="h-2 bg-white/5 w-full overflow-hidden p-[1px] rounded-full">
-                      <div class="h-full transition-all duration-1000 shadow-[0_0_15px_currentColor]" 
-                           style={{ width: `${event.hypeLevel}%`, backgroundColor: hypeColor }}></div>
-                  </div>
-              </div>
-
-              <div class="space-y-6 pt-8 border-t border-white/10 mb-10">
-                <div class="border-b border-white/5 pb-4">
-                  <span class="block text-white/30 font-mono text-[8px] uppercase tracking-widest mb-1">Source_Category</span>
-                  <span class="block text-white font-bold text-sm tracking-wide">{event.category}</span>
-                </div>
-                <div class="flex justify-between items-center opacity-40 hover:opacity-100 transition-opacity">
-                  <div class="flex items-center gap-2">
-                     <Info size={14} color={ACCENT_COLOR} />
-                     <span class="font-mono text-[9px] uppercase tracking-widest text-white">Status_Check</span>
-                  </div>
-                  <span class="font-mono text-[8px] text-green-400">EN_RADAR</span>
-                </div>
-              </div>
-
-              {/* 🔥 SHARED BUTTON INTEGRADO EN EL SIDEBAR 🔥 */}
-              <div class="pt-8 border-t border-white/10">
-                 <SharedButton 
-                    client:load 
-                    title={event.title} 
-                    text={event.description} 
-                    url={currentUrl} 
-                 />
-              </div>
-            </div>
-          </aside>
+          {/* 🔥 FIX TS: Color forzado con CSS, sin error de tipeo en React 🔥 */}
+          <div class="pt-8 border-t border-white/10 [&_svg]:!text-[#00F0FF] [&_svg]:!stroke-[#00F0FF] [&_*]:!text-[#00F0FF]">
+             <SharedButton 
+               client:load 
+               title={event.title} 
+               text={event.description} 
+               url={currentUrl} 
+             />
+          </div>
         </div>
-
-    
-        </div>
-
-      </div>
+      </aside>
 
     </div>
   </main>

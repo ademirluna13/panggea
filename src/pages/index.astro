@@ -18,20 +18,53 @@ import type { GearItem } from '../components/home/GearVault';
 import FeaturedCarousel from '../components/home/FeaturedCarousel.tsx';
 import GuideHub from '../components/home/GuideHub';
 
+// 🔥 ACTUALIZADO: Le agregamos la estructura del autor para que TypeScript no chille
 interface Post {
   title: string;
   slug: string;
   heroImage: string;
   category: string;
   description: string;
+  author?: {
+    name: string;
+    image: string;
+    bio?: any;
+    socials?: any;
+  };
 }
 
 const title = "PANGGEA DIGITAL BLOG";
 const description = "Consultoría de software de alto rendimiento y portal de análisis técnico.";
 
-// Fetches
-const trendingPostsFetch = sanityClient.fetch(`*[_type == "post" && !(isDeepDive == true)] | order(publishedAt desc) [0...7] { title, "slug": slug.current, "heroImage": mainImage.asset->url, publishedAt, description, platform, "category": coalesce(categories[0]->title, "EDITORIAL") }`);
-const deepDivesFetch = sanityClient.fetch(`*[_type == "post" && isDeepDive == true] | order(publishedAt desc) [0...4] { title, "slug": slug.current, "heroImage": mainImage.asset->url, "manualBg": sectionBg.asset->url, description, readTime, isLegendary, platform, "category": coalesce(categories[0]->title, "LORE") }`);
+// ─── FETCHES CON AUTORES MAPEADOS ───
+
+// 🔥 MEJORA 1: Expandimos el autor en los Trending Posts (Foto y Nombre)
+const trendingPostsFetch = sanityClient.fetch(`*[_type == "post" && !(isDeepDive == true)] | order(publishedAt desc) [0...7] { 
+  title, 
+  "slug": slug.current, 
+  "heroImage": mainImage.asset->url, 
+  publishedAt, 
+  description, 
+  platform, 
+  "category": coalesce(categories[0]->title, "EDITORIAL"),
+  "author": author->{ name, "image": image.asset->url }
+}`);
+
+// 🔥 MEJORA 2: En los Deep Dives jalamos TODO el arsenal del autor (Foto, Nombre, Redes y Bio)
+const deepDivesFetch = sanityClient.fetch(`*[_type == "post" && isDeepDive == true] | order(publishedAt desc) [0...4] { 
+  title, 
+  "slug": slug.current, 
+  "heroImage": mainImage.asset->url, 
+  "manualBg": sectionBg.asset->url, 
+  description, 
+  publishedAt, 
+  readTime, 
+  isLegendary, 
+  platform, 
+  "category": coalesce(categories[0]->title, "LORE"),
+  "author": author->{ name, "image": image.asset->url, bio, socials }
+}`);
+
 const categoriesFetch = sanityClient.fetch(`*[_type == "category"] | order(title asc) { title, "slug": slug.current }`);
 
 const patchNotesFetch = sanityClient.fetch(`*[_type == "patchNote"] | order(publishedAt desc)[0...6] {
@@ -44,6 +77,7 @@ const tierArsenalFetch = sanityClient.fetch(`*[_type == "tierEntry"] | order(ran
   _id, title, "slug": slug.current, rank, description,
   "heroImage": mainImage.asset->url,
   "gameName": game->name,
+  publishedAt,
   "gameLogo": game->logo.asset->url
 }`);
 
@@ -69,7 +103,16 @@ const gearFetch = sanityClient.fetch(`*[_type == "gear"] | order(_createdAt desc
 }`);
 
 const gearCategoriesFetch = sanityClient.fetch(`*[_type == "gearCategory"] | order(title asc) { title }`);
-const featuredPostsFetch = sanityClient.fetch(`*[_type == "post" && isFeatured == true] | order(publishedAt desc) { title, "slug": slug.current, "heroImage": mainImage.asset->url, "category": coalesce(categories[0]->title, "GENERAL"), description }`);
+
+// 🔥 MEJORA 3: En el Carrusel gigante jalamos foto y nombre para el "By: Autor"
+const featuredPostsFetch = sanityClient.fetch(`*[_type == "post" && isFeatured == true] | order(publishedAt desc) { 
+  title, 
+  "slug": slug.current, 
+  "heroImage": mainImage.asset->url, 
+  "category": coalesce(categories[0]->title, "GENERAL"), 
+  description,
+  "author": author->{ name, "image": image.asset->url }
+}`);
 
 const [trendingPosts, deepDives, categories, rawPatches, rawTiers, rawRadar, rawGear, rawGearCats, rawFeatured] = await Promise.all([
   trendingPostsFetch, deepDivesFetch, categoriesFetch, patchNotesFetch, tierArsenalFetch, radarFetch, gearFetch, gearCategoriesFetch, featuredPostsFetch
@@ -95,7 +138,7 @@ const tickerItems = rawPatches.flatMap((patch: any) => {
 });
 
 const tierEntries = rawTiers.map((t: any) => ({
-  id: t._id, title: t.title, slug: t.slug, gameName: t.gameName || 'UNKNOWN', rank: t.rank || 'S', desc: t.description || 'Sin datos de escaneo disponibles.', img: t.heroImage || null, gameLogo: t.gameLogo || null,
+  id: t._id, title: t.title, slug: t.slug, gameName: t.gameName || 'UNKNOWN', rank: t.rank || 'S', desc: t.description || 'Sin datos de escaneo disponibles.', img: t.heroImage || null, gameLogo: t.gameLogo || null, publishedAt: t.publishedAt
 }));
 
 const radarEvents = rawRadar.map((r: any) => {
@@ -137,10 +180,9 @@ const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as s
 
 <Layout title={title} description={description}>
   
-  <main class="bg-black min-h-screen">
+  <main class="w-full min-h-screen transition-colors duration-500">
     
     <section class="relative h-[100svh] w-full bg-black overflow-hidden">
-      {/* 🛡️ Necesita client:only para que no truene Three.js en el servidor durante el build */}
       <div class="absolute inset-0 z-0">
         <SpaceHeroScene client:only="react" />
       </div>
@@ -149,40 +191,43 @@ const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as s
       </div>
     </section>
 
-    <div class="max-w-[1200px] mx-auto flex flex-col gap-24 py-12">
+    {/* Contenedor macro adaptativo: Permite que los renglones se estiren por completo */}
+    <div class="w-full flex flex-col gap-24 py-12">
       
-      <CategoryNav client:load categories={categories} />
+      {/* Secciones individuales contenidas a 1200px */}
+      <div class="max-w-[1200px] mx-auto w-full px-4 sm:px-6">
+        <CategoryNav client:load categories={categories} />
+      </div>
 
+      {/* Componentes de Renglón Abierto (Full-Bleed para el color sólido de los temas) */}
       {featuredPosts.length > 0 && <FeaturedCarousel client:load posts={featuredPosts} />}
 
-      <section id="trending" class="border-t border-white/5 pt-12">
-        <TrendingNow client:load posts={trendingPosts} />
-      </section>
+      <TrendingNow client:load posts={trendingPosts} />
 
-      <section id="status" class="border-t border-white/5 pt-12">
-        <StatusFeed client:load patches={patches} tickerItems={tickerItems} />
-      </section>
+      <StatusFeed client:load patches={patches} tickerItems={tickerItems} />
 
-      <section id="deep-dives" class="border-t border-white/5 pt-12">
-        <DeepDives client:load posts={deepDives} />
-      </section>
+      <DeepDives client:load posts={deepDives} />
 
-      <section id="guides" class="border-t border-white/5 pt-12">
-        <GuideHub client:visible guides={guides} types={typeList} />
-      </section>
+      {/* El bloque restante de tus herramientas tácticas centraditas a 1200px */}
+      <div class="max-w-[1200px] mx-auto w-full px-4 sm:px-6 flex flex-col gap-24">
+        
+        <section id="guides" class="border-t border-white/5 pt-12">
+          <GuideHub client:visible guides={guides} types={typeList} />
+        </section>
 
-      <section id="tier" class="border-t border-white/5 pt-12">
-        <TacticalArsenal client:load entries={tierEntries} />
-      </section>
+        <section id="tier" class="border-t border-white/5 pt-12">
+          <TacticalArsenal client:load entries={tierEntries} />
+        </section>
 
-      {/* 🚀 REPARADO: Ahora usa client:load para que AdSense pueda leer los textos del calendario */}
-      <section id="radar" class="border-t border-white/5 pt-12">
-        <Radar client:load events={radarEvents} />
-      </section>
+        <section id="radar" class="border-t border-white/5 pt-12">
+          <Radar client:load events={radarEvents} />
+        </section>
 
-      <section id="vault" class="border-t border-white/5 pt-12 pb-24">
-        <GearVault client:load items={gearItems} categories={gearCategoriesList} />
-      </section>
+        <section id="vault" class="border-t border-white/5 pt-12 pb-24">
+          <GearVault client:load items={gearItems} categories={gearCategoriesList} />
+        </section>
+
+      </div>
 
     </div>
 

@@ -64,15 +64,16 @@ const currentUrl = Astro.url.href;
 <Layout title={`${patch.gameName || 'PATCH'} | ${patch.version} | PanGGea`} description={patch.description} image={patch.image}>
   <Header client:load />
 
-  <main class="bg-[#020202] min-h-screen relative font-sans text-white overflow-hidden">
+  {/* 🔥 FIX 1: ADIÓS OVERFLOW-HIDDEN DEL MAIN. El sticky ahora es libre 🔥 */}
+  <main class="bg-pangea-neutral min-h-screen relative flex flex-col items-center font-sans text-white">
     
     <div class="absolute inset-0 pointer-events-none" 
          style={`background: radial-gradient(circle at 50% 0%, ${ACCENT_COLOR}15 0%, transparent 70%)`}>
     </div>
 
-    {/* 📸 HERO SECTION */}
-    <div class="relative w-full h-[60vh] min-h-[500px] flex items-end pb-16 border-b border-white/10">
-      <div class="absolute inset-0 z-0 bg-[#050505]">
+    {/* 📸 HERO SECTION ESTANDARIZADO */}
+    <div class="relative w-full h-[60vh] min-h-[500px] flex items-end pb-16 border-b border-white/10 overflow-hidden">
+      <div class="absolute inset-0 z-0 bg-[#020202]">
         {patch.image ? (
           <img src={patch.image} alt={patch.title} class="w-full h-full object-cover opacity-30 grayscale hover:grayscale-0 transition-all duration-1000" />
         ) : (
@@ -81,7 +82,7 @@ const currentUrl = Astro.url.href;
         <div class="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/60 to-transparent"></div>
       </div>
 
-      <div class="max-w-[1200px] mx-auto px-6 w-full relative z-10">
+      <div class="max-w-[1440px] mx-auto px-6 w-full relative z-10">
         <div class="flex flex-wrap items-center gap-3 mb-1">
           <span class="font-mono text-[9px] font-black uppercase tracking-widest px-3 py-1.5 border border-white/10 bg-black/80 text-white">
             VERSION: <span style={`color: ${ACCENT_COLOR}`}>{patch.version}</span>
@@ -105,7 +106,7 @@ const currentUrl = Astro.url.href;
             </div>
           </div>
           
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-3 border-l border-white/10 pl-8">
             <Gamepad2 size={18} color={ACCENT_COLOR} />
             <div>
               <span class="block font-mono text-[8px] text-white/40 uppercase tracking-widest mb-0.5">Base System</span>
@@ -116,110 +117,98 @@ const currentUrl = Astro.url.href;
       </div>
     </div>
 
-    {/* 📝 CONTENIDO CON ADS ESCOLTA */}
-    <div class="max-w-[1750px] mx-auto px-4 md:px-6 py-16 lg:py-24 relative z-10 flex justify-center items-start gap-8 xl:gap-12">
+    {/* 📝 CONTENIDO: max-w-[1440px], flex-row, items-start (PERMITE STICKY) */}
+    <div class="max-w-[1440px] mx-auto flex flex-col lg:flex-row justify-center items-start gap-12 px-6 py-20 relative z-10 w-full">
    
-
-      {/* COLUMNA CENTRAL (Contenido Original) */}
-      <div class="max-w-[1200px] w-full flex-grow">
+      {/* COLUMNA IZQUIERDA (Contenido Original) */}
+      <article class="flex-1 w-full max-w-[800px] break-words overflow-hidden">
         
-        <div class="mb-16">
-          <button onclick="window.history.back();" class="group flex items-center gap-4 text-white/30 transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max">
-            <div class="p-2 border border-white/5 bg-white/[0.02] transition-all group-hover:border-purple-500/50 group-hover:shadow-[0_0_15px_rgba(184,41,255,0.3)]">
-              <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-            </div>
-            <span class="group-hover:text-purple-400 transition-colors">SALIR_DEL_REGISTRO</span>
-          </button>
+        <button onclick="window.history.back();" class="group flex items-center gap-4 mb-12 text-white/30 transition-colors font-mono text-[10px] uppercase tracking-[0.3em] cursor-pointer w-max focus:outline-none">
+          <div class="p-2 border border-white/5 bg-white/[0.02] transition-all group-hover:border-purple-500/50 group-hover:shadow-[0_0_15px_rgba(184,41,255,0.3)]">
+            <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          </div>
+          <span class="group-hover:text-purple-400 transition-colors">SALIR_DEL_REGISTRO</span>
+        </button>
+
+        {patch.description && (
+          <div class="text-xl lg:text-2xl font-headline italic text-white/80 leading-relaxed mb-12 border-l-4 pl-6 break-words" style={`border-color: ${ACCENT_COLOR}`}>
+            {patch.description}
+          </div>
+        )}
+
+        <div class="prose prose-invert prose-p:text-white/60 max-w-none break-words prose-li:marker:text-purple-500 prose-a:text-purple-400">
+          {patch.body ? <PortableText value={patch.body} /> : <p class="font-mono text-xs opacity-40 italic">&gt;_ Cargando datos...</p>}
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
+      </article>
+
+      {/* ─── COLUMNA DERECHA: SIDEBAR TÁCTICA ─── */}
+      <aside class="w-full lg:w-[350px] shrink-0 relative lg:sticky lg:top-32 flex flex-col gap-8 h-fit self-start">
+        <div class="bg-[#050505] border border-white/5 p-8 shadow-2xl relative group overflow-hidden hover:border-purple-500/30 transition-colors rounded-2xl">
           
-          {/* COLUMNA IZQUIERDA */}
-          <div class="lg:col-span-8">
-            {patch.description && (
-              <div class="text-xl font-headline italic text-white/60 leading-relaxed mb-12 border-l-4 pl-6 break-words" style={`border-color: ${ACCENT_COLOR}`}>
-                {patch.description}
-              </div>
-            )}
+          <div class="flex items-center gap-3 mb-8">
+            <Terminal size={16} color={ACCENT_COLOR} />
+            <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Resumen de Cambios</span>
+          </div>
 
-            <div class="prose prose-invert prose-p:text-white/60 max-w-none break-words prose-li:marker:text-purple-500 prose-a:text-purple-400 mb-20">
-              {patch.body ? <PortableText value={patch.body} /> : <p class="font-mono text-xs opacity-40 italic">&gt;_ Cargando datos...</p>}
+          {/* HIGHLIGHTS */}
+          <div class="space-y-6 mb-10">
+            {highlights.length > 0 ? highlights.map((text: string) => (
+              <div class="flex items-start gap-4 border-b border-white/5 pb-4 last:border-0">
+                <Zap size={14} className="mt-1 flex-shrink-0" color={ACCENT_COLOR} />
+                <span class="font-mono text-[11px] text-white/80 leading-snug uppercase tracking-wider break-words">{text}</span>
+              </div>
+            )) : <p class="font-mono text-[9px] text-white/20 italic">No hay highlights.</p>}
+          </div>
+
+          {/* METADATOS TÉCNICOS */}
+          <div class="pt-8 border-t border-white/10 space-y-4 mb-10">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                 <Gamepad2 size={12} color={ACCENT_COLOR} className="opacity-50" />
+                 <span class="font-mono text-[8px] text-white/30 uppercase">Game_ID</span>
+              </div>
+              <span class="font-mono text-[8px] text-white font-bold">{patch.gameName || 'N/A'}</span>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                 <Cpu size={12} color={ACCENT_COLOR} className="opacity-50" />
+                 <span class="font-mono text-[8px] text-white/30 uppercase">Patch_Type</span>
+              </div>
+              <span class="font-mono text-[8px] text-white font-bold" style={`color: ${ACCENT_COLOR}`}>{patch.patchType || 'STABLE'}</span>
+            </div>
+
+            <div class="flex justify-between items-center border-t border-white/5 pt-4">
+              <div class="flex items-center gap-2">
+                 <History size={12} color={ACCENT_COLOR} className="opacity-50" />
+                 <span class="font-mono text-[8px] text-white/30 uppercase">Prev_Version</span>
+              </div>
+              <span class="font-mono text-[8px] text-white/50 italic">
+                {patch.lastUpdateAt ? formatDate(patch.lastUpdateAt) : 'INITIAL_BUILD'}
+              </span>
             </div>
           </div>
 
-          {/* COLUMNA DERECHA: SIDEBAR TÁCTICO */}
-          <div class="lg:col-span-4">
-            <div class="bg-[#050505] border border-white/5 p-8 shadow-2xl relative lg:sticky lg:top-32 group overflow-hidden">
-              
-              <div class="flex items-center gap-3 mb-8">
-                <Terminal size={16} color={ACCENT_COLOR} />
-                <span class="font-mono text-[10px] text-white/60 font-bold uppercase tracking-widest">Resumen de Cambios</span>
-              </div>
-
-              {/* HIGHLIGHTS */}
-              <div class="space-y-6 mb-10">
-                {highlights.length > 0 ? highlights.map((text: string) => (
-                  <div class="flex items-start gap-4 border-b border-white/5 pb-4 last:border-0">
-                    <Zap size={14} className="mt-1 flex-shrink-0" color={ACCENT_COLOR} />
-                    <span class="font-mono text-[11px] text-white/80 leading-snug uppercase tracking-wider break-words">{text}</span>
-                  </div>
-                )) : <p class="font-mono text-[9px] text-white/20 italic">No hay highlights.</p>}
-              </div>
-
-              {/* METADATOS TÉCNICOS */}
-              <div class="pt-8 border-t border-white/10 space-y-4 mb-10">
-                <div class="flex justify-between items-center">
-                  <div class="flex items-center gap-2">
-                     <Gamepad2 size={12} color={ACCENT_COLOR} className="opacity-50" />
-                     <span class="font-mono text-[8px] text-white/30 uppercase">Game_ID</span>
-                  </div>
-                  <span class="font-mono text-[8px] text-white font-bold">{patch.gameName || 'N/A'}</span>
-                </div>
-
-                <div class="flex justify-between items-center">
-                  <div class="flex items-center gap-2">
-                     <Cpu size={12} color={ACCENT_COLOR} className="opacity-50" />
-                     <span class="font-mono text-[8px] text-white/30 uppercase">Patch_Type</span>
-                  </div>
-                  <span class="font-mono text-[8px] text-white font-bold" style={`color: ${ACCENT_COLOR}`}>{patch.patchType || 'STABLE'}</span>
-                </div>
-
-                <div class="flex justify-between items-center border-t border-white/5 pt-4">
-                  <div class="flex items-center gap-2">
-                     <History size={12} color={ACCENT_COLOR} className="opacity-50" />
-                     <span class="font-mono text-[8px] text-white/30 uppercase">Prev_Version</span>
-                  </div>
-                  <span class="font-mono text-[8px] text-white/50 italic">
-                    {patch.lastUpdateAt ? formatDate(patch.lastUpdateAt) : 'INITIAL_BUILD'}
-                  </span>
-                </div>
-              </div>
-
-              {/* 🔥 SHARED BUTTON INTEGRADO EN EL SIDEBAR */}
-              <div class="pt-8 border-t border-white/10">
-                 <SharedButton 
-                    client:load 
-                    title={patch.title} 
-                    text={patch.description} 
-                    url={currentUrl} 
-                 />
-              </div>
-
-            </div>
-
-        
+          {/* Botón de Compartir */}
+          <div class="pt-8 border-t border-white/10 [&_svg]:!text-[#b829ff] [&_svg]:!stroke-[#b829ff] [&_*]:!text-[#b829ff]">
+             <SharedButton 
+               client:load 
+               title={patch.title} 
+               text={patch.description} 
+               url={currentUrl} 
+             />
           </div>
+
         </div>
-
-     
-
-        <div class="mt-20">
-           <Community client:load />
-        </div>
-
-      </div>
+      </aside>
 
     </div>
+
+    {/* 🔥 FIX 2: COMPONENTE DE COMUNIDAD FUERA DE LA COLUMNA ESTRECHA 🔥 
+        Ahora abarca el ancho que le corresponde al final de la página */}
+  
+
   </main>
-  <Footer />
+
 </Layout>

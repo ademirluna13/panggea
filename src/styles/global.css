@@ -1,24 +1,141 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Manrope:wght@400;500&family=Space+Grotesk:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Manrope:wght@400;500&family=Space+Grotesk:wght@700&display=swap');
 @import "tailwindcss";
+
 @theme {
-  /* Paleta "Volcanic Magma" */
-  --color-pangea-primary: #FF4500;   /* Naranja Volcánico */
-  --color-pangea-secondary: #FF8C00; /* Naranja Oscuro */
-  --color-pangea-tertiary: #FFD700;  /* Oro Magma */
-  --color-pangea-neutral: #000000; 
-  --color-pangea-card: #0a0a0a;  /* Fondo Neutro */
+  /* 🧱 COLORES FIJOS DE SECCIÓN */
+  --color-brand-orange: #FF4500;
+  --shadow-orange-glow: 0 0 20px #FF4500;
+  --shadow-orange-sm: 0 0 15px #FF4500;
+
+  --color-brand-magenta: #FF007F;
+  --shadow-magenta-glow: 0 0 20px #FF007F;
+  --shadow-magenta-sm: 0 0 15px #FF007F;
+
+  --color-brand-purple: #A020F0;
+  --shadow-purple-glow: 0 0 20px #A020F0;
+  --shadow-purple-sm: 0 0 15px rgba(160, 32, 240, 0.3);
+  --shadow-purple-inner: inset 0 0 80px -20px rgba(160, 32, 240, 0.2);
+
+  --color-brand-gold: #FFD700;
+  --shadow-gold-glow: 0 0 20px #FFD700;
+  --shadow-gold-sm: 0 0 15px #FFD700;
+
+  /* 🎛️ CONFIGURACIÓN DE TAILWIND v4 */
+  --color-pangea-primary: var(--pangea-primary);
+  --color-pangea-secondary: var(--pangea-secondary);
+  --color-pangea-tertiary: var(--pangea-tertiary);
+  --color-pangea-neutral: var(--pangea-neutral);
+  --color-pangea-text: var(--pangea-text);
+  --color-pangea-card: var(--pangea-card);
   
-  /* Tipografía de la Guía */
+  /* 🧠 MÁSCARA DE INMERSIÓN CENTRALIZADA (Mapea el degradado del tema actual) */
+  --background-image-pangea-mask: var(--pangea-card-gradient);
+  
   --font-headline: "Inter", sans-serif;
   --font-body: "Manrope", sans-serif;
   --font-label: "Space Grotesk", sans-serif;
 
-  --shadow-pangea-neon: 0 0 25px rgba(255, 69, 0, 0.3), 0 0 50px rgba(255, 140, 0, 0.1);
+  --shadow-pangea-neon: 0 0 25px var(--pangea-glow-primary), 0 0 50px var(--pangea-glow-secondary);
 }
 
+/* ==========================================================================
+   🎯 PARÁMETROS DE INMERSIÓN (Maneja oscuridad y altura desde aquí)
+   ========================================================================== */
 
+/* 1. VOLCANIC MAGMA */
+:root {
+  --pangea-primary: #FF4500;
+  --pangea-secondary: #FF8C00;
+  --pangea-tertiary: #FFD700;
+  --pangea-neutral: #020203;   
+  --pangea-text: #ffffff;      
+  --pangea-card: #0b0b0d;      
 
-/* Animación sutil de escaneo (Scanline) tomada del archivo de Claude */
+  --pangea-card-gradient: linear-gradient(to top, #000000 0%, rgba(11, 11, 13, 0.95) 55%, transparent 100%);
+
+  --pangea-glow-primary: rgba(255, 69, 0, 0.25);
+  --pangea-glow-secondary: rgba(255, 140, 0, 0.05);
+}
+
+/* 2. CYBERPUNK TOKIO */
+[data-theme="cyberpunk"] {
+  --pangea-primary: #00f0ff;   
+  --pangea-secondary: #ff0055; 
+  --pangea-tertiary: #9d00ff;  
+  --pangea-neutral: #0a061b;   
+  --pangea-text: #ffffff;      
+  --pangea-card: #070414;      
+
+  --pangea-card-gradient: linear-gradient(to top, #020107 0%, rgba(7, 4, 20, 0.85) 70%, transparent 100%);
+
+  --pangea-glow-primary: rgba(0, 240, 255, 0.3);
+  --pangea-glow-secondary: rgba(255, 0, 85, 0.1);
+}
+
+/* 3. MATRIX PROTOCOL */
+[data-theme="matrix"] {
+  --pangea-primary: #00ff41;   
+  --pangea-secondary: #008f11; 
+  --pangea-tertiary: #003b00;  
+  --pangea-neutral: #020904;   
+  --pangea-text: #ffffff;      
+  --pangea-card: #040c06;      
+
+  --pangea-card-gradient: linear-gradient(to top, #000200 0%, rgba(4, 12, 6, 0.9) 60%, transparent 100%);
+
+  --pangea-glow-primary: rgba(0, 255, 65, 0.3);
+  --pangea-glow-secondary: rgba(0, 143, 17, 0.1);
+}
+
+/* 4. ROYAL ICE */
+[data-theme="ice"] {
+  --pangea-primary: #00a8ff;   
+  --pangea-secondary: #eccc68; 
+  --pangea-tertiary: #70a1ff;  
+  --pangea-neutral: #051024;   
+  --pangea-text: #ffffff;      
+  --pangea-card: #071121;      
+
+  --pangea-card-gradient: linear-gradient(to top, #01040a 0%, rgba(7, 17, 33, 0.9) 50%, transparent 100%);
+
+  --pangea-glow-primary: rgba(0, 168, 255, 0.3);
+  --pangea-glow-secondary: rgba(112, 161, 255, 0.1);
+}
+
+/* 5. LIGHT PROTOCOL */
+[data-theme="light"] {
+  --pangea-primary: #FF4500;   
+  --pangea-secondary: #FF8C00; 
+  --pangea-tertiary: #2b2d42;  
+  --pangea-neutral: #f4f6fa;   
+  --pangea-text: #0f172a;      
+  --pangea-card: #121216;      
+
+  --pangea-card-gradient: linear-gradient(to top, #050507 0%, rgba(18, 18, 22, 0.95) 65%, transparent 100%);
+
+  --pangea-glow-primary: rgba(255, 69, 0, 0.2);
+  --pangea-glow-secondary: rgba(0, 0, 0, 0.05);
+}
+
+body {
+  background-color: var(--pangea-neutral);
+  transition: background-color 0.5s ease;
+}
+
+/* ==========================================================================
+   🧠 CLASES UTILITARIAS NATIVAS DE ADAPTACIÓN DE FUENTE (Tailwind v4 style)
+   ========================================================================== */
+
+/* Esta clase conserva de forma estricta tu responsividad original gigante en PC */
+@utility text-pangea-headline {
+  @apply text-5xl md:text-7xl lg:text-[90px];
+}
+
+/* Si estás en modo claro y necesitas un ajuste de fuente fino para que no se vea tosco, lo controlas aquí: */
+[data-theme="light"] .text-pangea-headline {
+  @apply text-5xl md:text-6xl lg:text-[85px]; 
+}
+
 .scanline::after {
   content: '';
   position: absolute;
@@ -26,9 +143,4 @@
   background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
   pointer-events: none;
   z-index: 3;
-}
-
-body {
-  background-color: #000000;
-  color: white;
 }
