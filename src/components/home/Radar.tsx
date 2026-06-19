@@ -1,5 +1,4 @@
 import { useState, useMemo, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Flame } from 'lucide-react';
 import SectionHeader from '../ui/SectionHeader'; 
 
@@ -26,13 +25,13 @@ function getHypeColor(hype: number) {
 }
 
 export default function Radar({ events = [] }: { events: RadarEvent[] }) {
-  const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
+  // 🧠 ALGORITMO LÍQUIDO INTACTO
   const calculateFontSize = (text: string, isHypeSection: boolean) => {
     const len = text?.length || 0;
     const baseSize = isHypeSection ? 36 : 26; 
@@ -73,9 +72,10 @@ export default function Radar({ events = [] }: { events: RadarEvent[] }) {
     });
   }, [events]);
 
+  // 🔥 OPTIMIZACIÓN: Solo duplicamos UNA VEZ para el CSS keyframe de 50%
   const marqueeItems = useMemo(() => {
     if (!filteredEvents.length) return [];
-    return [...filteredEvents, ...filteredEvents, ...filteredEvents];
+    return [...filteredEvents, ...filteredEvents];
   }, [filteredEvents]);
 
   const topHype = useMemo(() => {
@@ -85,7 +85,7 @@ export default function Radar({ events = [] }: { events: RadarEvent[] }) {
   const hypeMarqueeItems = useMemo(() => {
     const filtered = topHype.filter((ev) => ev.hypeLevel >= 90);
     if (!filtered.length) return [];
-    return [...filtered, ...filtered, ...filtered];
+    return [...filtered, ...filtered];
   }, [topHype]);
 
   if (!isMounted) return null; 
@@ -108,39 +108,34 @@ export default function Radar({ events = [] }: { events: RadarEvent[] }) {
             accentColor={ACCENT}
           />
 
-          {/* ─── CARRUSEL PRINCIPAL (GLOW AZUL CONSTANTE) ─── */}
+          {/* ─── CARRUSEL PRINCIPAL ULTRA OPTIMIZADO ─── */}
           <div className="flex relative w-full mb-28 min-h-[410px] overflow-hidden rounded-[1.8rem]">
             {marqueeItems.length > 0 ? (
-              <motion.div 
-                className="flex gap-8"
-                animate={{ x: ["0%", "-33.33%"] }}
-                transition={{ duration: 40, ease: "linear", repeat: Infinity }}
-                whileHover={{ animationPlayState: "paused" }}
-              >
+              /* 🔥 ADIÓS Framer Motion, HOLA CSS Puro 🔥 */
+              <div className="animate-pangea-marquee hover:[animation-play-state:paused] flex gap-8 pr-8">
                 {marqueeItems.map((ev, i) => {
                   const badgeColor = getHypeColor(ev.hypeLevel);
-                  const isCardHovered = hoveredSlug === `${ev.id}-${i}`;
 
                   return (
                     <a 
                       key={`${ev.id}-${i}`}
                       href={`/radar/${ev.slug}`}
-                      onMouseEnter={() => setHoveredSlug(`${ev.id}-${i}`)}
-                      onMouseLeave={() => setHoveredSlug(null)}
-                      className="group relative w-[350px] md:w-[420px] h-[410px] bg-pangea-card/40 backdrop-blur-xl border rounded-[1.8rem] overflow-hidden flex flex-col shrink-0 transition-all duration-500 z-30 shadow-2xl"
-                      style={{
-                        // 🔥 FIX: Regresamos al ACCENT (Azul) para el borde de la tarjeta exterior
-                        borderColor: isCardHovered ? ACCENT : 'rgba(255, 255, 255, 0.05)',
-                        boxShadow: isCardHovered ? `0 0 25px ${ACCENT}40, inset 0 0 10px ${ACCENT}20` : 'none'
-                      }}
+                      /* 🔥 MAGIA: Le pasamos el color a Tailwind mediante variables nativas CSS 🔥 */
+                      style={{ '--card-accent': ACCENT } as React.CSSProperties}
+                      className="group relative w-[350px] md:w-[420px] h-[410px] bg-[#0d0d0d]/95 border border-white/5 hover:border-[var(--card-accent)] rounded-[1.8rem] overflow-hidden flex flex-col shrink-0 transition-colors duration-500 z-30 shadow-2xl"
                     >
+                      {/* CAJA INVISIBLE PARA LA SOMBRA EXTERIOR */}
+                      <div className="absolute inset-0 z-[-1] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[1.8rem]" 
+                           style={{ boxShadow: `0 0 25px color-mix(in srgb, var(--card-accent) 40%, transparent), inset 0 0 10px color-mix(in srgb, var(--card-accent) 20%, transparent)` }} 
+                      />
+
                       {ev.img && (
                         <img src={ev.img} alt={ev.title} className="absolute inset-0 w-full h-full object-cover grayscale-0 opacity-80 lg:grayscale lg:opacity-40 lg:group-hover:grayscale-0 lg:group-hover:opacity-80 transition-all duration-700 z-0" />
                       )}
                       
                       <div className="absolute h-[50%] bottom-0 inset-x-0 bg-linear-to-t from-[#020202] via-[#020202]/95 to-transparent z-10" />
 
-                      <div className="relative z-20 p-6 md:p-8 h-full flex flex-col justify-between">
+                      <div className="relative z-20 p-6 md:p-8 h-full flex flex-col justify-between pointer-events-none">
                         <div>
                           <span className="font-headline text-5xl md:text-6xl text-white font-[950] italic leading-none block">{ev.day}</span>
                           <span className="font-mono text-[10px] md:text-[11px] text-[#00F0FF] uppercase tracking-[0.4em] font-black mt-1 ml-1 block">{ev.month}</span>
@@ -148,12 +143,8 @@ export default function Radar({ events = [] }: { events: RadarEvent[] }) {
 
                         <div className="flex flex-col justify-end w-full">
                           <h3 
-                            className="font-headline text-white font-black uppercase italic leading-[0.95] tracking-tighter transition-all duration-300 mb-4 break-words hyphens-auto"
-                            style={{
-                              fontSize: calculateFontSize(ev.title, false),
-                              // 🔥 FIX: Glow del texto en azul
-                              textShadow: isCardHovered ? `0 0 20px ${ACCENT}, 0 0 40px ${ACCENT}` : '0 2px 10px rgba(0,0,0,0.5)'
-                            }}
+                            className="font-headline text-white font-black uppercase italic leading-[0.95] tracking-tighter transition-all duration-300 mb-4 break-words hyphens-auto group-hover:[text-shadow:0_0_20px_var(--card-accent),0_0_40px_var(--card-accent)]"
+                            style={{ fontSize: calculateFontSize(ev.title, false) }}
                           >
                             {ev.title}
                           </h3>
@@ -162,11 +153,9 @@ export default function Radar({ events = [] }: { events: RadarEvent[] }) {
                             <div className="flex flex-col gap-1.5">
                               <div className="flex justify-between items-center">
                                 <span className="font-mono text-[8px] text-white/40 uppercase tracking-widest font-black">Hype Meter</span>
-                                {/* El color individual del hype SÍ se queda para los números internos */}
                                 <span className="font-headline text-xs font-black italic" style={{ color: badgeColor }}>{ev.hypeLevel}%</span>
                               </div>
                               <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                                {/* Y para la barrita de progreso interna */}
                                 <div className="h-full transition-all duration-1000" style={{ width: `${ev.hypeLevel}%`, backgroundColor: badgeColor }} />
                               </div>
                             </div>
@@ -174,18 +163,12 @@ export default function Radar({ events = [] }: { events: RadarEvent[] }) {
                         </div>
                       </div>
 
-                      {/* 🔥 FIX: La barra inferior de neón regresa a ser azul para este carrusel */}
-                      <div 
-                        className="absolute bottom-0 left-0 h-1.5 transition-all duration-1000 w-0 lg:group-hover:w-full z-30" 
-                        style={{ 
-                          backgroundColor: ACCENT,
-                          boxShadow: isCardHovered ? `0 0 15px ${ACCENT}` : 'none' 
-                        }}
-                      />
+                      {/* BARRA NEÓN INFERIOR */}
+                      <div className="absolute bottom-0 left-0 h-1.5 transition-all duration-1000 w-0 lg:group-hover:w-full bg-[var(--card-accent)] z-30 group-hover:[box-shadow:0_0_15px_var(--card-accent)]" />
                     </a>
                   );
                 })}
-              </motion.div>
+              </div>
             ) : (
               <div className="w-full flex flex-col items-center justify-center border border-white/5 bg-pangea-card/20 rounded-[1.8rem] p-12 text-center">
                 <span className="font-mono text-[10px] text-[#00F0FF] font-black tracking-[0.4em] uppercase mb-2">Signal_Lost // 404_Events</span>
@@ -194,7 +177,7 @@ export default function Radar({ events = [] }: { events: RadarEvent[] }) {
             )}
           </div>
 
-          {/* ─── SECCIÓN: LO MÁS HYPEADOTE (GLOW DINÁMICO ROJO/NARANJA) ─── */}
+          {/* ─── SECCIÓN: LO MÁS HYPEADOTE ─── */}
           {hypeMarqueeItems.length > 0 && (
             <div className="w-full relative z-10 overflow-hidden flex flex-col">
               <div className="flex items-center gap-4 mb-12">
@@ -205,33 +188,27 @@ export default function Radar({ events = [] }: { events: RadarEvent[] }) {
               </div>
 
               <div className="flex relative w-full overflow-hidden rounded-[1.8rem]">
-                <motion.div 
-                  className="flex gap-6"
-                  animate={{ x: ["0%", "-33.33%"] }}
-                  transition={{ duration: 35, ease: "linear", repeat: Infinity }}
-                  whileHover={{ animationPlayState: "paused" }}
-                >
+                <div className="animate-pangea-marquee hover:[animation-play-state:paused] flex gap-6 pr-6">
                   {hypeMarqueeItems.map((ev, i) => {
                     const badgeColor = getHypeColor(ev.hypeLevel);
-                    const isHypeCardHovered = hoveredSlug === `top-${ev.id}-${i}`;
                     
                     return (
                       <a 
                         href={`/radar/${ev.slug}`} 
                         key={`top-${ev.id}-${i}`}
-                        onMouseEnter={() => setHoveredSlug(`top-${ev.id}-${i}`)}
-                        onMouseLeave={() => setHoveredSlug(null)}
-                        className="group relative w-[350px] md:w-[420px] h-[410px] bg-pangea-card/40 backdrop-blur-xl border rounded-[1.8rem] overflow-hidden flex flex-col shrink-0 transition-all duration-500 z-30 shadow-2xl"
-                        style={{
-                          // AQUÍ SÍ USAMOS EL BADGE COLOR PARA QUE BRILLEN ROJAS
-                          borderColor: isHypeCardHovered ? badgeColor : 'rgba(255, 255, 255, 0.05)',
-                          boxShadow: isHypeCardHovered ? `0 0 25px ${badgeColor}40, inset 0 0 10px ${badgeColor}20` : 'none'
-                        }}
+                        /* 🔥 MAGIA: Aquí inyectamos el color rojo/naranja dinámico a la variable 🔥 */
+                        style={{ '--hype-color': badgeColor } as React.CSSProperties}
+                        className="group relative w-[350px] md:w-[420px] h-[410px] bg-[#0d0d0d]/95 border border-white/5 hover:border-[var(--hype-color)] rounded-[1.8rem] overflow-hidden flex flex-col shrink-0 transition-colors duration-500 z-30 shadow-2xl"
                       >
+                        {/* CAJA INVISIBLE PARA LA SOMBRA EXTERIOR */}
+                        <div className="absolute inset-0 z-[-1] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[1.8rem]" 
+                             style={{ boxShadow: `0 0 25px color-mix(in srgb, var(--hype-color) 40%, transparent), inset 0 0 10px color-mix(in srgb, var(--hype-color) 20%, transparent)` }} 
+                        />
+
                         {ev.img && <img src={ev.img} alt={ev.title} className="absolute inset-0 w-full h-full object-cover grayscale-0 opacity-40 lg:grayscale lg:opacity-10 lg:group-hover:grayscale-0 lg:group-hover:opacity-40 transition-all duration-700 z-0" />}
                         <div className="absolute h-[50%] bottom-0 inset-x-0 bg-linear-to-t from-[#020202] via-[#020202]/95 to-transparent z-10" />
                         
-                        <div className="relative z-20 p-6 md:p-8 h-full flex flex-col justify-between">
+                        <div className="relative z-20 p-6 md:p-8 h-full flex flex-col justify-between pointer-events-none">
                           <div>
                             <span className="font-headline text-5xl md:text-6xl text-white font-[950] italic leading-none block">{ev.day}</span>
                             <span className="font-mono text-[10px] md:text-[11px] uppercase tracking-[0.4em] font-black mt-1 ml-1 block" style={{ color: badgeColor }}>{ev.month}</span>
@@ -239,11 +216,8 @@ export default function Radar({ events = [] }: { events: RadarEvent[] }) {
                           
                           <div className="flex flex-col justify-end w-full mt-auto">
                             <h4 
-                              className="font-headline text-white font-black uppercase italic leading-[0.95] tracking-tighter mb-4 transition-all duration-300 break-words hyphens-auto" 
-                              style={{
-                                fontSize: calculateFontSize(ev.title, true),
-                                textShadow: isHypeCardHovered ? `0 0 20px ${badgeColor}, 0 0 40px ${badgeColor}` : '0 2px 10px rgba(0,0,0,0.5)'
-                              }}
+                              className="font-headline text-white font-black uppercase italic leading-[0.95] tracking-tighter mb-4 transition-all duration-300 break-words hyphens-auto group-hover:[text-shadow:0_0_20px_var(--hype-color),0_0_40px_var(--hype-color)]" 
+                              style={{ fontSize: calculateFontSize(ev.title, true) }}
                             >
                               {ev.title}
                             </h4>
@@ -262,18 +236,12 @@ export default function Radar({ events = [] }: { events: RadarEvent[] }) {
                           </div>
                         </div>
 
-                        {/* BARRA NEÓN ROJA/DINÁMICA */}
-                        <div 
-                          className="absolute bottom-0 left-0 h-1.5 transition-all duration-1000 w-0 lg:group-hover:w-full z-30" 
-                          style={{ 
-                            backgroundColor: badgeColor,
-                            boxShadow: isHypeCardHovered ? `0 0 15px ${badgeColor}` : 'none' 
-                          }}
-                        />
+                        {/* BARRA NEÓN INFERIOR */}
+                        <div className="absolute bottom-0 left-0 h-1.5 transition-all duration-1000 w-0 lg:group-hover:w-full bg-[var(--hype-color)] z-30 group-hover:[box-shadow:0_0_15px_var(--hype-color)]" />
                       </a>
                     );
                   })}
-                </motion.div>
+                </div>
               </div>
             </div>
           )}

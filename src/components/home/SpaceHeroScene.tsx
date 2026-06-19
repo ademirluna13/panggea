@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { useGLTF, Sparkles, Stars, Environment, Center } from '@react-three/drei';
+import { useGLTF, Sparkles, Stars, Center } from '@react-three/drei'; // 🔥 ELIMINAMOS Environment
 import { Suspense, useRef, useMemo, useState, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -21,8 +21,7 @@ function useThemeColors() {
       });
     };
 
-    updateColors(); // Lectura inicial
-    // Observador para cambios en data-theme
+    updateColors(); 
     const observer = new MutationObserver(updateColors);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     return () => observer.disconnect();
@@ -58,34 +57,53 @@ function MeteoritoModel() {
   );
 }
 
+// 🔥 PRECARGAMOS EL MODELO PARA EVITAR TIRONES AL INICIO 🔥
+useGLTF.preload('/models/meteorite.glb');
+
 export default function SpaceHeroScene() {
   const colors = useThemeColors();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isInView, setIsInView] = useState(true);
+
+  // 🚀 EL RADAR DE RENDIMIENTO: Apaga el 3D cuando el usuario hace scroll hacia abajo
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { rootMargin: '0px', threshold: 0 } 
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    /* 🧠 Se sustituyó el bg-black por la clase de neutral del tema */
-    <div className="absolute inset-0 z-0 h-full w-full bg-pangea-neutral transition-colors duration-500">
+    <div ref={containerRef} className="absolute inset-0 z-0 h-full w-full bg-pangea-neutral transition-colors duration-500">
+      
       <Canvas 
+        /* 🔥 LA MAGIA: Si no se ve, corta el frameloop de golpe y le devuelve todo el poder a la GPU 🔥 */
+        frameloop={isInView ? 'always' : 'never'}
         camera={{ position: [0, 0, 12], fov: 45 }} 
-        dpr={[1, 2]}
-        gl={{ antialias: true }}
+        dpr={[1, 1.5]} /* 🔥 Bajamos de 2 a 1.5. Salva millones de píxeles inútiles en celulares */
+        gl={{ antialias: true, powerPreference: "high-performance" }}
       >
-        {/* Color de fondo sincronizado con el tema */}
         <color attach="background" args={[colors.neutral]} />
         
-        <ambientLight intensity={0.8} />
-        {/* Luz direccional base */}
+        <ambientLight intensity={0.5} />
+        {/* 🔥 HemisphereLight sustituye al .hdr. Recrea la luz del ambiente casi a costo cero de RAM 🔥 */}
+        <hemisphereLight intensity={0.5} color="#ffffff" groundColor={colors.neutral} />
         <directionalLight position={[5, 10, 5]} intensity={2.5} color="#ffffff" /> 
-        {/* 🔥 Luz de punto que muta con tu color primario del tema 🔥 */}
         <pointLight position={[-5, -5, 5]} intensity={3} color={colors.primary} />
 
         <Suspense fallback={null}>
-          <Stars radius={100} depth={50} count={3000} factor={4} fade speed={0.5} />
-          {/* 🔥 Sparkles que se tiñen con tu color secundario del tema 🔥 */}
-          <Sparkles count={100} scale={10} size={1.5} color={colors.secondary} speed={0.1} opacity={0.4} />
+          <Stars radius={100} depth={50} count={2500} factor={4} fade speed={0.5} />
+          <Sparkles count={80} scale={10} size={1.5} color={colors.secondary} speed={0.1} opacity={0.4} />
 
           <MeteoritoModel />
-          
-          <Environment preset="city" />
         </Suspense>
       </Canvas>
     </div>

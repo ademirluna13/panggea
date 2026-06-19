@@ -114,8 +114,25 @@ const featuredPostsFetch = sanityClient.fetch(`*[_type == "post" && isFeatured =
   "author": author->{ name, "image": image.asset->url }
 }`);
 
-const [trendingPosts, deepDives, categories, rawPatches, rawTiers, rawRadar, rawGear, rawGearCats, rawFeatured] = await Promise.all([
-  trendingPostsFetch, deepDivesFetch, categoriesFetch, patchNotesFetch, tierArsenalFetch, radarFetch, gearFetch, gearCategoriesFetch, featuredPostsFetch
+// 🔥 CORRECCIÓN RENDIMIENTO: Las guías y tipos ahora se traen aquí mismo en paralelo
+const guidesFetch = sanityClient.fetch(`*[_type == "guide"] | order(publishedAt desc) {
+  title,
+  "slug": slug.current,
+  "heroImage": mainImage.asset->url,
+  publishedAt,
+  "gameName": game->name,
+  "guideType": type->title,
+  "difficulty": level->title,
+  description
+}`);
+
+const guideTypesFetch = sanityClient.fetch(`*[_type == "guideType"] | order(title asc) { title }`);
+
+// 🔥 CORRECCIÓN RENDIMIENTO: Un solo Promise.all para todo. Carga mil veces más rápido.
+const [
+  trendingPosts, deepDives, categories, rawPatches, rawTiers, rawRadar, rawGear, rawGearCats, rawFeatured, guides, guideTypes
+] = await Promise.all([
+  trendingPostsFetch, deepDivesFetch, categoriesFetch, patchNotesFetch, tierArsenalFetch, radarFetch, gearFetch, gearCategoriesFetch, featuredPostsFetch, guidesFetch, guideTypesFetch
 ]);
 
 const formatDate = (dateStr: string) => {
@@ -162,18 +179,6 @@ const gearItems: GearItem[] = rawGear.map((g: any) => ({
   link: g.buyLink || '/vault' 
 }));
 
-const guides = await sanityClient.fetch(`*[_type == "guide"] | order(publishedAt desc) {
-  title,
-  "slug": slug.current,
-  "heroImage": mainImage.asset->url,
-  publishedAt,
-  "gameName": game->name,
-  "guideType": type->title,
-  "difficulty": level->title,
-  description
-}`);
-
-const guideTypes = await sanityClient.fetch(`*[_type == "guideType"] | order(title asc) { title }`);
 const typeList = guideTypes.map((t: { title: string }) => t.title);
 const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as string).toUpperCase())] as string[];
 ---
@@ -200,13 +205,15 @@ const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as s
       </div>
 
       {/* Componentes de Renglón Abierto (Full-Bleed para el color sólido de los temas) */}
+      {/* 🔥 DE REGRESO SU CLIENT:LOAD PARA QUE CARGUE INMEDIATAMENTE 🔥 */}
       {featuredPosts.length > 0 && <FeaturedCarousel client:load posts={featuredPosts} />}
 
-      <TrendingNow client:load posts={trendingPosts} />
+      {/* Solo los componentes que están más abajo se quedan con visible */}
+      <TrendingNow client:visible posts={trendingPosts} />
 
-      <StatusFeed client:load patches={patches} tickerItems={tickerItems} />
+      <StatusFeed client:visible patches={patches} tickerItems={tickerItems} />
 
-      <DeepDives client:load posts={deepDives} />
+      <DeepDives client:visible posts={deepDives} />
 
       {/* El bloque restante de tus herramientas tácticas centraditas a 1200px */}
       <div class="max-w-[1200px] mx-auto w-full px-4 sm:px-6 flex flex-col gap-24">
@@ -216,14 +223,16 @@ const gearCategoriesList = ["TODO", ...rawGearCats.map((c: any) => (c.title as s
         </section>
 
         <section id="tier" class="border-t border-white/5 pt-12">
-          <TacticalArsenal client:load entries={tierEntries} />
+          <TacticalArsenal client:visible entries={tierEntries} />
         </section>
 
         <section id="radar" class="border-t border-white/5 pt-12">
+          {/* 🔥 Le regresamos el client:load para probar 🔥 */}
           <Radar client:load events={radarEvents} />
         </section>
 
         <section id="vault" class="border-t border-white/5 pt-12 pb-24">
+          {/* 🔥 Le regresamos el client:load para probar 🔥 */}
           <GearVault client:load items={gearItems} categories={gearCategoriesList} />
         </section>
 

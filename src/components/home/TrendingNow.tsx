@@ -1,5 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -15,39 +14,32 @@ interface SanityPost {
   publishedAt: string;
   category: string;
   description: string;
-  platform: string;
+  platform?: string; // La hacemos opcional por si a veces no viene
 }
 
 export default function TrendingNow({ posts = [] }: { posts?: SanityPost[] }) {
   const container = useRef<HTMLDivElement>(null);
   const trendingPosts = posts.slice(0, 6);
 
-  const [screenWidth, setScreenWidth] = useState(0);
-
-  useEffect(() => {
-    setScreenWidth(window.innerWidth);
-    const handleResize = () => setScreenWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   useGSAP(() => {
     if (!trendingPosts.length) return;
 
     const cards = gsap.utils.toArray<HTMLElement>('.trending-card');
-    gsap.set(cards, { clipPath: 'inset(100% 0% 0% 0%)', y: 50, opacity: 0 });
+    
+    // 🔥 OPTIMIZADO: Solo animamos "y" y "opacity". Nada de clipPath pesados.
+    gsap.set(cards, { y: 50, opacity: 0 });
 
     ScrollTrigger.batch(cards, {
-      start: "top 85%",
+      start: "top 90%", // Le damos más margen para que no choque con la hidratación de Astro
+      once: true, // Hacemos que corra solo una vez para evitar lags si scrollean hacia arriba rápido
       onEnter: (elements) => {
         gsap.to(elements, {
-          clipPath: 'inset(0% 0% 0% 0%)',
           y: 0,
           opacity: 1,
           stagger: 0.1,
-          duration: 0.8,
-          ease: "power3.out",
-          onComplete: () => { gsap.set(elements, { clearProps: "clipPath,y" }); }
+          duration: 0.6,
+          ease: "power2.out",
+          onComplete: () => { gsap.set(elements, { clearProps: "y" }); }
         });
       },
     });
@@ -70,7 +62,6 @@ export default function TrendingNow({ posts = [] }: { posts?: SanityPost[] }) {
             accentColor="var(--color-brand-orange)"
           />
 
-          {/* TU BENTO GRID ORIGINAL: Notas secundarias cuadradas y una grande a la izquierda */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px] md:auto-rows-[340px]">
             {trendingPosts.map((post, index) => (
               <PangeaCard
@@ -81,6 +72,7 @@ export default function TrendingNow({ posts = [] }: { posts?: SanityPost[] }) {
                 category={post.category}
                 heroImage={post.heroImage}
                 publishedAt={post.publishedAt}
+                platform={post.platform} // 🔥 Ya le estamos pasando el platform
                 baseHref="/news"
                 accentColor="var(--color-brand-orange)"
                 isHero={index === 0}

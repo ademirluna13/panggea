@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, Zap, ShieldAlert } from 'lucide-react';
+import { ChevronRight, Zap } from 'lucide-react';
+import SectionHeader from '../ui/SectionHeader'; 
 
 export interface GearItem {
   id: string;
@@ -102,7 +103,6 @@ export default function GearVault({ items = [], categories = [] }: Props) {
           animation: rgb-move 6s ease infinite;
         }
 
-        /* 🔥 NUEVA CLASE PARA LA BARRA INFERIOR NEÓN RGB */
         .bg-rgb-bar {
           background: linear-gradient(90deg, #ff0000, #00ff00, #00ffff, #ff00ff, #ff0000);
           background-size: 200% auto;
@@ -113,7 +113,6 @@ export default function GearVault({ items = [], categories = [] }: Props) {
       <div className="flex w-full max-w-[1600px] justify-center items-start gap-8 xl:gap-12 px-4 xl:px-6 relative z-10">
         <div className="max-w-[1200px] w-full relative z-10">
           
-          {/* HEADER */}
           <header className="mb-14 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10 w-full">
             <div className="flex flex-col items-start w-full lg:w-auto">
               <div className="flex items-center gap-3 mb-4 md:mb-6 text-white/40">
@@ -140,7 +139,6 @@ export default function GearVault({ items = [], categories = [] }: Props) {
             </div>
           </header>
 
-          {/* FILTROS */}
           <div className="flex flex-wrap gap-2 mb-12">
             {categories.map(cat => (
               <button 
@@ -168,9 +166,9 @@ export default function GearVault({ items = [], categories = [] }: Props) {
                   className="grid grid-cols-1 lg:grid-cols-12 gap-8 w-full"
                 >
                   
-                  {/* ─── HERO CARD ─── */}
                   {heroItem && (
-                    <div className="lg:col-span-12 group relative bg-pangea-card/40 backdrop-blur-xl border border-white/5 rounded-[1.8rem] overflow-hidden h-auto lg:h-[450px] flex flex-col lg:flex-row lg:hover:border-white/20 transition-all duration-500 z-30 shadow-2xl">
+                    /* 🔥 ADIÓS bg-pangea-card/40 backdrop-blur-xl. HOLA bg-[#0d0d0d]/95 🔥 */
+                    <div className="lg:col-span-12 group relative bg-[#0d0d0d]/95 border border-white/5 rounded-[1.8rem] overflow-hidden h-auto lg:h-[450px] flex flex-col lg:flex-row lg:hover:border-white/20 transition-all duration-500 z-30 shadow-2xl">
                       <div className="absolute inset-0 bg-rgb-soft opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                       
                       <div className="w-full lg:w-2/3 relative h-[250px] lg:h-full overflow-hidden z-10 bg-zinc-900/10 flex items-center justify-center">
@@ -193,7 +191,6 @@ export default function GearVault({ items = [], categories = [] }: Props) {
                             </span>
                           </div>
                           
-                          {/* 🔥 TEXTO FLUIDO CON HYPHENS-AUTO */}
                           <h3 
                             className="font-headline text-white font-black uppercase italic leading-[0.9] mb-4 group-hover-text-rgb transition-all duration-300 break-words hyphens-auto tracking-tighter"
                             style={{ fontSize: calculateFontSize(heroItem.name, true) }}
@@ -224,17 +221,16 @@ export default function GearVault({ items = [], categories = [] }: Props) {
                         </div>
                       </div>
 
-                      {/* 🔥 BARRA INFERIOR NEÓN RGB PARA LA HERO CARD */}
                       <div className="absolute bottom-0 left-0 h-1.5 transition-all duration-1000 w-0 lg:group-hover:w-full z-30 bg-rgb-bar shadow-[0_0_15px_rgba(0,255,255,0.2)]" />
                     </div>
                   )}
 
-                  {/* ─── GRID REUTILIZABLE SECUNDARIO ─── */}
                   {gridItems.map((item) => (
                     <motion.div 
                       layout 
                       key={item.id}
-                      className="col-span-1 md:col-span-6 lg:col-span-4 group relative bg-pangea-card/40 backdrop-blur-xl border border-white/5 rounded-[1.8rem] overflow-hidden flex flex-col h-[410px] lg:hover:border-white/20 transition-all duration-500 z-30 shadow-2xl"
+                      /* 🔥 ADIÓS bg-pangea-card/40 backdrop-blur-xl. HOLA bg-[#0d0d0d]/95 🔥 */
+                      className="col-span-1 md:col-span-6 lg:col-span-4 group relative bg-[#0d0d0d]/95 border border-white/5 rounded-[1.8rem] overflow-hidden flex flex-col h-[410px] lg:hover:border-white/20 transition-all duration-500 z-30 shadow-2xl"
                     >
                       <div className="absolute inset-0 bg-rgb-soft opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
@@ -259,7 +255,6 @@ export default function GearVault({ items = [], categories = [] }: Props) {
                             </div>
                           </div>
                           
-                          {/* 🔥 TEXTO FLUIDO CON HYPHENS-AUTO */}
                           <h4 
                             className="font-headline text-white font-black uppercase italic leading-[0.9] group-hover-text-rgb transition-all duration-300 break-words hyphens-auto tracking-tighter"
                             style={{ fontSize: calculateFontSize(item.name, false) }}
@@ -296,7 +291,6 @@ export default function GearVault({ items = [], categories = [] }: Props) {
                         </div>
                       </div>
 
-                      {/* 🔥 BARRA INFERIOR NEÓN RGB PARA LAS CARDS GRID */}
                       <div className="absolute bottom-0 left-0 h-1.5 transition-all duration-1000 w-0 lg:group-hover:w-full z-30 bg-rgb-bar shadow-[0_0_15px_rgba(0,255,255,0.2)]" />
                     </motion.div>
                   ))}

@@ -144,3 +144,20 @@ body {
   pointer-events: none;
   z-index: 3;
 }
+
+/* 🚀 ANIMACIÓN MAESTRA DE RENDIMIENTO PARA EL CARRUSEL INFINITO */
+@keyframes pangeaMarquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-pangea-marquee {
+  display: flex;
+  width: max-content;
+  animation: pangeaMarquee 40s linear infinite;
+  will-change: transform;
+}

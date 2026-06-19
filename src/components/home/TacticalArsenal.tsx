@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Target } from 'lucide-react';
 import SectionHeader from '../ui/SectionHeader'; 
@@ -18,7 +18,7 @@ interface TierEntry {
   rankScore: number;
   gameName: string;
   gameLogo?: string;
-  publishedAt?: string; // 🔥 FIXED: Added to interface
+  publishedAt?: string; 
 }
 
 interface TacticalArsenalProps {
@@ -28,7 +28,8 @@ interface TacticalArsenalProps {
 
 export function TacticalArsenal({ entries = [], accentColor = ACCENT }: TacticalArsenalProps) {
   const [activeFilter, setActiveFilter] = useState('ALL');
-  const containerRef = useRef<HTMLDivElement>(null);
+  
+  // 🔥 SE ELIMINÓ EL useRef QUE NO HACÍA NADA 🔥
 
   const filters = useMemo(() => {
     const uniqueGames = new Map();
@@ -49,7 +50,7 @@ export function TacticalArsenal({ entries = [], accentColor = ACCENT }: Tactical
     : entries.filter(e => e.gameName?.toUpperCase() === activeFilter);
 
   return (
-    <section ref={containerRef} className="py-24 bg-pangea-neutral relative overflow-hidden flex flex-col items-center w-full transition-colors duration-500">
+    <section className="py-24 bg-pangea-neutral relative overflow-hidden flex flex-col items-center w-full transition-colors duration-500">
       
       <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle at 50% 0%, ${accentColor}08 0%, transparent 70%)` }} />
 
@@ -129,11 +130,12 @@ export function TacticalArsenal({ entries = [], accentColor = ACCENT }: Tactical
                       heroImage={imageUrl}
                       baseHref="/tier"
                       accentColor={accentColor}
-                      publishedAt={entry.publishedAt} // 🔥 FIXED: Changed 'item' to 'entry'
+                      publishedAt={entry.publishedAt}
                     />
 
+                    {/* 🔥 SE QUITÓ EL backdrop-blur-md Y SE PUSO bg-[#0d0d0d]/95 PARA QUE LA ANIMACIÓN SCALE VUELE 🔥 */}
                     <div 
-                      className="absolute top-6 right-6 w-12 h-12 border-2 bg-black/50 backdrop-blur-md rounded-xl flex items-center justify-center z-40 pointer-events-none transition-transform duration-500 group-hover/tier:scale-105"
+                      className="absolute top-6 right-6 w-12 h-12 border-2 bg-[#0d0d0d]/95 rounded-xl flex items-center justify-center z-40 pointer-events-none transition-transform duration-500 group-hover/tier:scale-105"
                       style={{ 
                         borderColor: accentColor,
                         boxShadow: `0 0 15px ${accentColor}30`

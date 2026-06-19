@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useRef } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import SectionHeader from '../ui/SectionHeader'; 
 import PatchCard from '../ui/PatchCard'; 
 
@@ -18,16 +18,10 @@ export function StatusFeed({ patches = [], tickerItems = [] }: { patches?: any[]
   const [activeFilter, setActiveFilter] = useState('TODOS');
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const [screenWidth, setScreenWidth] = useState(0);
-
-  useEffect(() => {
-    setScreenWidth(window.innerWidth);
-    const handleResize = () => setScreenWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // 🔥 ELIMINADO EL LISTENER DE RESIZE QUE CONSUMÍA MEMORIA A LO MENSO 🔥
   
-  const displayTicker = [...tickerItems, ...tickerItems, ...tickerItems, ...tickerItems];
+  // Solo duplicamos una vez porque la animación de CSS lo necesita
+  const displayTicker = [...tickerItems, ...tickerItems];
   
   const filteredPatches = activeFilter === 'TODOS' 
     ? patches 
@@ -56,7 +50,9 @@ export function StatusFeed({ patches = [], tickerItems = [] }: { patches?: any[]
             <div className="relative border-y border-brand-purple/20 bg-brand-purple/5 py-3 overflow-hidden flex mt-12 rounded-sm">
               <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-pangea-neutral to-transparent z-10 pointer-events-none transition-colors duration-500" />
               <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-pangea-neutral to-transparent z-10 pointer-events-none transition-colors duration-500" />
-              <motion.div className="flex whitespace-nowrap gap-10" animate={{ x: ["0%", "-50%"] }} transition={{ repeat: Infinity, ease: "linear", duration: 30 }}>
+              
+              {/* 🔥 REEMPLAZADO framer-motion POR CSS NATIVO DE TAILWIND (animate-pangea-marquee) 🔥 */}
+              <div className="animate-pangea-marquee flex whitespace-nowrap gap-10 hover:[animation-play-state:paused]">
                 {displayTicker.map((t, i) => {
                   const tagColor = SYS_COLORS[t.type?.toUpperCase() as keyof typeof SYS_COLORS] || SYS_COLORS['BAL'];
                   return (
@@ -67,7 +63,7 @@ export function StatusFeed({ patches = [], tickerItems = [] }: { patches?: any[]
                     </div>
                   );
                 })}
-              </motion.div>
+              </div>
             </div>
           </div>
 
@@ -96,7 +92,7 @@ export function StatusFeed({ patches = [], tickerItems = [] }: { patches?: any[]
                     index={index} 
                     isBig={isBig} 
                     tagColor={tagColor} 
-                    accentColor="var(--color-brand-purple)" // 🔥 TODAS las cards heredan el morado de la sección
+                    accentColor="var(--color-brand-purple)" 
                   />
                 );
               })}

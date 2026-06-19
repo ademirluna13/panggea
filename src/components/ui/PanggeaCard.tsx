@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Clock, ArrowRight, Monitor } from 'lucide-react'; 
 
 interface PangeaCardProps {
@@ -18,6 +17,7 @@ interface PangeaCardProps {
   CustomFooterIcon?: React.ComponentType<{ size?: number; style?: React.CSSProperties }>; 
 }
 
+// 🔥 QUITAMOS EL useState: React ya no tiene que sufrir re-renderizando en hover 🔥
 export default function PangeaCard({
   title,
   slug,
@@ -34,8 +34,7 @@ export default function PangeaCard({
   customFooterText,
   CustomFooterIcon
 }: PangeaCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
-
+  
   const getAdaptiveFontSize = (text: string, heroMode: boolean) => {
     const len = text?.length || 0;
     if (heroMode) {
@@ -65,14 +64,18 @@ export default function PangeaCard({
   return (
     <a 
       href={`${baseHref}/${slug}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={`trending-card group relative flex flex-col justify-between overflow-hidden border border-transparent rounded-[1.8rem] bg-pangea-card/40 backdrop-blur-xl z-30 shadow-2xl transition-all duration-500 w-full h-full lg:hover:-translate-y-2 ${className}`}
-      style={{
-        borderColor: isHovered ? accentColor : 'transparent',
-        boxShadow: isHovered ? `0 0 25px ${accentColor}60, inset 0 0 10px ${accentColor}30` : 'none'
-      }}
+      // Pasamos la variable del color acento al CSS nativo para poder usarla en los hovers sin usar JavaScript
+      style={{ '--card-accent': accentColor } as React.CSSProperties}
+      className={`trending-card group relative flex flex-col justify-between overflow-hidden border border-transparent rounded-[1.8rem] bg-pangea-card/40 backdrop-blur-xl z-30 transition-all duration-500 w-full h-full lg:hover:-translate-y-2 ${className}`}
     >
+      {/* 🚀 EL TRUCO DEL NEÓN RÁPIDO: Un div invisible que aparece en hover, en lugar de recalcular box-shadow */}
+      <div className="absolute inset-0 z-[-1] opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[1.8rem] border" 
+           style={{ 
+             borderColor: 'var(--card-accent)', 
+             boxShadow: '0 0 25px color-mix(in srgb, var(--card-accent) 40%, transparent), inset 0 0 10px color-mix(in srgb, var(--card-accent) 20%, transparent)' 
+           }} 
+      />
+
       <div className="absolute inset-0 z-0 pointer-events-none">
         {heroImage && (
           <img 
@@ -88,7 +91,7 @@ export default function PangeaCard({
         <div className="flex flex-wrap gap-2">
           <span 
             className="font-mono text-[8px] font-black px-2 py-1 rounded-sm border bg-black/50 uppercase tracking-widest backdrop-blur-md w-fit"
-            style={{ borderColor: `${accentColor}40`, color: accentColor }}
+            style={{ borderColor: `color-mix(in srgb, var(--card-accent) 40%, transparent)`, color: 'var(--card-accent)' }}
           >
             {category}
           </span>
@@ -101,23 +104,20 @@ export default function PangeaCard({
         
         {readTime && (
           <span className="flex items-center gap-1.5 font-label text-white/50 text-[8px] md:text-[9px] font-black tracking-widest uppercase bg-black/30 px-2 py-1 rounded-md backdrop-blur-md">
-            <Clock size={10} style={{ color: accentColor }} /> {readTime}
+            <Clock size={10} style={{ color: 'var(--card-accent)' }} /> {readTime}
           </span>
         )}
       </div>
 
       <div className="relative z-20 p-5 md:p-7 flex flex-col w-full mt-auto">
         <h3 
-          className={`font-headline font-[950] uppercase italic tracking-tighter leading-[0.95] mb-2 transition-all duration-300 break-words hyphens-auto ${getAdaptiveFontSize(title, isHero)}`}
-          style={{ 
-            color: '#ffffff',
-            textShadow: isHovered ? `0 0 20px ${accentColor}, 0 0 40px ${accentColor}` : 'none'
-          }}
+          className={`font-headline font-[950] uppercase italic tracking-tighter leading-[0.95] mb-2 transition-all duration-300 break-words hyphens-auto text-white ${getAdaptiveFontSize(title, isHero)}`}
         >
-          {title}
+          {/* 🚀 MISMO TRUCO DE SOMBRA PARA EL TEXTO: Aplicado con CSS puro en hover */}
+          <span className="group-hover:[text-shadow:0_0_20px_var(--card-accent),0_0_40px_var(--card-accent)] transition-all duration-300 block">
+            {title}
+          </span>
         </h3>
-
-        {/* 🔥 LA BARRITA DE EN MEDIO MURIÓ AQUÍ 🔥 */}
 
         <div className="grid transition-all duration-500 ease-in-out grid-rows-[1fr] lg:grid-rows-[0fr] lg:group-hover:grid-rows-[1fr]">
           <div className="overflow-hidden opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500">
@@ -131,8 +131,8 @@ export default function PangeaCard({
           
           {customFooterText ? (
             <span className="flex items-center gap-1.5">
-              {CustomFooterIcon && <CustomFooterIcon size={12} style={{ color: accentColor }} />}
-              <span style={{ color: accentColor }}>{customFooterText}</span>
+              {CustomFooterIcon && <CustomFooterIcon size={12} style={{ color: 'var(--card-accent)' }} />}
+              <span style={{ color: 'var(--card-accent)' }}>{customFooterText}</span>
             </span>
           ) : (
             <span>{formatSanityDate(publishedAt)}</span>
@@ -141,19 +141,18 @@ export default function PangeaCard({
           <ArrowRight 
             size={18} 
             className="transition-transform lg:group-hover:translate-x-2"
-            style={{ color: accentColor }}
+            style={{ color: 'var(--card-accent)' }}
           />
         </div>
       </div>
 
-      {/* 🔥 NUEVA BARRA DE NEÓN INFERIOR 🔥 */}
+      {/* 🔥 NUEVA BARRA DE NEÓN INFERIOR (SIN LAG) 🔥 */}
       <div 
         className="absolute bottom-0 left-0 h-1.5 transition-all duration-1000 w-0 lg:group-hover:w-full z-30" 
-        style={{ 
-          backgroundColor: accentColor,
-          boxShadow: isHovered ? `0 0 15px ${accentColor}` : 'none' 
-        }}
-      />
+        style={{ backgroundColor: 'var(--card-accent)' }}
+      >
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" style={{ boxShadow: '0 0 15px var(--card-accent)' }} />
+      </div>
     </a>
   );
 }

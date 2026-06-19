@@ -3,12 +3,12 @@ import { Filter, SignalHigh } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import SectionHeader from '../ui/SectionHeader'; // 🔥 Componente Maestro
-import PangeaCard from '../ui/PanggeaCard';       // 🔥 Componente Maestro
+import SectionHeader from '../ui/SectionHeader'; 
+import PangeaCard from '../ui/PanggeaCard';       
 
 gsap.registerPlugin(ScrollTrigger);
 
-const ACCENT_COLOR = "#94A3B8"; // Color Gris Plata Táctico de esta sección
+const ACCENT_COLOR = "#94A3B8"; 
 
 interface SanityGuide {
   title: string;
@@ -24,14 +24,8 @@ interface SanityGuide {
 export default function GuideHub({ guides = [], types = [] }: { guides?: SanityGuide[], types?: string[] }) {
   const container = useRef<HTMLDivElement>(null);
   const [activeFilter, setActiveFilter] = useState('TODOS');
-  const [screenWidth, setScreenWidth] = useState(0);
-
-  useEffect(() => {
-    setScreenWidth(window.innerWidth);
-    const handleResize = () => setScreenWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  
+  // 🔥 ADIÓS AL ESTADO FANTASMA DEL RESIZE 🔥
 
   const filteredGuides = activeFilter === 'TODOS' 
     ? guides 
@@ -42,21 +36,22 @@ export default function GuideHub({ guides = [], types = [] }: { guides?: SanityG
   useGSAP(() => {
     if (!displayGuides.length) return;
 
-    const cards = gsap.utils.toArray<HTMLElement>('.trending-card'); // PangeaCard usa trending-card como identificador base
+    const cards = gsap.utils.toArray<HTMLElement>('.trending-card'); 
     
-    gsap.set(cards, { clipPath: 'inset(100% 0% 0% 0%)', y: 50, opacity: 0 });
+    // 🔥 OPTIMIZACIÓN GSAP: Adiós al clipPath pesado.
+    gsap.set(cards, { y: 40, opacity: 0 });
 
     ScrollTrigger.batch(cards, {
-      start: "top 85%",
+      start: "top 90%", // 🔥 Le damos chance a Astro de inyectarlo a tiempo
+      once: true, // 🔥 Animamos solo una vez para evitar lags
       onEnter: (elements) => {
         gsap.to(elements, {
-          clipPath: 'inset(0% 0% 0% 0%)',
           y: 0,
           opacity: 1,
           stagger: 0.1,
-          duration: 0.8,
-          ease: "power3.out",
-          onComplete: () => { gsap.set(elements as HTMLElement[], { clearProps: "clipPath,y" }); }
+          duration: 0.7,
+          ease: "power2.out",
+          onComplete: () => { gsap.set(elements, { clearProps: "y" }); }
         });
       },
     });
@@ -70,7 +65,7 @@ export default function GuideHub({ guides = [], types = [] }: { guides?: SanityG
         
         <div className="max-w-[1200px] w-full">
           
-          {/* 🔥 1. HEADER ESTANDARIZADO */}
+          {/* HEADER */}
           <SectionHeader 
             tag="Pangea_Files // Strategy"
             titleSolid="GUIDES &"
@@ -81,7 +76,7 @@ export default function GuideHub({ guides = [], types = [] }: { guides?: SanityG
             accentColor={ACCENT_COLOR}
           />
 
-          {/* 🔥 2. FILTROS ESTANDARIZADOS (Iguales a los de Patch Log) */}
+          {/* FILTROS */}
           <div className="flex flex-wrap gap-3 items-center mb-14">
             <div className="flex items-center gap-2 mr-4 text-white/20 font-mono text-[10px] uppercase tracking-widest">
               <Filter size={14} />
@@ -106,7 +101,7 @@ export default function GuideHub({ guides = [], types = [] }: { guides?: SanityG
             ))}
           </div>
 
-          {/* 🔥 3. GRID BENTO CON PANGEACARD */}
+          {/* GRID */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px] md:auto-rows-[340px]">
             {displayGuides.map((guide, index: number) => {
               const isBig = index === 0;
@@ -118,14 +113,13 @@ export default function GuideHub({ guides = [], types = [] }: { guides?: SanityG
                     title={guide.title}
                     slug={guide.slug}
                     description={guide.description}
-                    category={guide.guideType} // Pasamos el tipo de guía como tag principal
+                    category={guide.guideType}
                     heroImage={guide.heroImage}
                     publishedAt={guide.publishedAt}
                     baseHref="/guide"
-                    platform={guide.gameName} // Usamos la platform para mostrar el nombre del juego
+                    platform={guide.gameName}
                     accentColor={ACCENT_COLOR}
                     isHero={isBig}
-                    // 🔥 LA MAGIA: Sobrescribimos el footer para mostrar la Dificultad
                     customFooterText={`LEVEL: ${guide.difficulty}`}
                     CustomFooterIcon={SignalHigh}
                   />
